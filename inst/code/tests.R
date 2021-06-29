@@ -1,4 +1,4 @@
-# A short script implementing a few tests of mr.ash.alpha.
+# A short script implementing a few tests of mr.ash.
 library(varbvs)
 
 # Simulate a data set.

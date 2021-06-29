@@ -10,7 +10,7 @@ from GitHub, use [devtools][devtools]:
 
 ```R
 install.packages("devtools")
-devtools::install_github("stephenslab/mr.ash.alpha")
+devtools::install_github("stephenslab/mr.ash")
 ```
 
 This command should automatically install all required packages if
