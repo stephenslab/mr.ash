@@ -9,7 +9,8 @@ mr.ash(
   y,
   Z = NULL,
   sa2 = NULL,
-  method = c("caisa", "sigma", "sigma_scaled", "sigma_indep", "accelerate", "block"),
+  method_q = c("sigma_dep_q", "sigma_indep_q"),
+  method_g = c("caisa", "accelerate", "block"),
   max.iter = 1000,
   min.iter = 1,
   beta.init = NULL,
@@ -43,18 +44,20 @@ is \code{NULL}, the default setting is used, \code{sa2[k] =
 (2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
 setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.}
 
-\item{method}{\code{method = "caisa"}, an abbreviation of
+\item{method_q}{The algorithm used to update the variational
+approximation to the posterior distribution of the regression
+coefficients, \code{method = "sigma_dep_q"}, \code{method =
+"sigma_indep_q"} and \code{"sigma_scaled_beta"}, take different
+approaches to updating the residual variance \eqn{sigma^2}.}
+
+\item{method_g}{\code{method = "caisa"}, an abbreviation of
 "Cooridinate Ascent Iterative Shinkage Algorithm", fits the model
 by approximate EM; it iteratively updates the variational
 approximation to the posterior distribution of the regression
 coefficients (the approximate E-step) and the model parameters
 (mixture weights and residual covariance) in an approximate
-M-step. Other settings of \code{method = "caisa"} are considered
-experimental. In particular, \code{method = "block"} and
-\code{method = "accelerate"} take different approaches to updating
-the mixture weights; \code{method = "sigma_indep"}, \code{method =
-"sigma"} and \code{"sigma_scaled"}, take different approaches to
-updating the residual variance \eqn{sigma^2}.}
+M-step. Settings \code{method = "block"} and
+\code{method = "accelerate"} are considered experimental.}
 
 \item{max.iter}{The maximum number of outer loop iterations allowed.}
 
@@ -136,7 +139,12 @@ A list object with the following elements:
 
 \item{varobj}{A vector of length \code{numiter}, containing the
   value of the variational objective (equal to the negative "evidence
-  lower bound") attained at each (outer-loop) model fitting iteration.}
+  lower bound") attained at each (outer-loop) model fitting
+  iteration. Note that the objective does not account for the
+  intercept term, even when \code{intercept = TRUE}; therefore, this
+  value shoudl be interpreted as being an approximation to the
+  marginal likelihood \emph{conditional} on the estimate of the
+  intercept.}
 
 \item{data}{The preprocessed data (X, Z, y) provided as input to the model
   fitting algorithm. \code{data$w} is equal to
@@ -192,7 +200,9 @@ beta[1:10]  = 1:10
 y           = X \%*\% beta + rnorm(n)
 
 ### fit Mr.ASH
-fit.mr.ash  = mr.ash(X,y, method = "caisa")
+fit.mr.ash  = mr.ash(X,y, method_q = "sigma_indep_q")
+fit.mr.ash  = mr.ash(X,y, method_q = "sigma_scaled_beta")
+fit.mr.ash  = mr.ash(X,y, method_q = "sigma_dep_q")
 
 ### prediction routine
 Xnew        = matrix(rnorm(n*p),n,p)
