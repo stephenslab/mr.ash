@@ -1,26 +1,24 @@
-# mr.ash.alpha
+# mr.ash
 
-R package implementing Multiple Regression with Adaptive Shrinkage (Mr.ASH) methods and
-algorithms.
+R package implementing Multiple Regression with Adaptive Shrinkage
+("mr.ash") methods and algorithms.
 
 ## Quick Start
 
-To install the latest version of the R package from GitHub, clone or
-download the git repository, then use the `install_local` function from
-`devtools`:
+To install the latest version of the `mr.ash` package
+from GitHub, use [devtools][devtools]:
 
-```r
-devtools::install_local("path_to_repo")
+```R
+install.packages("devtools")
+devtools::install_github("stephenslab/mr.ash.alpha")
 ```
-
-where `path_to_repo` is the place where this `README.md` is located.
 
 This command should automatically install all required packages if
 they are not installed already.
 
 ## License
 
-Copyright (c) 2018-2020, Youngseok Kim, Peter Carbonetto and Matthew
+Copyright (c) 2018-2021, Youngseok Kim, Peter Carbonetto and Matthew
 Stephens.
 
 All source code and software in this repository are made available
