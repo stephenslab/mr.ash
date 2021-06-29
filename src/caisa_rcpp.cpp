@@ -1,5 +1,8 @@
 #include "mr_ash.h"
 
+using namespace Rcpp;
+using namespace arma;
+
 // FUNCTION DEFINITIONS
 // --------------------
 // [[Rcpp::depends(RcppArmadillo)]]
@@ -23,14 +26,14 @@ Rcpp::List caisa_rcpp       (const arma::mat& X, const arma::vec& y,
   // ---------------------------------------------------------------------
   // PREDEFINE LOCAL VARIABLES
   // ---------------------------------------------------------------------
-  arma::vec varobj(maxiter);
+  vec varobj(maxiter);
   int iter               = 0;
   int i                  = 0;
   int j;
   
   double a1;
   double a2;
-  arma::vec piold;
+  vec piold;
   arma::vec betaold;
   
   // ---------------------------------------------------------------------
@@ -58,31 +61,28 @@ Rcpp::List caisa_rcpp       (const arma::mat& X, const arma::vec& y,
       
       updatebetaj(X.col(o(i)), w(o(i)), beta(o(i)), r, piold, pi, sigma2, sa2, S2inv.col(o(i)), a1, a2, o(i), p, epstol);
       i++;
-      // updatebetaj(X.col(j), w(j), beta(j), r, piold, pi, sigma2, sa2, S2inv.col(j), a1, a2, j, p, epstol);
-      
     }
     
     // ---------------------------------------------------------------------
     // CALCULATE VARIATIONAL OBJECTIVE 1
     // ---------------------------------------------------------------------
-    varobj(iter)          = arma::dot(r,r) - arma::dot(square(beta), w) + a1;
+    varobj(iter) = dot(r,r) - dot(square(beta), w) + a1;
     
     // ---------------------------------------------------------------------
     // UPDATE SIGMA2 IF REQUESTED
     // ---------------------------------------------------------------------
     if (updatesigma) {
       if (method_q == std::string("sigma_indep_q")) {
-        sigma2            = varobj(iter) + p * (1.0 - pi(0)) * sigma2;
-        sigma2            = sigma2 / (n + p * (1.0 - pi(0)));
+        sigma2 = varobj(iter) + p * (1.0 - pi(0)) * sigma2;
+        sigma2 = sigma2 / (n + p * (1.0 - pi(0)));
       } else if (method_q == std::string("sigma_dep_q")) {
-        sigma2            = varobj(iter) / n;
+        sigma2 = varobj(iter) / n;
       }
     }
     
-    if (updatepi) {
-      // if updatepi == true, we update pi
-      piold               = pi;
-    }
+    if (updatepi)
+      piold = pi;
+
     // ---------------------------------------------------------------------
     // CALCULATE VARIATIONAL OBJECTIVE 2
     // ---------------------------------------------------------------------
@@ -90,41 +90,37 @@ Rcpp::List caisa_rcpp       (const arma::mat& X, const arma::vec& y,
                             log(2.0 * PI * sigma2) / 2.0 * n -
                             dot(pi, log(piold + epstol)) * p + a2;
     
-    for (j = 1; j < K; j++){
-      varobj(iter)       += pi(j) * log(sa2(j)) * p / 2;
-    }
+    for (j = 1; j < K; j++)
+      varobj(iter) += pi(j) * log(sa2(j)) * p / 2;
     
-    if (!updatepi) {
-      // if updatepi == false, we do not update pi
-      pi                  = piold;
-    }
+    if (!updatepi)
+      pi = piold;
     
     // ---------------------------------------------------------------------
     // CHECK CONVERGENCE
     // ---------------------------------------------------------------------
     if (iter >= miniter - 1) {
-      if (arma::norm(betaold - beta) < convtol * p) {
+      if (norm(betaold - beta) < convtol * p) {
         iter++;
         break;
       }
       
       if (iter > 0) {
-        if (varobj(iter) > varobj(iter - 1)){
+        if (varobj(iter) > varobj(iter - 1))
           break;
-        }
       }
     }
   }
   
-  if (verbose) {
+  if (verbose)
     Rprintf("Mr.ASH terminated at iteration %d.\n", iter);
-  }
+
   // ---------------------------------------------------------------------
   // RETURN VALUES
   // ---------------------------------------------------------------------
-  return Rcpp::List::create(Rcpp::Named("beta")    = beta,
-                            Rcpp::Named("sigma2")  = sigma2,
-                            Rcpp::Named("pi")      = pi,
-                            Rcpp::Named("iter")    = iter,
-                            Rcpp::Named("varobj")  = varobj.subvec(0,iter-1));
+  return List::create(Named("beta") = beta,
+                      Named("sigma2") = sigma2,
+                      Named("pi") = pi,
+                      Named("iter") = iter,
+                      Named("varobj") = varobj.subvec(0,iter-1));
 }
