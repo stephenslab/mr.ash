@@ -4,7 +4,6 @@
 // --------------------
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-
 Rcpp::List caisa_rcpp       (const arma::mat& X, const arma::vec& y,
                              const arma::vec& w, const arma::vec& sa2,
                              arma::vec& pi, arma::vec& beta,
@@ -13,8 +12,6 @@ Rcpp::List caisa_rcpp       (const arma::mat& X, const arma::vec& y,
                              double convtol, double epstol, std::string method_q,
                              bool updatepi, bool updatesigma,
                              bool verbose) {
-  
-  // See "mr_ash.h"
   
   // ---------------------------------------------------------------------
   // DEFINE SIZES

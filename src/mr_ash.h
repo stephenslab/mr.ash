@@ -1,4 +1,3 @@
-
 #ifndef MR_ASH_H
 #define MR_ASH_H
 #include <RcppArmadillo.h>

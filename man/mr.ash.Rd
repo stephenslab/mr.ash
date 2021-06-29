@@ -7,10 +7,7 @@
 mr.ash(
   X,
   y,
-  Z = NULL,
   sa2 = NULL,
-  method_q = c("sigma_dep_q", "sigma_indep_q"),
-  method_g = c("caisa", "accelerate", "block"),
   max.iter = 1000,
   min.iter = 1,
   beta.init = NULL,
@@ -21,7 +18,8 @@ mr.ash(
   update.order = NULL,
   standardize = FALSE,
   intercept = TRUE,
-  tol = set_default_tolerance()
+  tol = set_default_tolerance(),
+  verbose = c("progressbar", "detailed", "none")
 )
 }
 \arguments{
@@ -33,31 +31,12 @@ cannot be sparse.}
 \item{y}{The observed continuously-valued responses, a vector of
 length p.}
 
-\item{Z}{The covariate matrix, of dimension (n,k), where k is the
-number of covariates. This feature is not yet implemented;
-\code{Z} must be set to \code{NULL}.}
-
 \item{sa2}{The vector of prior mixture component variances. The
 variances should be in increasing order, starting at zero; that is,
 \code{sort(sa2)} should be the same as \code{sa2}. When \code{sa2}
 is \code{NULL}, the default setting is used, \code{sa2[k] =
 (2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
 setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.}
-
-\item{method_q}{The algorithm used to update the variational
-approximation to the posterior distribution of the regression
-coefficients, \code{method = "sigma_dep_q"}, \code{method =
-"sigma_indep_q"} and \code{"sigma_scaled_beta"}, take different
-approaches to updating the residual variance \eqn{sigma^2}.}
-
-\item{method_g}{\code{method = "caisa"}, an abbreviation of
-"Cooridinate Ascent Iterative Shinkage Algorithm", fits the model
-by approximate EM; it iteratively updates the variational
-approximation to the posterior distribution of the regression
-coefficients (the approximate E-step) and the model parameters
-(mixture weights and residual covariance) in an approximate
-M-step. Settings \code{method = "block"} and
-\code{method = "accelerate"} are considered experimental.}
 
 \item{max.iter}{The maximum number of outer loop iterations allowed.}
 
