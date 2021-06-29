@@ -7,21 +7,20 @@ using namespace arma;
 // --------------------
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-Rcpp::List caisa_rcpp       (const arma::mat& X, const arma::vec& y,
-                             const arma::vec& w, const arma::vec& sa2,
-                             arma::vec& pi, arma::vec& beta,
-                             arma::vec& r, double sigma2, const arma::uvec& o,
-                             int maxiter, int miniter,
-                             double convtol, double epstol, std::string method_q,
-                             bool updatepi, bool updatesigma,
-                             bool verbose) {
+Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
+		       const arma::vec& w, const arma::vec& sa2,
+		       arma::vec& pi, arma::vec& beta, arma::vec& r, 
+		       double sigma2, const arma::uvec& o, int maxiter, 
+		       int miniter, double convtol, double epstol, 
+		       std::string method_q, bool updatepi, bool updatesigma,
+		       bool verbose) {
   
   // ---------------------------------------------------------------------
   // DEFINE SIZES
   // ---------------------------------------------------------------------
-  int n                   = X.n_rows;
-  int p                   = X.n_cols;
-  int K                   = sa2.n_elem;
+  int n = X.n_rows;
+  int p = X.n_cols;
+  int K = sa2.n_elem;
   
   // ---------------------------------------------------------------------
   // PREDEFINE LOCAL VARIABLES
