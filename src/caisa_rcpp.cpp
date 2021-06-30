@@ -12,8 +12,8 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
 		       arma::vec& pi, arma::vec& beta, arma::vec& r, 
 		       double sigma2, const arma::uvec& o, int maxiter, 
 		       int miniter, double convtol, double epstol, 
-		       std::string method_q, bool updatepi, bool updatesigma,
-		       bool verbose) {
+		       std::string method_q, bool updatepi, 
+		       bool updatesigma, bool verbose) {
   
   // ---------------------------------------------------------------------
   // DEFINE SIZES

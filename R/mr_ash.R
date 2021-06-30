@@ -111,8 +111,7 @@
 #' 
 #' \item{intercept}{The estimated intercept.}
 #' 
-#' \item{beta}{A vector containing posterior mean estimates of the
-#'   regression coefficients for all predictors.}
+#' \item{beta}{Posterior mean estimates of the regression coefficients.}
 #' 
 #' \item{sigma2}{The estimated residual variance.}
 #' 
@@ -132,7 +131,7 @@
 #'   lower bound") attained at each (outer-loop) model fitting
 #'   iteration. Note that the objective does not account for the
 #'   intercept term, even when \code{intercept = TRUE}; therefore, this
-#'   value shoudl be interpreted as being an approximation to the
+#'   value should be interpreted as being an approximation to the
 #'   marginal likelihood \emph{conditional} on the estimate of the
 #'   intercept.}
 #'
@@ -246,14 +245,14 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
       Phi <- matrix(1,p,K)/K
       pi <- rep(1,K)/K
     } else {
-      S <- outer(1/w, sa2, '+') * sigma2
+      S   <- outer(1/w, sa2, '+') * sigma2
       Phi <- -data$beta^2/S/2 - log(S)/2
       Phi <- exp(Phi - apply(Phi,1,max))
       Phi <- Phi / rowSums(Phi)
-      pi <- colMeans(Phi)
+      pi  <- colMeans(Phi)
     }
   } else
-    Phi <- matrix(rep(pi, each = p), nrow = p)
+    Phi <- matrix(rep(pi,each = p),nrow = p)
   pi[1] <- pi[1] + 0
   
   # run algorithm
@@ -268,19 +267,16 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
   out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
                     sigma2,o,max.iter,min.iter,tol$convtol,tol$epstol,
                     method_q,update.pi,update.sigma2,TRUE)
-  # if (method_q == "sigma_scaled_beta")
-  #  out$beta <- out$beta * sqrt(out$sigma2)
   
-  ## polish return object
+  # polish return object
   out$intercept <- c(data$ZtZiZy - data$ZtZiZX %*% out$beta)
   data["beta"] <- NULL
   out$data <- data
   out$update.order <- o
   
-  ## rescale beta as needed
+  # rescale beta as needed
   if (standardize)
     out$beta <- out$beta / attr(data$X, "scaled:scale")
-  class(out) <- c("mr.ash","list")
   
   ## warn if necessary
   if (update.pi & out$pi[K] > 1/K)
@@ -290,6 +286,10 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
                           "improved by using a larger setting of the",
                           "prior variance. Consider increasing the range",
                           "of the variances \"sa2\"."),1/K))
-  
+
+  # Add dimension names and prepare the final fit object.
+  out$beta <- drop(out$beta)
+  names(out$beta) <- colnames(X)
+  class(out) <- c("mr.ash","list")
   return(out)
 }
