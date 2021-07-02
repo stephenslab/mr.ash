@@ -3,4 +3,7 @@ src/*.so
 scratch.R
 scratch.rmd
 data/*
+mr.ash.Rproj
+.Rproj.user
+.DS_Store
 
