@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1625250275584.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CD58E048",
+    "lastKnownWriteTime" : 153315072,
+    "last_content_update" : 1625250275584,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "id" : "9118ee90319449eea0679e8db00f3504",
+        "name" : "fit.alpha",
+        "title" : "fit.alpha"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "object_explorer"
+}

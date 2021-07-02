@@ -2,4 +2,5 @@ src/*.o
 src/*.so
 scratch.R
 scratch.rmd
+data/*
 

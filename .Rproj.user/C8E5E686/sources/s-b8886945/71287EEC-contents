@@ -1,0 +1,153 @@
+---
+title: "Scratch work"
+author: "lwa19"
+date: "2021-04-24"
+output: 
+  pdf_document: default
+---
+
+# scratch work
+
+## Testing data simulation
+```{r}
+### Load data: 
+setwd("/project2/mstephens/lwang19/mr.ash")
+source("R/datasim.R")
+```
+
+## check results for data simulation
+```{r}
+#sim = simulate_regression_data(2,3) 
+X = simulate_regression_data(5, 10)$X
+head(X)
+
+y = sim_gaussian(X, 0.5, 3)$Y
+# occasional "the standard deviation is zero" error. Need to check out
+test = mr.ash(X, y)
+get.full.posterior(test)
+```
+
+```{r}
+# Demo
+devtools::load_all()
+source("inst/code/mr_ash_demo.R")
+```
+
+
+### Check real data sets (as comparison)
+
+```{bash}
+# This portion ran on midway: 
+sinteractive --mem=16G -c 8 --time=04:00:00
+dsc mr_ash_test.dsc --target mr_ash_def -c 8 --truncate
+## output saved in dsc-susie-vs-mr-ash/output/mr_ash_one
+```
+
+```{r}
+sample_sim <- readRDS("../dsc-susie-vs-mr-ash/output/mr_ash_one/sim_gaussian/trimmed_large_1_uniform_prune_1_sim_gaussian_1.rds")
+sample_pruned <- readRDS("../dsc-susie-vs-mr-ash/output/mr_ash_one/uniform_prune/trimmed_large_1_uniform_prune_1.rds")
+X = sample_pruned$G
+```
+
+So -- seems like from what we've done in the past, the X matrix is a set of 0, 1, and 2's. Should we continue to simulate as such? 
+
+## Peter's code from varbvs -> this generates a bunch of 0, 1, and 2 according to MAF. 
+
+This will help us construct the X matrix
+
+```{r}
+n = 800
+p = 2000
+
+cat("1. GENERATING DATA SET.\n")
+maf <- 0.05 + 0.45*runif(p)
+X   <- (runif(n*p) < maf) +
+       (runif(n*p) < maf)
+X   <- matrix(as.double(X),n,p,byrow = TRUE)
+```
+
+## Tests to check: 
+
+1. We want to make sure input is appropriate -- 
+
+-- data matrix X inputs (integer, not NA, not vector)
+
+-- sim_gaussian inputs (do we need to? pve and s?)
+  
+  -- check s <= p
+  
+
+
+
+## Excecution codes: 
+
+```{r}
+#usethis::use_testthat()
+
+# generate data and expression data: 
+#use_test("mr_ash")
+
+source("R/datasim.R")
+n <- sample.int(100, size = 20)
+p <- sample.int(1000, size = 20)
+pve <- runif(20)
+s <- sample.int(20, size = 20)
+
+for (i in 1:length(n)) {
+  sim_X <- simulate_regression_data(n[i], p[i])$X
+  sim_y <- sim_gaussian(sim_X, pve, s[i])$Y
+  saveRDS(list(X = sim_X, y = sim_y), file = paste0("data/sim_data_", i, ".rds"))
+}
+
+```
+
+## Manual testing
+
+```{r}
+devtools::load_all()
+source("inst/code/mr_ash_demo.R")
+
+data = readRDS("data/sim_data_1.rds")
+X = data$X
+y = data$y
+
+fit.alpha <- mr.ash.alpha::mr.ash(X, y)
+post.alpha <- mr.ash.alpha::get.full.posterior(fit.alpha)
+phi.alpha <- post.alpha$phi
+
+fit <- mr.ash::mr.ash(X, y)
+post <- mr.ash::get.full.posterior(fit)
+phi <- post$phi
+```
+
+```{r}
+alpha.b = fit.alpha$beta
+class(alpha.b) # matrix
+
+fit.b = fit$beta
+class(fit.b)  # numeric
+
+######
+
+class(phi.alpha)
+dim(phi.alpha)
+phi.alpha[c(1:5), c(1:5)]
+
+class(phi)
+dim(phi)
+phi[c(1:5), c(1:5)]
+
+phi.alpha[1,1]
+phi[1,1]
+```
+
+Current observed differences: 
+
+- fit: the "beta" object seems to be different --> fit.alpha object is matrix [302 x 1] but fit object is numeric [302].
+
+- phi: 
+
+
+
+
+

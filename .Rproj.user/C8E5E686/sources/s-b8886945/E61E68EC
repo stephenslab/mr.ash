@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1625248107137.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E61E68EC",
+    "lastKnownWriteTime" : 1625248113,
+    "last_content_update" : 1625248113448,
+    "path" : "/project2/mstephens/lwang19/mr.ash/tests/testthat/test_mr_ash.R",
+    "project_path" : "tests/testthat/test_mr_ash.R",
+    "properties" : {
+        "cursorPosition" : "23,4",
+        "scrollLine" : "9"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

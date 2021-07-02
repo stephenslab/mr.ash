@@ -21,8 +21,14 @@
 #' @export
 #' 
 
-# Original stand-in function
+# Simulate regression data matrix X
 simulate_regression_data <- function (n, p) {
+  
+  # check input: [CHECK atomic vs. scalar]
+  if (!(is.scalar(n) & all(n >= 2)))
+    stop("Input argument \"n\" should be 2 or more")
+  if (!(is.scalar(p) & all(p >= 2)))
+    stop("Input argument \"p\" should be 2 or more")
   
   # simulate data matrix X: 
   X <- matrix(rnorm(n*p),n,p)
@@ -30,39 +36,27 @@ simulate_regression_data <- function (n, p) {
 }
 
 
-# Simulate the gene matrix X. 
-simulate_gene_data <- function(n, p) {
-  
-  # check input: [CHECK atomic vs. scalar]
-  if (!(is.atomic(n) & all(n >= 2)))
-    stop("Input argument \"n\" should be 2 or more")
-  if (!(is.atomic(p) & all(p >= 2)))
-    stop("Input argument \"p\" should be 2 or more")
-  
-  # simulate gene data set [BORROWED FROM varbvs.qtl.R]
-  maf <- 0.05 + 0.45*runif(p)
-  X   <- (runif(n*p) < maf) +
-         (runif(n*p) < maf)
-  X   <- matrix(as.double(X),n,p,byrow = TRUE)
-  
-  return(X)
-}
-
 # Simulate a normal y from data matrix X [MODIFIED FROM simulate3.R]
 sim_gaussian <- function(X, pve, s) {
   n = dim(X)[1]
   p = dim(X)[2]
   
+  # check if s <= p
+  if (s > p) {
+    stop("number of effects more than variables")
+  }
+  
   # generate effect variables
-  beta.idx = sample(p, effect_num)
+  beta.idx = sample(p, s)
   beta = rep(0,p)
   
   # obtain correlation structure
-  if(effect_num > 0){
-    beta.values = rnorm(effect_num, 0, sqrt(effect_sigma))
+  if(s > 0){
+    #beta.values = rnorm(s, 0, sqrt(effect_sigma))
+    beta.values = rnorm(s)
     beta[beta.idx] = beta.values
   }
-  if (effect_num==1){
+  if (s==1){
     mean_corX = 1
   } else {
     effectX = X[,beta.idx]
@@ -71,7 +65,7 @@ sim_gaussian <- function(X, pve, s) {
   }
   
   # generate non-standardized sim.y and standardized Y 
-  if(effect_num==0){
+  if(s==0){
     sigma = 1
     sim.y = rnorm(n, 0, 1)
     Y = (sim.y - mean(sim.y))/sd(sim.y)
@@ -85,5 +79,28 @@ sim_gaussian <- function(X, pve, s) {
   
   return(list(Y_std = Y, Y = sim.y, 
               sigma = sigma, sigma_std = sigma/sd(sim.y),
-              beta = beta, mean_corX = mean_corX)
+              beta = beta, mean_corX = mean_corX))
+}
+
+
+##############################################
+# Things to delete later if not used: 
+##############################################
+
+# Simulate the gene matrix X. [NOT USED]
+simulate_gene_data <- function(n, p) {
+  
+  # check input: [CHECK atomic vs. scalar]
+  if (!(is.integer(n) & all(n >= 2)))
+    stop("Input argument \"n\" should be 2 or more")
+  if (!(is.integer(p) & all(p >= 2)))
+    stop("Input argument \"p\" should be 2 or more")
+  
+  # simulate gene data set [BORROWED FROM varbvs.qtl.R]
+  maf <- 0.05 + 0.45*runif(p)
+  X   <- (runif(n*p) < maf) +
+    (runif(n*p) < maf)
+  X   <- matrix(as.double(X),n,p,byrow = TRUE)
+  
+  return(X)
 }

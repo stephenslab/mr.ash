@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1625248040030.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "212126103",
+    "id" : "E37E7C87",
+    "lastKnownWriteTime" : 1625086311,
+    "last_content_update" : 1625086311,
+    "path" : "/project2/mstephens/lwang19/mr.ash/R/mr_ash.R",
+    "project_path" : "R/mr_ash.R",
+    "properties" : {
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
