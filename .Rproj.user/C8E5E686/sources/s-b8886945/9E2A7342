@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1625252483958.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3818501232",
+    "id" : "9E2A7342",
+    "lastKnownWriteTime" : 1625252772,
+    "last_content_update" : 1625252772412,
+    "path" : "/project2/mstephens/lwang19/mr.ash/R/testdiff.R",
+    "project_path" : "R/testdiff.R",
+    "properties" : {
+        "cursorPosition" : "25,23",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -104,13 +104,14 @@ for (i in 1:length(n)) {
 ## Manual testing
 
 ```{r}
-devtools::load_all()
-source("inst/code/mr_ash_demo.R")
+#devtools::load_all()
+#source("inst/code/mr_ash_demo.R")
 
 data = readRDS("data/sim_data_1.rds")
 X = data$X
 y = data$y
 
+set.seed(1)
 fit.alpha <- mr.ash.alpha::mr.ash(X, y)
 post.alpha <- mr.ash.alpha::get.full.posterior(fit.alpha)
 phi.alpha <- post.alpha$phi
@@ -118,6 +119,9 @@ phi.alpha <- post.alpha$phi
 fit <- mr.ash::mr.ash(X, y)
 post <- mr.ash::get.full.posterior(fit)
 phi <- post$phi
+
+identical(fit, fit.alpha)
+identical(phi, phi.alpha)
 ```
 
 ```{r}
@@ -145,7 +149,24 @@ Current observed differences:
 
 - fit: the "beta" object seems to be different --> fit.alpha object is matrix [302 x 1] but fit object is numeric [302].
 
-- phi: 
+- phi: some differences are small (on scale of 10^-5), while others are a bit larger (row 4 and 5)
+
+> phi.alpha[c(1:5), c(1:5)]
+          [,1]      [,2]         [,3]         [,4]         [,5]
+[1,] 0.8952409 0.1047516 7.490528e-06 3.254333e-11 1.097777e-11
+[2,] 0.8949983 0.1049941 7.552941e-06 3.301955e-11 1.119342e-11
+[3,] 0.8933104 0.1066816 7.995307e-06 3.645805e-11 1.277329e-11
+[4,] 0.8807111 0.1192770 1.197234e-05 7.406422e-11 3.304951e-11
+[5,] 0.8930319 0.1069601 8.079513e-06 3.720697e-11 1.315379e-11
+> phi[c(1:5), c(1:5)]
+              [,1]          [,2]          [,3]          [,4]         [,5]
+[1,]  8.952066e-01  1.047859e-01  7.499267e-06  3.260943e-11 1.100750e-11
+[2,]  8.774444e-01  1.225424e-01  1.323157e-05  8.855499e-11 4.213573e-11
+[3,]  1.290227e-21  8.434426e-20  1.258032e-17  1.767550e-16 7.496150e-12
+[4,] 2.793803e-232 1.381340e-213 3.250477e-172 3.881747e-130 4.731450e-93
+[5,]  2.188555e-23  1.205889e-21  1.690771e-19  3.685147e-18 3.202379e-13
+
+
 
 
 
