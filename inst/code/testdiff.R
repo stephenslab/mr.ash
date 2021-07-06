@@ -4,16 +4,17 @@
 set.seed(1)
 
 # Load data
-data = readRDS("inst/datafiles/sim_data_1.rds") # 20 simulated datasets in data folder
+data = readRDS("../datafiles/sim_data_1.rds") # 20 simulated datasets in data folder
 X = data$X
 y = data$y
 
-# Fit using mr.ash.alpha and mr.ash
+# Fit using mr.ash.alpha.
 fit.alpha <- mr.ash.alpha::mr.ash(X, y)
 post.alpha <- mr.ash.alpha::get.full.posterior(fit.alpha)
 phi.alpha <- post.alpha$phi
 
-fit <- mr.ash::mr.ash(X, y)
+# Fit using mr.ash.
+fit <- mr.ash::mr.ash(X,y)
 post <- mr.ash::get.full.posterior(fit)
 phi <- post$phi
 
