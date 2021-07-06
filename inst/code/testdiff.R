@@ -1,10 +1,10 @@
 # Test differences in mr.ash and mr.ash.alpha outputs
 
-setwd("/project2/mstephens/lwang19/mr.ash")
+#setwd("/project2/mstephens/lwang19/mr.ash")
 set.seed(1)
 
 # Load data
-data = readRDS("data/sim_data_1.rds") # 20 simulated datasets in data folder
+data = readRDS("inst/datafiles/sim_data_1.rds") # 20 simulated datasets in data folder
 X = data$X
 y = data$y
 
