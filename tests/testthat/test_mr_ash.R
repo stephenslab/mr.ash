@@ -14,15 +14,11 @@ test_that("equal phi values", {
     y <- fs[[i]]$y
     
     fit.alpha <- mr.ash.alpha::mr.ash(X, y)
-    post.alpha <- mr.ash.alpha::get.full.posterior(fit.alpha)
-    phi.alpha <- post.alpha$phi
-    
+    fit.alpha$beta <- drop(fit.alpha$beta)
     fit <- mr.ash::mr.ash(X, y)
-    post <- mr.ash::get.full.posterior(fit)
-    phi <- post$phi
     
-    expect_equal(phi, phi.alpha) # expect_equal compare numerical equivalence
-    #expect_identical(fit, fit.alpha) 
+    expect_identical(fit$beta, fit.alpha$beta)
+    # expect_identical(fit, fit.alpha) 
     # expect_identical compares the entirety of two R objects
   }
 })
