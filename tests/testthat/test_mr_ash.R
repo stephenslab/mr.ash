@@ -17,8 +17,8 @@ test_that("equal phi values", {
     fit.alpha$beta <- drop(fit.alpha$beta)
     fit <- mr.ash::mr.ash(X, y)
     
-    expect_identical(fit$beta, fit.alpha$beta)
-    # expect_identical(fit, fit.alpha) 
+    # expect_equal(fit$beta, fit.alpha$beta)
+    expect_identical(fit, fit.alpha) 
     # expect_identical compares the entirety of two R objects
   }
 })
