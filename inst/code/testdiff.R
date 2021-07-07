@@ -19,8 +19,8 @@ post <- mr.ash::get.full.posterior(fit)
 phi <- post$phi
 
 # Identified differences through manual testing: 
-identical(fit, fit.alpha)
-identical(phi, phi.alpha)
+identical(fit, fit.alpha) # FALSE
+identical(phi, phi.alpha) # FALSE
 
 ## Class differences: 
 alpha.b = fit.alpha$beta
@@ -29,10 +29,14 @@ class(alpha.b) # matrix
 fit.b = fit$beta
 class(fit.b)  # numeric
 
-## numerical differences:
+fit.alpha$beta <- drop(fit.alpha$beta)
+identical(fit, fit.alpha) # TRUE
+
+## numerical differences (due to get.full.posterior):
 phi.alpha[c(1:5), c(1:5)]
 phi[c(1:5), c(1:5)]
 
 phi.alpha[1,1]
 phi[1,1]
+
 
