@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: mr.ash
-Version: 0.1-48
-Date: 2021-06-30
+Version: 0.1-49
+Date: 2021-07-07
 Title: Multiple Regression with Adaptive Shrinkage
 Authors@R: c(person("Youngseok","Kim",role=c("aut","cre"),
                     email="youngseok@uchicago.edu"),
@@ -20,9 +20,10 @@ Description: Implements variational empirical Bayes methods for linear
 License: MIT + file LICENSE
 Depends: R (>= 3.1.0)
 Imports:
-    Rcpp (>= 1.0.6),
+    utils,
+    stats,
     Matrix,
-    stats
+    Rcpp (>= 1.0.6)
 LinkingTo:
     Rcpp,
     RcppArmadillo (>= 0.7.960)

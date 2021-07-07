@@ -282,13 +282,6 @@ predict.mr.ash               = function(object,newx = NULL,
   }
 }
 
-set_default_tolerance       = function(){
-  epstol    = 1e-12
-  convtol   = 1e-8
-  
-  return ( list(epstol = epstol, convtol = convtol ) )
-}
-
 #' @title Approximation Posterior Expectations from Mr.ASH Fit
 #'
 #' @description Recover the parameters specifying the variational

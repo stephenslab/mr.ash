@@ -6,6 +6,32 @@
 \usage{
 simulate_regression_data(n, p)
 }
+\arguments{
+\item{n}{number of samples}
+
+\item{p}{number of variables}
+
+\item{s}{number of non-zero effects}
+
+\item{se}{standard deviation of the residual}
+
+\item{pve}{proportion of variance in Y explained by X}
+
+\item{misc}{FILL IN OTHER PARAMS}
+}
+\value{
+Y an n vector simulated gaussian (not centered or scaled)
+
+Y_std an n vector simulated gaussian centered and scaled
+
+beta a p vector of effects
+
+sigma
+
+sigma_std
+
+mean_corX mean of correlations of effect variables (lower triangular entries of correlation matrix of effect variables)
+}
 \description{
-Add descrption here.
+Simulate non-sparse data matrix X (and a corresponding normal y?)
 }

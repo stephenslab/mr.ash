@@ -1,3 +1,5 @@
+#' @rdname mr.ash
+#' 
 #' @title Multiple Regression with Adaptive Shrinkage
 #' 
 #' @description Model fitting algorithms for Multiple Regression with
@@ -35,6 +37,46 @@
 #' See \sQuote{References} for more details about the model and
 #' algorithm.
 #'
+#' The \code{control} argument is a list in which any of the following
+#' named components will override the default algorithm settings (as
+#' defined by \code{mr.ash_control_default}):
+#' 
+#' \describe{
+#'
+#' \item{\code{min.iter}}{The minimum number of outer loop iterations.}
+#' 
+#' \item{\code{max.iter}}{The maximum number of outer loop iterations.}
+#'
+#' \item{\code{convtol}}{When \code{update.pi = TRUE}, the
+#'   outer-loop updates terminate when the largest change in the mixture
+#'   weights is less than \code{convtol*K}; when \code{update.pi =
+#'   FALSE}, the outer-loop updates stop when the largest change in the
+#'   estimates of the posterior mean coefficients is less than
+#'   \code{convtol*K}.}
+#' 
+#' \item{\code{update.pi}}{If \code{update.pi = TRUE}, the mixture
+#'   proportions in the mixture-of-normals prior are estimated from the
+#'   data.}
+#'
+#' \item{\code{update.sigma2}}{If \code{update.sigma2 = TRUE}, the
+#'   residual variance parameter \eqn{sigma^2} is estimated from the
+#'   data.}
+#'
+#' \item{\code{update.order}}{The order in which the co-ordinate
+#'   ascent updates for estimating the posterior mean coefficients are
+#'   performed. \code{update.order} can be \code{NULL}, \code{"random"},
+#'   or any permutation of \eqn{(1,\ldots,p)}, where \code{p} is the
+#'   number of columns in the input matrix \code{X}. When
+#'   \code{update.order} is \code{NULL}, the co-ordinate ascent updates
+#'   are performed in order in which they appear in \code{X}; this is
+#'   equivalent to setting \code{update.order = 1:p}. When
+#'   \code{update.order = "random"}, the co-ordinate ascent updates are
+#'   performed in a randomly generated order, and this random ordering
+#'   is different at each outer-loop iteration.}
+#' 
+#' \item{\code{epstol}}{A small, positive number added to the
+#'   likelihoods to avoid logarithms of zero.}}
+#' 
 #' @param X The input matrix, of dimension (n,p); each column is a
 #'   single predictor; and each row is an observation vector. Here, n is
 #'   the number of samples and p is the number of predictors. The matrix
@@ -50,27 +92,18 @@
 #'   (2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
 #'   setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.
 #' 
-#' @param max.iter The maximum number of outer loop iterations allowed.
-#' 
-#' @param min.iter The minimum number of outer loop iterations allowed.
+#' @param control A list of parameters controlling the behaviour of
+#'   the optimization algorithm. See \sQuote{Details}.
 #' 
 #' @param beta.init The initial estimate of the (approximate)
 #'   posterior mean regression coefficients. This should be \code{NULL},
 #'   or a vector of length p. When \code{beta.init} is \code{NULL}, the
 #'   posterior mean coefficients are all initially set to zero.
 #' 
-#' @param update.pi If \code{update.pi = TRUE}, the mixture
-#'   proportions in the mixture-of-normals prior are estimated from the
-#'   data. In the manuscript, \code{update.pi = TRUE}.
-#' 
 #' @param pi The initial estimate of the mixture proportions
 #'   \eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
 #'   mixture weights are initialized to \code{rep(1/K,K)}}, where
 #'   \code{K = length(sa2).
-#' 
-#' @param update.sigma2 If \code{update.sigma2 = TRUE}, the residual
-#'   variance \eqn{sigma^2} is estimated from the data.  In the manuscript,
-#'   \code{update.sigma = TRUE}.
 #' 
 #' @param sigma2 The initial estimate of the residual variance,
 #'   \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
@@ -78,18 +111,6 @@
 #'   initial estimates of the regression coefficients, \code{beta.init},
 #'   after removing linear effects of the intercept and any covariances.
 #'
-#' @param update.order The order in which the co-ordinate ascent
-#'   updates for estimating the posterior mean coefficients are
-#'   performed. \code{update.order} can be \code{NULL}, \code{"random"},
-#'   or any permutation of \eqn{(1,\ldots,p)}, where \code{p} is the number
-#'   of columns in the input matrix \code{X}. When \code{update.order}
-#'   is \code{NULL}, the co-ordinate ascent updates are performed in
-#'   order in which they appear in \code{X}; this is equivalent to
-#'   setting \code{update.order = 1:p}. When \code{update.order =
-#'   "random"}, the co-ordinate ascent updates are performed in a
-#'   randomly generated order, and this random ordering is different at
-#'   each outer-loop iteration.
-#' 
 #' @param standardize The logical flag for standardization of the
 #'   columns of X variable, prior to the model fitting. The coefficients
 #'   are always returned on the original scale.
@@ -99,13 +120,7 @@
 #' 
 #' @param tol Additional settings controlling behaviour of the model
 #'   fitting algorithm. \code{tol$convtol} controls the termination
-#'   criterion for the model fitting. When \code{update.pi = TRUE}, the
-#'   outer-loop updates stop when the largest change in the mixture
-#'   weights is less than \code{convtol*K}; when \code{update.pi =
-#'   FALSE}, the outer-loop updates stop when the largest change in the
-#'   estimates of the posterior mean coefficients is less than
-#'   \code{convtol*K}. \code{tol$epstol} is a small, positive number
-#'   added to the likelihoods to avoid logarithms of zero.
+#'   criterion for the model fitting.
 #' 
 #' @return A list object with the following elements:
 #' 
@@ -149,19 +164,19 @@
 #' 
 #' @useDynLib mr.ash
 #' 
-#' @importFrom utils modifyList
 #' @importFrom Rcpp evalCpp
+#' @importFrom utils modifyList
 #' @importFrom stats var
 #' 
 #' @examples
-#' ### generate synthetic data
+#' # Simulate a data set.
 #' set.seed(1)
-#' n           = 200
-#' p           = 300
-#' X           = matrix(rnorm(n*p),n,p)
-#' beta        = double(p)
-#' beta[1:10]  = 1:10
-#' y           = X %*% beta + rnorm(n)
+#' n          <- 200
+#' p          <- 300
+#' X          <- matrix(rnorm(n*p),n,p)
+#' beta       <- double(p)
+#' beta[1:10] <- 1:10
+#' y          <- drop(X %*% beta + rnorm(n))
 #' 
 #' ### fit Mr.ASH
 #' fit.mr.ash  = mr.ash(X,y, method_q = "sigma_indep_q")
@@ -182,11 +197,9 @@
 #' 
 #' @export
 #' 
-mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
-                    beta.init = NULL, update.pi = TRUE, pi = NULL,
-                    update.sigma2 = TRUE, sigma2 = NULL, update.order = NULL,
-                    standardize = FALSE, intercept = TRUE,
-                    tol = set_default_tolerance(),
+mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
+                    sigma2 = NULL, standardize = FALSE, intercept = TRUE,
+                    control = list(),
                     verbose = c("progressbar","detailed","none")) {
   
   # get sizes
@@ -200,10 +213,9 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
     if (sa2[1] != 0)
       stop ("the first mixture component variance sa2[1] must be 0.")
   }
-  
-  # set default tolerances unless specified
-  tol0 <- set_default_tolerance()
-  tol <- modifyList(tol0,tol,keep.null = TRUE)
+
+  # Check and process input argument "control".
+  control <- modifyList(mr.ash_control_default(),control,keep.null = TRUE)
   
   # remove covariates
   data <- remove_covariate(X,y,NULL,standardize,intercept)
@@ -256,17 +268,18 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
   pi[1] <- pi[1] + 0
   
   # run algorithm
-  if (is.null(update.order))
-    o <- rep(0:(p-1), max.iter)
-  else if (is.numeric(update.order))
-    o <- rep(update.order - 1,max.iter)
-  else if (update.order == "random")
-    o <- random_order(p,max.iter)
+  if (is.null(control$update.order))
+    o <- rep(seq(0,p-1),control$max.iter)
+  else if (is.numeric(control$update.order))
+    o <- rep(control$update.order - 1,control$max.iter)
+  else if (control$update.order == "random")
+    o <- random_order(p,control$max.iter)
 
   method_q <- "sigma_dep_q"
   out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
-                    sigma2,o,max.iter,min.iter,tol$convtol,tol$epstol,
-                    method_q,update.pi,update.sigma2,TRUE)
+                    sigma2,o,control$max.iter,control$min.iter,
+                    control$convtol,control$epstol,method_q,
+                    control$update.pi,control$update.sigma2,TRUE)
   
   # polish return object
   out$intercept <- c(data$ZtZiZy - data$ZtZiZX %*% out$beta)
@@ -276,10 +289,10 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
   
   # rescale beta as needed
   if (standardize)
-    out$beta <- out$beta / attr(data$X, "scaled:scale")
+    out$beta <- out$beta / attr(data$X,"scaled:scale")
   
   ## warn if necessary
-  if (update.pi & out$pi[K] > 1/K)
+  if (control$update.pi & out$pi[K] > 1/K)
     warning(sprintf(paste("The mixture proportion associated with the",
                           "largest prior variance is greater than %0.2e;",
                           "this indicates that the model fit could be",
@@ -293,3 +306,16 @@ mr.ash <- function (X, y, sa2 = NULL, max.iter = 1000, min.iter = 1,
   class(out) <- c("mr.ash","list")
   return(out)
 }
+
+#' @rdname mr.ash
+#'
+#' @export
+#' 
+mr.ash_control_default <- function()
+  list(min.iter      = 1,
+       max.iter      = 1000,
+       convtol       = 1e-8,
+       update.pi     = TRUE,
+       update.sigma2 = TRUE,
+       update.order  = NULL,
+       epstol        = 1e-12)
