@@ -11,5 +11,5 @@ fit <- mr.ash(X,y,control = list(max.iter = 500,convtol = 1e-12))
 elbo <- fit$varobj
 elbo <- elbo - min(elbo) + 1e-6
 plot(1:fit$iter,elbo,type = "l",log = "y",lwd = 2,col = "dodgerblue")
-plot(b,coef(fit),pch = 20,col = "darkblue",xlab = "true",ylab = "estimate")
+plot(b,coef(fit)[-1],pch = 20,col = "darkblue",xlab = "true",ylab = "estimate")
 abline(a = 0,b = 1,col = "skyblue",lty = "dotted")
