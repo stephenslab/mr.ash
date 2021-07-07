@@ -15,7 +15,7 @@ mr.ash(
   standardize = FALSE,
   intercept = TRUE,
   control = list(),
-  verbose = c("progressbar", "detailed", "none")
+  verbose = c("progress", "detailed", "none")
 )
 
 mr.ash_control_default()
@@ -62,9 +62,11 @@ included in the regression model.}
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}
 
-\item{tol}{Additional settings controlling behaviour of the model
-fitting algorithm. \code{tol$convtol} controls the termination
-criterion for the model fitting.}
+\item{verbose}{When \code{verbose = "detailed"}, detailed
+information about the algorithm's progress is printed to the
+console at each iteration; when \code{verbose = "progressbar"}, a
+plus (\dQuote{+}) is printed for each outer-loop iteration; and
+when \code{verbose = "none"}, no progress information is printed.}
 }
 \value{
 A list object with the following elements:

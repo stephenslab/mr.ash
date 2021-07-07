@@ -13,7 +13,7 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
 		       double sigma2, const arma::uvec& o, int maxiter, 
 		       int miniter, double convtol, double epstol, 
 		       std::string method_q, bool updatepi, 
-		       bool updatesigma, bool verbose) {
+		       bool updatesigma, int verbose) {
   
   // ---------------------------------------------------------------------
   // DEFINE SIZES
@@ -33,12 +33,12 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
   double a1;
   double a2;
   vec piold;
-  arma::vec betaold;
+  vec betaold;
   
   // ---------------------------------------------------------------------
   // PRECALCULATE
   // ---------------------------------------------------------------------
-  arma::mat S2inv        = 1 / outerAddition(1/sa2, w);
+  mat S2inv        = 1 / outerAddition(1/sa2, w);
   S2inv.row(0).fill(epstol);
   
   // ---------------------------------------------------------------------
@@ -98,6 +98,11 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
     // ---------------------------------------------------------------------
     // CHECK CONVERGENCE
     // ---------------------------------------------------------------------
+    if (verbose == 1)
+      Rprintf("+");
+    else if (verbose == 2)
+      Rprintf("%4d %+0.12e %0.2e %0.2e %3d\n",iter + 1,varobj(iter),
+	      norm(beta - betaold),sqrt(sigma2),sum(pi > 1e-4));
     if (iter >= miniter - 1) {
       if (norm(betaold - beta) < convtol * p) {
         iter++;
@@ -111,7 +116,9 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
     }
   }
   
-  if (verbose)
+  if (verbose == 1)
+    Rprintf("\n");
+  if (verbose > 0)
     Rprintf("Mr.ASH terminated at iteration %d.\n", iter);
 
   // ---------------------------------------------------------------------

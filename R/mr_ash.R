@@ -92,9 +92,6 @@
 #'   (2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
 #'   setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.
 #' 
-#' @param control A list of parameters controlling the behaviour of
-#'   the optimization algorithm. See \sQuote{Details}.
-#' 
 #' @param beta.init The initial estimate of the (approximate)
 #'   posterior mean regression coefficients. This should be \code{NULL},
 #'   or a vector of length p. When \code{beta.init} is \code{NULL}, the
@@ -118,9 +115,14 @@
 #' @param intercept When \code{intercept = TRUE}, an intercept is
 #'   included in the regression model.
 #' 
-#' @param tol Additional settings controlling behaviour of the model
-#'   fitting algorithm. \code{tol$convtol} controls the termination
-#'   criterion for the model fitting.
+#' @param control A list of parameters controlling the behaviour of
+#'   the optimization algorithm. See \sQuote{Details}.
+#' 
+#' @param verbose When \code{verbose = "detailed"}, detailed
+#'   information about the algorithm's progress is printed to the
+#'   console at each iteration; when \code{verbose = "progressbar"}, a
+#'   plus (\dQuote{+}) is printed for each outer-loop iteration; and
+#'   when \code{verbose = "none"}, no progress information is printed.
 #' 
 #' @return A list object with the following elements:
 #' 
@@ -200,7 +202,7 @@
 mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
                     sigma2 = NULL, standardize = FALSE, intercept = TRUE,
                     control = list(),
-                    verbose = c("progressbar","detailed","none")) {
+                    verbose = c("progress","detailed","none")) {
   
   # get sizes
   n <- nrow(X)
@@ -216,6 +218,9 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 
   # Check and process input argument "control".
   control <- modifyList(mr.ash_control_default(),control,keep.null = TRUE)
+
+  # Check and process input argument "verbose".
+  verbose <- match.arg(verbose)
   
   # remove covariates
   data <- remove_covariate(X,y,NULL,standardize,intercept)
@@ -274,12 +279,14 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     o <- rep(control$update.order - 1,control$max.iter)
   else if (control$update.order == "random")
     o <- random_order(p,control$max.iter)
-
   method_q <- "sigma_dep_q"
+  if (verbose == "detailed")
+    cat("iter                elbo ||b-b'||   sigma2 w>0\n")
   out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
                     sigma2,o,control$max.iter,control$min.iter,
                     control$convtol,control$epstol,method_q,
-                    control$update.pi,control$update.sigma2,TRUE)
+                    control$update.pi,control$update.sigma2,
+                    switch(verbose,none = 0,progress = 1,detailed = 2))
   
   # polish return object
   out$intercept <- c(data$ZtZiZy - data$ZtZiZX %*% out$beta)
@@ -302,6 +309,7 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 
   # Add dimension names and prepare the final fit object.
   out$beta <- drop(out$beta)
+  out$pi <- drop(out$pi)
   names(out$beta) <- colnames(X)
   class(out) <- c("mr.ash","list")
   return(out)

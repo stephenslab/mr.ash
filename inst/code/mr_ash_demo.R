@@ -7,7 +7,8 @@ colnames(X) <- paste0("j",1:p)
 b <- double(p)
 b[1:10] <- rnorm(10)
 y <- drop(X %*% b + rnorm(n))
-fit <- mr.ash(X,y,control = list(max.iter = 500,convtol = 1e-12))
+fit <- mr.ash(X,y,control = list(max.iter = 500,convtol = 1e-12),
+              verbose = "detailed")
 elbo <- fit$varobj
 elbo <- elbo - min(elbo) + 1e-6
 plot(1:fit$iter,elbo,type = "l",log = "y",lwd = 2,col = "dodgerblue")

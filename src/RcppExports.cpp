@@ -7,7 +7,7 @@
 using namespace Rcpp;
 
 // caisa_rcpp
-Rcpp::List caisa_rcpp(const arma::mat& X, const arma::vec& y, const arma::vec& w, const arma::vec& sa2, arma::vec& pi, arma::vec& beta, arma::vec& r, double sigma2, const arma::uvec& o, int maxiter, int miniter, double convtol, double epstol, std::string method_q, bool updatepi, bool updatesigma, bool verbose);
+Rcpp::List caisa_rcpp(const arma::mat& X, const arma::vec& y, const arma::vec& w, const arma::vec& sa2, arma::vec& pi, arma::vec& beta, arma::vec& r, double sigma2, const arma::uvec& o, int maxiter, int miniter, double convtol, double epstol, std::string method_q, bool updatepi, bool updatesigma, int verbose);
 RcppExport SEXP _mr_ash_caisa_rcpp(SEXP XSEXP, SEXP ySEXP, SEXP wSEXP, SEXP sa2SEXP, SEXP piSEXP, SEXP betaSEXP, SEXP rSEXP, SEXP sigma2SEXP, SEXP oSEXP, SEXP maxiterSEXP, SEXP miniterSEXP, SEXP convtolSEXP, SEXP epstolSEXP, SEXP method_qSEXP, SEXP updatepiSEXP, SEXP updatesigmaSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -28,7 +28,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< std::string >::type method_q(method_qSEXP);
     Rcpp::traits::input_parameter< bool >::type updatepi(updatepiSEXP);
     Rcpp::traits::input_parameter< bool >::type updatesigma(updatesigmaSEXP);
-    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
     rcpp_result_gen = Rcpp::wrap(caisa_rcpp(X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose));
     return rcpp_result_gen;
 END_RCPP
