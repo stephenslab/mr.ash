@@ -15,7 +15,8 @@ test_that("equal phi values", {
     
     fit.alpha <- mr.ash.alpha::mr.ash(X, y)
     fit.alpha$beta <- drop(fit.alpha$beta)
-    fit <- mr.ash::mr.ash(X, y)
+    fit.alpha$pi <- drop(fit.alpha$pi)
+    fit <- mr.ash::mr.ash(X, y, verbose = "none")
     
     # expect_equal(fit$beta, fit.alpha$beta)
     expect_identical(fit, fit.alpha) 
