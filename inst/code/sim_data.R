@@ -7,8 +7,8 @@ source("R/misc2.R")
 set.seed(1)
 n <- sample(2:400, size = 20)
 p <- sample(2000, size = 20)
-pve <- runif(20, max = 0.5) + 0.000001
-s <- sample.int(20, size = 20)
+pve <- runif(20)
+s <- sample(20, size = 20, replace = T)
 
 for (i in 1:length(n)) {
   sim_X <- simulate_regression_data(n[i], p[i])$X
