@@ -1,6 +1,6 @@
 # Test differences in mr.ash and mr.ash.alpha outputs
 
-#setwd("/project2/mstephens/lwang19/mr.ash")
+# setwd("/project2/mstephens/lwang19/mr.ash")
 set.seed(1)
 
 # Load data
@@ -25,11 +25,14 @@ identical(phi, phi.alpha) # FALSE
 ## Class differences: 
 alpha.b = fit.alpha$beta
 class(alpha.b) # matrix
+class(fit.alpha$pi) # matrix
 
 fit.b = fit$beta
 class(fit.b)  # numeric
+class(fit$pi) # numeric
 
 fit.alpha$beta <- drop(fit.alpha$beta)
+fit.alpha$pi <- drop(fit.alpha$pi)
 identical(fit, fit.alpha) # TRUE
 
 ## numerical differences (due to get.full.posterior):
