@@ -83,6 +83,17 @@ sim_gaussian <- function(X, pve, s) {
 }
 
 
+# Master function; Generates X and y with specified parameters
+simulate_data <- function(n, p, pve, s, beta = NULL) {
+  sim_X <- simulate_regression_data(n, p)
+  sim_y <- sim_gaussian(sim_X$X, pve, s)
+  
+  lst <- list(X = sim_X$X, y = sim_y$Y, sigma = sim_y$sigma, 
+             beta = sim_y$beta, pve = pve, s = s)
+  return(lst)
+}
+
+
 ##############################################
 # Things to delete later if not used: 
 ##############################################

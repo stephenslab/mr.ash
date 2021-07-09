@@ -11,12 +11,9 @@ pve <- runif(20)
 s <- sample(20, size = 20, replace = T)
 
 for (i in 1:length(n)) {
-  sim_X <- simulate_regression_data(n[i], p[i])$X
-  sim_y <- sim_gaussian(sim_X, pve[i], s[i])$Y
-  saveRDS(list(X = sim_X, y = sim_y, pve = pve[i], s = s[i]), 
-          file = paste0("data/sim_data_", i, ".rds"))
+  sim_data = simulate_data(n[i], p[i], pve[i], s[i])
+  saveRDS(sim_data, file = paste0("data/sim_data_", i, ".rds"))
 }
-
 
 # Script generated 20 simulated datasets in mr.ash/R/data for testing purposes.
 # Simulated data sets are saved on midway. Only sim_data_1 is uploaded to Github under
