@@ -1,6 +1,8 @@
 to do
 =====
 
++ Add automated testing with continuous integration.
+
 + Rename functions using "underscore" rather than "dot".
 
 + Create "progress" output.

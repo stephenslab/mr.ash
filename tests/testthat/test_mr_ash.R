@@ -3,8 +3,8 @@ context("mr_ash")
 test_that("re-running mr.ash after solution has converged yields same fit",{
   set.seed(1)
 
-  # Simulate a small regression data set with n = 200 samples and p =
-  # 400 predictors.
+  # Simulate a small regression data set with n = 200 samples and
+  # p = 400 predictors.
   set.seed(1)
   n          <- 200
   p          <- 400
@@ -15,8 +15,8 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
 
   # Fit the mr.ash model, then fit a second time in which the fit is
   # initialized to the estimates returned from first mr.ash call.
-  capture.output(fit1 <- mr.ash(X,y,control = list(convtol = 1e-14)))
-  capture.output(fit2 <- mr.ash(X,y,beta.init = fit1$beta,pi = fit1$pi,
+  capture.output(fit1 <- mr_ash(X,y,control = list(convtol = 1e-14)))
+  capture.output(fit2 <- mr_ash(X,y,beta.init = fit1$beta,pi = fit1$pi,
                                 sa2 = fit1$data$sa2,sigma2 = fit1$sigma2,
                                 control = list(convtol = 1e-14)))
 
@@ -44,7 +44,7 @@ test_that("equal phi values", {
     fit.alpha <- mr.ash.alpha::mr.ash(X, y)
     fit.alpha$beta <- drop(fit.alpha$beta)
     fit.alpha$pi <- drop(fit.alpha$pi)
-    fit <- mr.ash::mr.ash(X, y, verbose = "none")
+    fit <- mr_ash(X, y, verbose = "none")
     
     # expect_equal(fit$beta, fit.alpha$beta)
     expect_identical(fit, fit.alpha) 
