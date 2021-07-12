@@ -8,7 +8,7 @@ get_full_posterior(fit)
 }
 \arguments{
 \item{fit}{A Mr.ASH fit obtained, for example, by running
-\code{mr.ash}.}
+\code{\link{mr_ash}}.}
 }
 \value{
 A list object with the following elements:
@@ -28,7 +28,7 @@ A list object with the following elements:
 Recover the parameters specifying the variational
   approximation to the posterior distribution of the regression
   coefficients. To streamline the model fitting implementation, and
-  to reduce memory requirements, \code{\link{mr.ash}} does not store
+  to reduce memory requirements, \code{\link{mr_ash}} does not store
   all the parameters needed to specify the approximate posterior.
 }
 \examples{

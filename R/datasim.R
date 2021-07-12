@@ -1,12 +1,17 @@
 #' @title Simulate Regression Data
 #'
 #' @description Simulate non-sparse data matrix X (and a corresponding normal y?)
+#'
+#' @param n number of samples
 #' 
-#' @param n number of samples 
 #' @param p number of variables
+#' 
 #' @param s number of non-zero effects
+#' 
 #' @param se standard deviation of the residual
+#' 
 #' @param pve proportion of variance in Y explained by X
+#' 
 #' @param misc FILL IN OTHER PARAMS
 #' 
 #' @return Y an n vector simulated gaussian (not centered or scaled)
@@ -35,7 +40,9 @@ simulate_regression_data <- function (n, p) {
   return(list(X = X))
 }
 
-
+#' @importFrom stats sd
+#' @importFrom stats cor
+#
 # Simulate a normal y from data matrix X [MODIFIED FROM simulate3.R]
 sim_gaussian <- function(X, pve, s) {
   n = dim(X)[1]
@@ -99,6 +106,8 @@ simulate_data <- function(n, p, pve, s, beta = NULL) {
 ##############################################
 
 # Simulate the gene matrix X. [NOT USED]
+#
+#' @importFrom stats runif
 simulate_gene_data <- function(n, p) {
   
   # check input: [CHECK atomic vs. scalar]

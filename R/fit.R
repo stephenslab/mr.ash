@@ -279,7 +279,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
   if (verbose != "none") {
-    cat("Fitting mr.ash model (mr.ash 0.1-56).\n")
+    cat("Fitting mr.ash model (mr.ash 0.1-57).\n")
     cat(sprintf("number of samples: %d\n",n))
     cat(sprintf("number of variables: %d\n",p))
     cat(sprintf("number of mixture components: %d\n",K))
@@ -324,11 +324,11 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 #' @description Recover the parameters specifying the variational
 #'   approximation to the posterior distribution of the regression
 #'   coefficients. To streamline the model fitting implementation, and
-#'   to reduce memory requirements, \code{\link{mr.ash}} does not store
+#'   to reduce memory requirements, \code{\link{mr_ash}} does not store
 #'   all the parameters needed to specify the approximate posterior.
 #' 
 #' @param fit A Mr.ASH fit obtained, for example, by running
-#'   \code{mr.ash}.
+#'   \code{\link{mr_ash}}.
 #' 
 #' @return A list object with the following elements:
 #' 
