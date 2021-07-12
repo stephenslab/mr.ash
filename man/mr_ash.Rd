@@ -191,9 +191,7 @@ beta[1:10] <- 1:10
 y          <- drop(X \%*\% beta + rnorm(n))
 
 ### fit Mr.ASH
-fit.mr.ash  = mr_ash(X,y, method_q = "sigma_indep_q")
-fit.mr.ash  = mr_ash(X,y, method_q = "sigma_scaled_beta")
-fit.mr.ash  = mr_ash(X,y, method_q = "sigma_dep_q")
+fit.mr.ash <- mr_ash(X,y)
 
 ### prediction routine
 Xnew        = matrix(rnorm(n*p),n,p)

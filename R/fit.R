@@ -181,9 +181,7 @@
 #' y          <- drop(X %*% beta + rnorm(n))
 #' 
 #' ### fit Mr.ASH
-#' fit.mr.ash  = mr_ash(X,y, method_q = "sigma_indep_q")
-#' fit.mr.ash  = mr_ash(X,y, method_q = "sigma_scaled_beta")
-#' fit.mr.ash  = mr_ash(X,y, method_q = "sigma_dep_q")
+#' fit.mr.ash <- mr_ash(X,y)
 #' 
 #' ### prediction routine
 #' Xnew        = matrix(rnorm(n*p),n,p)
@@ -281,7 +279,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
   if (verbose != "none") {
-    cat("Fitting mr.ash model (mr.ash 0.1-55).\n")
+    cat("Fitting mr.ash model (mr.ash 0.1-56).\n")
     cat(sprintf("number of samples: %d\n",n))
     cat(sprintf("number of variables: %d\n",p))
     cat(sprintf("number of mixture components: %d\n",K))
