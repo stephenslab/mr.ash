@@ -1,9 +1,10 @@
+data/*
 src/*.o
 src/*.so
 scratch.R
 scratch.rmd
-data/*
+vignettes/*.html
+vignettes/*.R
 mr.ash.Rproj
 .Rproj.user
 .DS_Store
-
