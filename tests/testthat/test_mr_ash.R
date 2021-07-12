@@ -1,11 +1,15 @@
+context("mr_ash")
+
+test_that("re-running mr.ash after solution has converged yields same result",{
+  set.seed(1)
+  
+}))
+
 # We want to test that mr.ash outputs the same result as mr.ash.alpha
 # Not sure if we can directly compare mr.ash output objects? Or do we
 # want to compare each component (get.full.posterior results?)
-
-library(mr.ash.alpha)
-context("Equivalence to mr.ash.alpha")
-
 test_that("equal phi values", {
+  skip()
   f <- list.files(path = "/project2/mstephens/lwang19/mr.ash/data/", pattern = "\\.rds$", full.names = T)
   fs <- lapply(f, readRDS)
   

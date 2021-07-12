@@ -254,7 +254,7 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   data$w <- w
   
   # change sa2 depending on w
-  data$sa2 <- data$sa2 / median(data$w) * n
+  # data$sa2 <- data$sa2 / median(data$w) * n
   
   # initialize other parameters
   if (is.null(pi)) {
@@ -280,6 +280,12 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   else if (control$update.order == "random")
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
+  if (verbose != "none") {
+    cat("Fitting mr.ash model (mr.ash 0.1-53).\n")
+    cat(sprintf("number of samples: %d\n",n))
+    cat(sprintf("number of variables: %d\n",p))
+    cat(sprintf("number of mixture components: %d\n",K))
+  }    
   if (verbose == "detailed")
     cat("iter                elbo ||b-b'||   sigma2 w>0\n")
   out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
