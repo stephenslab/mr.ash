@@ -221,38 +221,41 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   verbose <- match.arg(verbose)
   
   # remove covariates
-  data <- remove_covariate(X,y,NULL,standardize,intercept)
+  res    <- remove_covariate(X,y,NULL,standardize,intercept)
+  X      <- res$X
+  y      <- res$y
+  ZtZiZX <- res$ZtZiZX
+  ZtZiZy <- res$ZtZiZy
   
   # initialize beta
   if (is.null(beta.init))
-    data$beta <- as.vector(double(p))
+    beta <- as.vector(double(p))
   else {
     if (standardize)
-      data$beta <- as.vector(beta.init) * attr(data$X,"scaled:scale")
+      beta <- drop(beta.init) * attr(X,"scaled:scale")
     else
-      data$beta <- as.vector(beta.init)
+      beta <- drop(beta.init)
   }
-  data$beta[1] <- data$beta[1] + 0 # to make sure beta.init is not modified
+  beta[1] <- beta[1] + 0 # to make sure beta.init is not modified
   
   # initialize r
-  r <- data$y - data$X %*% data$beta
+  r <- drop(y - X %*% beta)
   
   # sigma2
   if (is.null(sigma2))
     sigma2 <- c(var.n(r))
   
-  # set sa2 if missing
-  if (is.null(sa2))
-    sa2 <- (2^((0:19) / 20) - 1)^2
-  K <- length(sa2)
-  data$sa2 <- sa2
-  
   # precompute x_j^T x_j
-  w <- colSums(data$X^2)
-  data$w <- w
+  w <- colSums(X^2)
+  
+  # set sa2 if missing
+  if (is.null(sa2)) {
+    sa2 <- (2^((0:19) / 20) - 1)^2
+    sa2 <- sa2 / median(w) * n
+  }
+  K <- length(sa2)
   
   # change sa2 depending on w
-  # data$sa2 <- data$sa2 / median(data$w) * n
   
   # initialize other parameters
   if (is.null(pi)) {
@@ -261,7 +264,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
       pi <- rep(1,K)/K
     } else {
       S   <- outer(1/w, sa2, '+') * sigma2
-      Phi <- -data$beta^2/S/2 - log(S)/2
+      Phi <- -beta^2/S/2 - log(S)/2
       Phi <- exp(Phi - apply(Phi,1,max))
       Phi <- Phi / rowSums(Phi)
       pi  <- colMeans(Phi)
@@ -279,18 +282,18 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
   if (verbose != "none") {
-    cat("Fitting mr.ash model (mr.ash 0.1-58).\n")
+    cat("Fitting mr.ash model (mr.ash 0.1-60).\n")
     cat(sprintf("number of samples: %d\n",n))
     cat(sprintf("number of variables: %d\n",p))
     cat(sprintf("number of mixture components: %d\n",K))
   }    
   if (verbose == "detailed")
     cat("iter                elbo ||b-b'||   sigma2 w>0\n")
-  out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
-                    sigma2,o,control$max.iter,control$min.iter,
-                    control$convtol,control$epstol,method_q,
-                    control$update.pi,control$update.sigma2,
-                    switch(verbose,none = 0,progress = 1,detailed = 2))
+  out <- mr_ash_rcpp(X,y,w,sa2,pi,beta,as.vector(r),
+                     sigma2,o,control$max.iter,control$min.iter,
+                     control$convtol,control$epstol,method_q,
+                     control$update.pi,control$update.sigma2,
+                     switch(verbose,none = 0,progress = 1,detailed = 2))
   
   # polish return object
   out$progress <- data.frame(iter   = 1:control$max.iter,
@@ -301,9 +304,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   out$progress <- out$progress[1:out$iter,]
   out <- out[c("beta","sigma2","pi","progress")]
   out$elbo <- tail(out$progress$elbo,n = 1)
-  out$intercept <- c(data$ZtZiZy - data$ZtZiZX %*% out$beta)
-  data["beta"] <- NULL
-  out$data <- data
+  out$intercept <- c(ZtZiZy - ZtZiZX %*% out$beta)
   out$update.order <- o
   
   # rescale beta as needed
@@ -320,8 +321,13 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
                           "of the variances \"sa2\"."),1/K))
 
   # Add dimension names and prepare the final fit object.
+  res <- get_full_posterior(X,y,w,out$beta,out$pi,out$sigma2,sa2)
+  out$m <- res$m
+  out$s2 <- res$s2
+  out$phi <- res$phi
   out$beta <- drop(out$beta)
   out$pi <- drop(out$pi)
+  out$sa2 <- sa2
   names(out$beta) <- colnames(X)
   class(out) <- c("mr.ash","list")
   return(out)
@@ -369,19 +375,19 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 #' 
 #' @export
 #' 
-get_full_posterior <- function(fit) {
+get_full_posterior <- function (X, y, w, beta, pi, sigma2, sa2) {
     
   # compute residual
-  r = fit$data$y - fit$data$X %*% fit$beta
+  r = y - X %*% beta
   
   # compute bw and s2
-  bw = as.vector((t(fit$data$X) %*% r) + fit$data$w * fit$beta)
-  s2 = fit$sigma2 / outer(fit$data$w, 1/fit$data$sa2, '+')
+  bw = as.vector((t(X) %*% r) + w * beta)
+  s2 = sigma2 / outer(w, 1/sa2, '+')
   
   # compute m, phi
   m   = bw * s2
-  phi = -log(1 + outer(fit$data$w,fit$data$sa2))/2 + m * (bw/2/fit$sigma2)
-  phi = c(fit$pi) * t(exp(phi - apply(phi,1,max)))
+  phi = -log(1 + outer(w,sa2))/2 + m * (bw/2/sigma2)
+  phi = c(pi) * t(exp(phi - apply(phi,1,max)))
   phi = t(phi) / colSums(phi)
   return (list(phi = phi, m = m, s2 = s2))
 }

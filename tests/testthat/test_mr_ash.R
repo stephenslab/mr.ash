@@ -16,7 +16,7 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
   # initialized to the estimates returned from first mr.ash call.
   capture.output(fit1 <- mr_ash(X,y,control = list(convtol = 1e-14)))
   capture.output(fit2 <- mr_ash(X,y,beta.init = fit1$beta,pi = fit1$pi,
-                                sa2 = fit1$data$sa2,sigma2 = fit1$sigma2,
+                                sa2 = fit1$sa2,sigma2 = fit1$sigma2,
                                 control = list(convtol = 1e-14)))
 
   # The mr.ash model fits, aside from a few bookkeeping details,

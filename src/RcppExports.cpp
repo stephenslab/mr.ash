@@ -11,9 +11,21 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// caisa_rcpp
-Rcpp::List caisa_rcpp(const arma::mat& X, const arma::vec& y, const arma::vec& w, const arma::vec& sa2, arma::vec& pi, arma::vec& beta, arma::vec& r, double sigma2, const arma::uvec& o, int maxiter, int miniter, double convtol, double epstol, std::string method_q, bool updatepi, bool updatesigma, int verbose);
-RcppExport SEXP _mr_ash_caisa_rcpp(SEXP XSEXP, SEXP ySEXP, SEXP wSEXP, SEXP sa2SEXP, SEXP piSEXP, SEXP betaSEXP, SEXP rSEXP, SEXP sigma2SEXP, SEXP oSEXP, SEXP maxiterSEXP, SEXP miniterSEXP, SEXP convtolSEXP, SEXP epstolSEXP, SEXP method_qSEXP, SEXP updatepiSEXP, SEXP updatesigmaSEXP, SEXP verboseSEXP) {
+// random_order
+arma::uvec random_order(int p, int numiter);
+RcppExport SEXP _mr_ash_random_order(SEXP pSEXP, SEXP numiterSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type p(pSEXP);
+    Rcpp::traits::input_parameter< int >::type numiter(numiterSEXP);
+    rcpp_result_gen = Rcpp::wrap(random_order(p, numiter));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mr_ash_rcpp
+List mr_ash_rcpp(const arma::mat& X, const arma::vec& y, const arma::vec& w, const arma::vec& sa2, arma::vec& pi, arma::vec& beta, arma::vec& r, double sigma2, const arma::uvec& o, int maxiter, int miniter, double convtol, double epstol, std::string method_q, bool updatepi, bool updatesigma, int verbose);
+RcppExport SEXP _mr_ash_mr_ash_rcpp(SEXP XSEXP, SEXP ySEXP, SEXP wSEXP, SEXP sa2SEXP, SEXP piSEXP, SEXP betaSEXP, SEXP rSEXP, SEXP sigma2SEXP, SEXP oSEXP, SEXP maxiterSEXP, SEXP miniterSEXP, SEXP convtolSEXP, SEXP epstolSEXP, SEXP method_qSEXP, SEXP updatepiSEXP, SEXP updatesigmaSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -34,26 +46,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type updatepi(updatepiSEXP);
     Rcpp::traits::input_parameter< bool >::type updatesigma(updatesigmaSEXP);
     Rcpp::traits::input_parameter< int >::type verbose(verboseSEXP);
-    rcpp_result_gen = Rcpp::wrap(caisa_rcpp(X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose));
-    return rcpp_result_gen;
-END_RCPP
-}
-// random_order
-arma::uvec random_order(int p, int numiter);
-RcppExport SEXP _mr_ash_random_order(SEXP pSEXP, SEXP numiterSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< int >::type p(pSEXP);
-    Rcpp::traits::input_parameter< int >::type numiter(numiterSEXP);
-    rcpp_result_gen = Rcpp::wrap(random_order(p, numiter));
+    rcpp_result_gen = Rcpp::wrap(mr_ash_rcpp(X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_mr_ash_caisa_rcpp", (DL_FUNC) &_mr_ash_caisa_rcpp, 17},
     {"_mr_ash_random_order", (DL_FUNC) &_mr_ash_random_order, 2},
+    {"_mr_ash_mr_ash_rcpp", (DL_FUNC) &_mr_ash_mr_ash_rcpp, 17},
     {NULL, NULL, 0}
 };
 
