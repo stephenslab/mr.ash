@@ -1,7 +1,6 @@
 context("mr_ash")
 
 test_that("re-running mr.ash after solution has converged yields same fit",{
-  set.seed(1)
 
   # Simulate a small regression data set with n = 200 samples and
   # p = 400 predictors.
@@ -28,24 +27,58 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
 })
 
 # We want to test that mr.ash outputs the same result as mr.ash.alpha
-# Not sure if we can directly compare mr.ash output objects? Or do we
-# want to compare each component (get.full.posterior results?)
 test_that("equal phi values", {
-  skip("Leah is working on this test")
-  f <- list.files(path = "/project2/mstephens/lwang19/mr.ash/data/", pattern = "\\.rds$", full.names = T)
-  fs <- lapply(f, readRDS)
+  # skip("Leah is working on this test")
   
-  for (i in 1:length(fs)) {
-    X <- fs[[i]]$X
-    y <- fs[[i]]$y
-    
-    fit.alpha <- mr.ash.alpha::mr.ash(X, y)
-    fit.alpha$beta <- drop(fit.alpha$beta)
-    fit.alpha$pi <- drop(fit.alpha$pi)
-    fit <- mr_ash(X, y, verbose = "none")
-    
-    # expect_equal(fit$beta, fit.alpha$beta)
-    expect_identical(fit, fit.alpha) 
-    # expect_identical compares the entirety of two R objects
-  }
+  # Simulate X and y
+  set.seed(1)
+  n     <- 200
+  p     <- 400
+  pve   <- 0.2
+  s     <- 10
+  data  <- simulate_data(n, p, pve, s)
+  
+  # fitting mr.ash.alpha and convirting classes
+  capture.output(fit.alpha <- mr.ash.alpha::mr.ash(data$X, data$y))
+  fit.alpha$beta   <- drop(fit.alpha$beta)
+  fit.alpha$pi     <- drop(fit.alpha$pi)
+  fit.alpha$varobj <- -fit.alpha$varobj
+  attr(fit.alpha, "class") <- "list"
+  
+  # fitting mr.ash
+  capture.output(fit <- mr_ash(data$X, data$y))
+  
+  # Conform mr.ash output to mr.ash.alpha output
+  fit$elbo     <- NULL
+  fit$varobj   <- fit$progress$elbo
+  fit$iter     <- max(fit$progress$iter)
+  fit$progress <- NULL
+  fit          <- fit[names(fit.alpha)]
+  attr(fit, "class") <- "list"
+  
+  # Skipping sa2 because of ongoing debate in slack channel
+  fit$data$sa2       <- NULL
+  fit.alpha$data$sa2 <- NULL
+  
+  # Check equivalence
+  expect_equal(fit, fit.alpha, scale = 1,tolerance = 1e-8)
+})
+
+
+# ELBO output non-decreasing
+test_that("non-decreasing ELBO", {
+  
+  # Simulate X and y
+  set.seed(1)
+  n     <- 200
+  p     <- 400
+  pve   <- 0.2
+  s     <- 10
+  data  <- simulate_data(n, p, pve, s)
+  
+  # fit mr.ash
+  capture.output(fit <- mr_ash(data$X, data$y))
+  
+  # ELBO should be non-decreasing
+  expect_true(all(fit$elbo == cummax(fit$elbo)))
 })
