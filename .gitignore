@@ -7,3 +7,4 @@ mr.ash.Rproj
 .Rproj.user
 .DS_Store
 
+inst/doc
