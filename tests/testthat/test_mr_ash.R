@@ -22,10 +22,8 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
 
   # The mr.ash model fits, aside from a few bookkeeping details,
   # should be almost the same.
-  fit1$varobj <- tail(fit1$varobj,n = 1)
-  fit2$varobj <- tail(fit2$varobj,n = 1)
-  fit1$iter   <- NULL
-  fit2$iter   <- NULL
+  fit1$progress <- NULL
+  fit2$progress <- NULL
   expect_equal(fit1,fit2,scale = 1,tolerance = 1e-8)
 })
 
