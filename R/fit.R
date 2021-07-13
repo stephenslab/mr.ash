@@ -1,4 +1,4 @@
-#' @rdname mr.ash
+#' @rdname mr_ash
 #' 
 #' @title Multiple Regression with Adaptive Shrinkage
 #' 
@@ -39,7 +39,7 @@
 #'
 #' The \code{control} argument is a list in which any of the following
 #' named components will override the default algorithm settings (as
-#' defined by \code{mr.ash_control_default}):
+#' defined by \code{mr_ash_control_default}):
 #' 
 #' \describe{
 #'
@@ -158,7 +158,7 @@
 #'   data matrix. Additionally, \code{data$sa2} gives the prior variances
 #'   used.}
 #' 
-#' @seealso \code{\link{get.full.posterior}}, \code{\link{predict.mr.ash}}
+#' @seealso \code{\link{get_full_posterior}}, \code{\link{predict.mr.ash}}
 #' 
 #' @references
 #' Y. Kim (2020), Bayesian shrinkage methods for high dimensional
@@ -181,9 +181,7 @@
 #' y          <- drop(X %*% beta + rnorm(n))
 #' 
 #' ### fit Mr.ASH
-#' fit.mr.ash  = mr.ash(X,y, method_q = "sigma_indep_q")
-#' fit.mr.ash  = mr.ash(X,y, method_q = "sigma_scaled_beta")
-#' fit.mr.ash  = mr.ash(X,y, method_q = "sigma_dep_q")
+#' fit.mr.ash <- mr_ash(X,y)
 #' 
 #' ### prediction routine
 #' Xnew        = matrix(rnorm(n*p),n,p)
@@ -199,7 +197,7 @@
 #' 
 #' @export
 #' 
-mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
+mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
                     sigma2 = NULL, standardize = FALSE, intercept = TRUE,
                     control = list(),
                     verbose = c("progress","detailed","none")) {
@@ -217,7 +215,7 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   }
 
   # Check and process input argument "control".
-  control <- modifyList(mr.ash_control_default(),control,keep.null = TRUE)
+  control <- modifyList(mr_ash_control_default(),control,keep.null = TRUE)
 
   # Check and process input argument "verbose".
   verbose <- match.arg(verbose)
@@ -254,7 +252,7 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   data$w <- w
   
   # change sa2 depending on w
-  data$sa2 <- data$sa2 / median(data$w) * n
+  # data$sa2 <- data$sa2 / median(data$w) * n
   
   # initialize other parameters
   if (is.null(pi)) {
@@ -280,6 +278,12 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   else if (control$update.order == "random")
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
+  if (verbose != "none") {
+    cat("Fitting mr.ash model (mr.ash 0.1-57).\n")
+    cat(sprintf("number of samples: %d\n",n))
+    cat(sprintf("number of variables: %d\n",p))
+    cat(sprintf("number of mixture components: %d\n",K))
+  }    
   if (verbose == "detailed")
     cat("iter                elbo ||b-b'||   sigma2 w>0\n")
   out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
@@ -315,11 +319,70 @@ mr.ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   return(out)
 }
 
-#' @rdname mr.ash
+#' @title Approximation Posterior Expectations from Mr.ASH Fit
+#'
+#' @description Recover the parameters specifying the variational
+#'   approximation to the posterior distribution of the regression
+#'   coefficients. To streamline the model fitting implementation, and
+#'   to reduce memory requirements, \code{\link{mr_ash}} does not store
+#'   all the parameters needed to specify the approximate posterior.
+#' 
+#' @param fit A Mr.ASH fit obtained, for example, by running
+#'   \code{\link{mr_ash}}.
+#' 
+#' @return A list object with the following elements:
+#' 
+#' \item{phi}{An p x K matrix containing the posterior assignment
+#'   probabilities, where p is the number of predictors, and K is the
+#'   number of mixture components. (Each row of \code{phi} should sum to
+#'   1.)}
+#' 
+#' \item{m}{An p x K matrix containing the posterior means conditional
+#'   on assignment to each mixture component.}
+#' 
+#' \item{s2}{An p x K matrix containing the posterior variances
+#'   conditional on assignment to each mixture component.}
+#' 
+#' @examples
+#' ## generate synthetic data
+#' set.seed(1)
+#' n           = 200
+#' p           = 300
+#' X           = matrix(rnorm(n*p),n,p)
+#' beta        = double(p)
+#' beta[1:10]  = 1:10
+#' y           = X %*% beta + rnorm(n)
+#' 
+#' # Fit mr.ash model.
+#' fit <- mr_ash(X, y)
+#' 
+#' # Recover full posterior.
+#' full.post <- get_full_posterior(fit)
+#' 
+#' @export
+#' 
+get_full_posterior <- function(fit) {
+    
+  # compute residual
+  r = fit$data$y - fit$data$X %*% fit$beta
+  
+  # compute bw and s2
+  bw = as.vector((t(fit$data$X) %*% r) + fit$data$w * fit$beta)
+  s2 = fit$sigma2 / outer(fit$data$w, 1/fit$data$sa2, '+')
+  
+  # compute m, phi
+  m   = bw * s2
+  phi = -log(1 + outer(fit$data$w,fit$data$sa2))/2 + m * (bw/2/fit$sigma2)
+  phi = c(fit$pi) * t(exp(phi - apply(phi,1,max)))
+  phi = t(phi) / colSums(phi)
+  return (list(phi = phi, m = m, s2 = s2))
+}
+
+#' @rdname mr_ash
 #'
 #' @export
 #' 
-mr.ash_control_default <- function()
+mr_ash_control_default <- function()
   list(min.iter      = 1,
        max.iter      = 1000,
        convtol       = 1e-8,

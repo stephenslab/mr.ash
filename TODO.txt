@@ -1,0 +1,8 @@
+to do
+=====
+
++ Add automated testing with continuous integration.
+
++ Create "progress" output.
+
++ Implement mr_ash_init.

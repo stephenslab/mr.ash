@@ -1,5 +1,7 @@
 # mr.ash
 
+[![R-CMD-check](https://github.com/stephenslab/mr.ash/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/mr.ash/actions)
+
 R package implementing Multiple Regression with Adaptive Shrinkage
 ("mr.ash") methods and algorithms.
 
