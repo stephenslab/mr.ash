@@ -26,6 +26,9 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
   // PREDEFINE LOCAL VARIABLES
   // ---------------------------------------------------------------------
   vec varobj(maxiter);
+  vec dbeta(maxiter);
+  vec sigma2byiter(maxiter);
+  vec w1(maxiter);
   int iter               = 0;
   int i                  = 0;
   int j;
@@ -98,17 +101,19 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
     // ---------------------------------------------------------------------
     // CHECK CONVERGENCE
     // ---------------------------------------------------------------------
+    dbeta(iter)        = norm(beta - betaold);
+    sigma2byiter(iter) = sigma2;
+    w1(iter)           = sum(pi > 1e-4);
     if (verbose == 1)
       Rprintf("+");
     else if (verbose == 2)
       Rprintf("%4d %+0.12e %0.2e %0.2e %3d\n",iter + 1,varobj(iter),
-	      norm(beta - betaold),sqrt(sigma2),sum(pi > 1e-4));
+	      dbeta(iter),sqrt(sigma2),w1(iter));
     if (iter >= miniter - 1) {
       if (norm(betaold - beta) < convtol * p) {
         iter++;
         break;
       }
-      
       if (iter > 0) {
         if (varobj(iter) > varobj(iter - 1))
           break;
@@ -124,9 +129,12 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
   // ---------------------------------------------------------------------
   // RETURN VALUES
   // ---------------------------------------------------------------------
-  return List::create(Named("beta") = beta,
+  return List::create(Named("beta")   = beta,
                       Named("sigma2") = sigma2,
-                      Named("pi") = pi,
-                      Named("iter") = iter,
-                      Named("varobj") = varobj.subvec(0,iter-1));
+                      Named("pi")     = pi,
+                      Named("iter")   = iter,
+                      Named("varobj") = varobj,
+		      Named("dbeta")  = dbeta,
+		      Named("sigma2byiter") = sigma2byiter,
+		      Named("w1")     = w1);
 }
