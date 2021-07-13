@@ -24,20 +24,15 @@ Imports:
     stats,
     Matrix,
     Rcpp (>= 1.0.6)
-Suggests:
-    testthat,
-    mr.ash.alpha
 LinkingTo:
     Rcpp,
     RcppArmadillo (>= 0.7.960)
-NeedsCompilation: yes
-RoxygenNote: 7.1.1
-<<<<<<< HEAD
 Suggests: 
     rmarkdown,
     knitr,
-    testthat
+    testthat,
+    mr.ash.alpha
+NeedsCompilation: yes
 VignetteBuilder: knitr
-
+RoxygenNote: 7.1.1
 Remotes: stephenslab/mr.ash.alpha
-
