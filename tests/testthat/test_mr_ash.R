@@ -26,9 +26,29 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
   expect_equal(fit1,fit2,scale = 1,tolerance = 1e-8)
 })
 
-# We want to test that mr.ash outputs the same result as mr.ash.alpha
+# Test that mr.ash outputs the same phi values as mr.ash.alpha
 test_that("equal phi values", {
-  # skip("Leah is working on this test")
+  # Simulate X and y
+  set.seed(1)
+  n     <- 200
+  p     <- 400
+  pve   <- 0.2
+  s     <- 10
+  data  <- simulate_data(n, p, pve, s)
+  
+  # fitting mr.ash.alpha
+  capture.output(fit.alpha <- mr.ash.alpha::mr.ash(data$X, data$y))
+  phi.alpha <- mr.ash.alpha::get.full.posterior(fit.alpha)$phi
+  
+  # fitting mr.ash
+  capture.output(fit <- mr_ash(data$X, data$y))
+  
+  # Check same phi value
+  expect_equal(fit$phi, phi.alpha, scale = 1,tolerance = 1e-8)
+})
+
+# We want to test that mr.ash outputs the same result as mr.ash.alpha
+test_that("agreement with mr.ash.alpha", {
   
   # Simulate X and y
   set.seed(1)
