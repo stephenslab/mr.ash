@@ -32,4 +32,12 @@ LinkingTo:
     RcppArmadillo (>= 0.7.960)
 NeedsCompilation: yes
 RoxygenNote: 7.1.1
+<<<<<<< HEAD
+Suggests: 
+    rmarkdown,
+    knitr,
+    testthat
+VignetteBuilder: knitr
+
 Remotes: stephenslab/mr.ash.alpha
+
