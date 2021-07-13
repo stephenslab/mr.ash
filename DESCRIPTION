@@ -30,4 +30,7 @@ LinkingTo:
 NeedsCompilation: yes
 RoxygenNote: 7.1.1
 Suggests: 
+    rmarkdown,
+    knitr,
     testthat
+VignetteBuilder: knitr
