@@ -5,26 +5,21 @@ using namespace arma;
 
 // FUNCTION DECLARATIONS
 // ---------------------
-void updatebetaj (const arma::vec& xj, double wj,
-		  double& betaj, arma::vec& r,
-		  arma::vec& piold, arma::vec& pi,
-		  double sigma2, const arma::vec& sa2,
-		  const arma::vec& s2inv,
-		  double& a1, double& a2,
-		  int j, int p,
-		  double epstol);
+void updatebetaj (const vec& xj, double wj, double& betaj, vec& r, vec& piold,
+		  vec& pi, double sigma2, const vec& sa2, const vec& s2inv,
+		  double& a1, double& a2, int j, int p, double epstol);
 
 // FUNCTION DEFINITIONS
 // --------------------
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-List caisa_rcpp (const arma::mat& X, const arma::vec& y,
-		 const arma::vec& w, const arma::vec& sa2,
-		 arma::vec& pi, arma::vec& beta, arma::vec& r, 
-		 double sigma2, const arma::uvec& o, int maxiter, 
-		 int miniter, double convtol, double epstol, 
-		 std::string method_q, bool updatepi, 
-		 bool updatesigma, int verbose) {
+List mr_ash_rcpp (const arma::mat& X, const arma::vec& y,
+		  const arma::vec& w, const arma::vec& sa2,
+		  arma::vec& pi, arma::vec& beta, arma::vec& r, 
+		  double sigma2, const arma::uvec& o, int maxiter, 
+		  int miniter, double convtol, double epstol, 
+		  std::string method_q, bool updatepi, 
+		  bool updatesigma, int verbose) {
   
   // ---------------------------------------------------------------------
   // DEFINE SIZES
@@ -55,9 +50,8 @@ List caisa_rcpp (const arma::mat& X, const arma::vec& y,
   mat S2inv        = 1 / outerAddition(1/sa2, w);
   S2inv.row(0).fill(epstol);
   
-  // ---------------------------------------------------------------------
-  // START LOOP : CYCLE THROUGH COORDINATE ASCENT UPDATES
-  // ---------------------------------------------------------------------
+  // Repeat until convergence criterion is met, or until the maximum
+  // number of iterations is reached.
   for (iter = 0; iter < maxiter; iter++) {
     
     // reset parameters
@@ -99,9 +93,9 @@ List caisa_rcpp (const arma::mat& X, const arma::vec& y,
     // ---------------------------------------------------------------------
     // CALCULATE VARIATIONAL OBJECTIVE 2
     // ---------------------------------------------------------------------
-    varobj(iter)          = varobj(iter) / sigma2 / 2.0 +
-                            log(2.0 * PI * sigma2) / 2.0 * n -
-                            dot(pi, log(piold + epstol)) * p + a2;
+    varobj(iter) = varobj(iter) / sigma2 / 2.0 +
+                   log(2.0 * PI * sigma2) / 2.0 * n -
+                   dot(pi, log(piold + epstol)) * p + a2;
     
     for (j = 1; j < K; j++)
       varobj(iter) += pi(j) * log(sa2(j)) * p / 2;
@@ -150,44 +144,40 @@ List caisa_rcpp (const arma::mat& X, const arma::vec& y,
 		      Named("w1")     = w1);
 }
 
-void updatebetaj       (const arma::vec& xj, double wj,
-                        double& betaj, arma::vec& r,
-                        arma::vec& piold, arma::vec& pi,
-                        double sigma2, const arma::vec& sa2,
-                        const arma::vec& s2inv,
-                        double& a1, double& a2,
-                        int j, int p,
-                        double epstol) {
+// TO DO: Explain here what this function does, and how to use it.
+void updatebetaj (const vec& xj, double wj, double& betaj, vec& r, vec& piold,
+		  vec& pi, double sigma2, const vec& sa2, const vec& s2inv,
+		  double& a1, double& a2, int j, int p, double epstol) {
   
   // calculate b
-  double bjwj           = dot(r, xj) + betaj * wj;
+  double bjwj = dot(r, xj) + betaj * wj;
   
   // update r first step
-  r                    += xj * betaj; 
+  r += xj * betaj; 
   
   // calculate muj
-  arma::vec muj         = bjwj * s2inv;
-  muj(0)                = 0;
+  vec muj = bjwj * s2inv;
+  muj(0) = 0;
   
   // calculate phij
-  arma::vec phij        = log(piold + epstol) - log(1 + sa2 * wj)/2 + muj * (bjwj / 2 / sigma2);
-  phij                  = exp(phij - max(phij));
-  phij                  = phij / sum(phij);
+  vec phij = log(piold + epstol) - log(1 + sa2 * wj)/2 + muj * (bjwj / 2 / sigma2);
+  phij = exp(phij - max(phij));
+  phij = phij / sum(phij);
   
   // pinew
-  pi                   += phij / p;
+  pi += phij / p;
   
   // update betaj
-  betaj                 = dot(phij, muj);
+  betaj = dot(phij, muj);
   
   // update r second step
-  r                    += -xj * betaj;
+  r += -xj * betaj;
   
   // precalculate for M-step
-  a1                   += bjwj * betaj;
-  a2                   += dot(phij, log(phij + epstol));
-  phij(0)               = 0;
-  a2                   += -dot(phij, log(s2inv)) / 2;
+  a1 += bjwj * betaj;
+  a2 += dot(phij, log(phij + epstol));
+  phij(0) = 0;
+  a2 += -dot(phij, log(s2inv)) / 2;
   
   return;
 }

@@ -5,7 +5,7 @@ random_order <- function(p, numiter) {
     .Call('_mr_ash_random_order', PACKAGE = 'mr.ash', p, numiter)
 }
 
-caisa_rcpp <- function(X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose) {
-    .Call('_mr_ash_caisa_rcpp', PACKAGE = 'mr.ash', X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose)
+mr_ash_rcpp <- function(X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose) {
+    .Call('_mr_ash_mr_ash_rcpp', PACKAGE = 'mr.ash', X, y, w, sa2, pi, beta, r, sigma2, o, maxiter, miniter, convtol, epstol, method_q, updatepi, updatesigma, verbose)
 }
 

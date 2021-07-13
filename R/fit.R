@@ -286,11 +286,11 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   }    
   if (verbose == "detailed")
     cat("iter                elbo ||b-b'||   sigma2 w>0\n")
-  out <- caisa_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
-                    sigma2,o,control$max.iter,control$min.iter,
-                    control$convtol,control$epstol,method_q,
-                    control$update.pi,control$update.sigma2,
-                    switch(verbose,none = 0,progress = 1,detailed = 2))
+  out <- mr_ash_rcpp(data$X,data$y,w,sa2,pi,data$beta,as.vector(r),
+                     sigma2,o,control$max.iter,control$min.iter,
+                     control$convtol,control$epstol,method_q,
+                     control$update.pi,control$update.sigma2,
+                     switch(verbose,none = 0,progress = 1,detailed = 2))
   
   # polish return object
   out$progress <- data.frame(iter   = 1:control$max.iter,
