@@ -158,7 +158,7 @@
 #'   data matrix. Additionally, \code{data$sa2} gives the prior variances
 #'   used.}
 #' 
-#' @seealso \code{\link{get_full_posterior}}, \code{\link{predict.mr.ash}}
+#' @seealso \code{\link{predict.mr.ash}}
 #' 
 #' @references
 #' Y. Kim (2020), Bayesian shrinkage methods for high dimensional
@@ -369,9 +369,6 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 #' 
 #' # Fit mr.ash model.
 #' fit <- mr_ash(X, y)
-#' 
-#' # Recover full posterior.
-#' full.post <- get_full_posterior(fit)
 #' 
 #' @export
 #' 

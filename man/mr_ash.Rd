@@ -211,5 +211,5 @@ Y. Kim (2020), Bayesian shrinkage methods for high dimensional
 regression. Ph.D. thesis, University of Chicago.
 }
 \seealso{
-\code{\link{get_full_posterior}}, \code{\link{predict.mr.ash}}
+\code{\link{predict.mr.ash}}
 }
