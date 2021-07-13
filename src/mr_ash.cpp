@@ -35,9 +35,8 @@ List mr_ash_rcpp (const arma::mat& X, const arma::vec& y,
   vec dbeta(maxiter);
   vec sigma2byiter(maxiter);
   vec w1(maxiter);
-  int iter               = 0;
+  unsigned int iter;
   int i                  = 0;
-  int j;
   
   double a1;
   double a2;
@@ -64,7 +63,7 @@ List mr_ash_rcpp (const arma::mat& X, const arma::vec& y,
     // ---------------------------------------------------------------------
     // RUN COORDINATE ASCENT UPDATES : INDEX 1 - INDEX P
     // ---------------------------------------------------------------------
-    for (j = 0; j < p; j++){
+    for (unsigned int j = 0; j < p; j++){
       
       updatebetaj(X.col(o(i)), w(o(i)), beta(o(i)), r, piold, pi, sigma2, sa2, S2inv.col(o(i)), a1, a2, o(i), p, epstol);
       i++;
@@ -97,7 +96,7 @@ List mr_ash_rcpp (const arma::mat& X, const arma::vec& y,
                    log(2.0 * PI * sigma2) / 2.0 * n -
                    dot(pi, log(piold + epstol)) * p + a2;
     
-    for (j = 1; j < K; j++)
+    for (unsigned int j = 1; j < K; j++)
       varobj(iter) += pi(j) * log(sa2(j)) * p / 2;
     
     if (!updatepi)

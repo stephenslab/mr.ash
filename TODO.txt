@@ -1,8 +1,6 @@
 to do
 =====
 
-+ Fix rescaling of default sa2 setting.
-
 + Add automated testing with continuous integration.
 
 + Create "progress" output.

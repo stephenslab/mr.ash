@@ -4,7 +4,7 @@
 \alias{get_full_posterior}
 \title{Approximation Posterior Expectations from Mr.ASH Fit}
 \usage{
-get_full_posterior(fit)
+get_full_posterior(X, y, w, beta, pi)
 }
 \arguments{
 \item{fit}{A Mr.ASH fit obtained, for example, by running
