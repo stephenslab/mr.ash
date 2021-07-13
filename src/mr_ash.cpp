@@ -1,19 +1,30 @@
-#include "mr_ash.h"
+#include "misc.h"
 
 using namespace Rcpp;
 using namespace arma;
+
+// FUNCTION DECLARATIONS
+// ---------------------
+void updatebetaj (const arma::vec& xj, double wj,
+		  double& betaj, arma::vec& r,
+		  arma::vec& piold, arma::vec& pi,
+		  double sigma2, const arma::vec& sa2,
+		  const arma::vec& s2inv,
+		  double& a1, double& a2,
+		  int j, int p,
+		  double epstol);
 
 // FUNCTION DEFINITIONS
 // --------------------
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::export]]
-Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
-		       const arma::vec& w, const arma::vec& sa2,
-		       arma::vec& pi, arma::vec& beta, arma::vec& r, 
-		       double sigma2, const arma::uvec& o, int maxiter, 
-		       int miniter, double convtol, double epstol, 
-		       std::string method_q, bool updatepi, 
-		       bool updatesigma, int verbose) {
+List caisa_rcpp (const arma::mat& X, const arma::vec& y,
+		 const arma::vec& w, const arma::vec& sa2,
+		 arma::vec& pi, arma::vec& beta, arma::vec& r, 
+		 double sigma2, const arma::uvec& o, int maxiter, 
+		 int miniter, double convtol, double epstol, 
+		 std::string method_q, bool updatepi, 
+		 bool updatesigma, int verbose) {
   
   // ---------------------------------------------------------------------
   // DEFINE SIZES
@@ -138,3 +149,46 @@ Rcpp::List caisa_rcpp (const arma::mat& X, const arma::vec& y,
 		      Named("sigma2byiter") = sigma2byiter,
 		      Named("w1")     = w1);
 }
+
+void updatebetaj       (const arma::vec& xj, double wj,
+                        double& betaj, arma::vec& r,
+                        arma::vec& piold, arma::vec& pi,
+                        double sigma2, const arma::vec& sa2,
+                        const arma::vec& s2inv,
+                        double& a1, double& a2,
+                        int j, int p,
+                        double epstol) {
+  
+  // calculate b
+  double bjwj           = dot(r, xj) + betaj * wj;
+  
+  // update r first step
+  r                    += xj * betaj; 
+  
+  // calculate muj
+  arma::vec muj         = bjwj * s2inv;
+  muj(0)                = 0;
+  
+  // calculate phij
+  arma::vec phij        = log(piold + epstol) - log(1 + sa2 * wj)/2 + muj * (bjwj / 2 / sigma2);
+  phij                  = exp(phij - max(phij));
+  phij                  = phij / sum(phij);
+  
+  // pinew
+  pi                   += phij / p;
+  
+  // update betaj
+  betaj                 = dot(phij, muj);
+  
+  // update r second step
+  r                    += -xj * betaj;
+  
+  // precalculate for M-step
+  a1                   += bjwj * betaj;
+  a2                   += dot(phij, log(phij + epstol));
+  phij(0)               = 0;
+  a2                   += -dot(phij, log(s2inv)) / 2;
+  
+  return;
+}
+
