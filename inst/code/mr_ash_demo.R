@@ -8,7 +8,7 @@ b <- double(p)
 b[1:10] <- rnorm(10)
 y <- drop(X %*% b + rnorm(n))
 fit <- mr_ash(X,y,control = list(max.iter = 500,convtol = 1e-8),
-              verbose = "detailed")
+              verbose = "detailed",standardize = TRUE)
 elbo <- fit$progress$elbo
 elbo <- max(elbo) - elbo + 1e-2
 plot(fit$progress$iter,elbo,type = "l",log = "y",lwd = 2,col = "dodgerblue")

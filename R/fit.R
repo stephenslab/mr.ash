@@ -282,7 +282,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
   if (verbose != "none") {
-    cat("Fitting mr.ash model (mr.ash 0.1-60).\n")
+    cat("Fitting mr.ash model (mr.ash 0.1-61).\n")
     cat(sprintf("number of samples: %d\n",n))
     cat(sprintf("number of variables: %d\n",p))
     cat(sprintf("number of mixture components: %d\n",K))
@@ -309,7 +309,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   
   # rescale beta as needed
   if (standardize)
-    out$beta <- out$beta / attr(data$X,"scaled:scale")
+    out$beta <- out$beta / attr(X,"scaled:scale")
   
   ## warn if necessary
   if (control$update.pi & out$pi[K] > 1/K)
