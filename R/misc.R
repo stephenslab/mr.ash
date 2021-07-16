@@ -47,3 +47,38 @@ var.n <- function(x) {
   a <- x - mean(x)
   return (sum(a^2) / length(a))
 }
+
+# computelfsrmix function from Peter
+computelfsrmix <- function (phi, mu, s) {
+  # Inputs:
+  # phi: p x K matrix of posterior assignment probabilities
+  # mu:  p x K matrix of posterior means for each mixture component
+  # s:   p x K matrix of posterior variances
+  # Return: a vector of length p
+  
+  # Get the number of variables (p) and the number of mixture
+  # components (k).
+  p <- nrow(phi)
+  k <- ncol(phi)
+  
+  # For each variable, get the posterior probability that the
+  # regression coefficient is exactly zero.
+  p0 <- phi[,1]
+  
+  # For each variable, get the posterior probability that the
+  # regression coefficient is negative.
+  if (k == 2)
+    pn <- phi[,2] * pnorm(0,mu[,2],sqrt(s[,2]))
+  else
+    pn <- rowSums(phi[,-1] * pnorm(0,mu[,-1],sqrt(s[,-1])))
+  
+  # Compute the local false sign rate (LFSR) following the formula
+  # given in the Biostatistics paper, "False discovery rates: a new
+  # deal".
+  lfsr     <- rep(0,p)
+  b        <- pn > 0.5*(1 - p0)
+  lfsr[b]  <- 1 - pn[b]
+  lfsr[!b] <- p0[!b] + pn[!b]
+  
+  return(lfsr)
+}

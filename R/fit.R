@@ -325,6 +325,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   out$m <- res$m
   out$s2 <- res$s2
   out$phi <- res$phi
+  out$lfsr <- res$lfsr
   out$beta <- drop(out$beta)
   out$pi <- drop(out$pi)
   out$sa2 <- sa2
@@ -386,7 +387,10 @@ get_full_posterior <- function (X, y, w, beta, pi, sigma2, sa2) {
   phi = -log(1 + outer(w,sa2))/2 + m * (bw/2/sigma2)
   phi = c(pi) * t(exp(phi - apply(phi,1,max)))
   phi = t(phi) / colSums(phi)
-  return (list(phi = phi, m = m, s2 = s2))
+  
+  # compute lfsr
+  lfsr <- computelfsrmix(phi, m, s2) 
+  return (list(phi = phi, m = m, s2 = s2, lfsr = lfsr))
 }
 
 #' @rdname mr_ash
