@@ -51,7 +51,7 @@ test_that("non-decreasing ELBO", {
 # lfsr calculation should yield output between 0 and 1
 test_that("lfsr between 0 and 1", {
   # Simulate X and y
-  set.seed(1)
+  set.seed(2)
   n     <- 200
   p     <- 400
   pve   <- 0.2
@@ -61,5 +61,5 @@ test_that("lfsr between 0 and 1", {
   # fit mr.ash
   capture.output(fit <- mr_ash(data$X, data$y))
   test <- sum(fit$lfsr < 0 | fit$lfsr > 1)
-  expect_equal(test, 0)
+  expect_equal(test, 0, scale = 1, tolerance = 1e-8)
 })
