@@ -13,16 +13,19 @@ get_full_posterior(X, y, w, beta, pi, sigma2, sa2)
 \value{
 A list object with the following elements:
 
-\item{phi}{An p x K matrix containing the posterior assignment
+\item{phi}{A p x K matrix containing the posterior assignment
   probabilities, where p is the number of predictors, and K is the
   number of mixture components. (Each row of \code{phi} should sum to
   1.)}
 
-\item{m}{An p x K matrix containing the posterior means conditional
+\item{m}{A p x K matrix containing the posterior means conditional
   on assignment to each mixture component.}
 
-\item{s2}{An p x K matrix containing the posterior variances
+\item{s2}{A p x K matrix containing the posterior variances
   conditional on assignment to each mixture component.}
+  
+\item{lfsr}{A vector of length p containing the local false
+  discovery rate for each variable}
 }
 \description{
 Recover the parameters specifying the variational

@@ -67,10 +67,11 @@ computelfsrmix <- function (phi, mu, s) {
   
   # For each variable, get the posterior probability that the
   # regression coefficient is negative.
-  if (k == 2)
+  if (k == 2) {
     pn <- phi[,2] * pnorm(0,mu[,2],sqrt(s[,2]))
-  else
+  } else {
     pn <- rowSums(phi[,-1] * pnorm(0,mu[,-1],sqrt(s[,-1])))
+  }
   
   # Compute the local false sign rate (LFSR) following the formula
   # given in the Biostatistics paper, "False discovery rates: a new
@@ -79,6 +80,7 @@ computelfsrmix <- function (phi, mu, s) {
   b        <- pn > 0.5*(1 - p0)
   lfsr[b]  <- 1 - pn[b]
   lfsr[!b] <- p0[!b] + pn[!b]
+  lfsr[lfsr < 0] <- 0 # avoid negatives
   
   return(lfsr)
 }
