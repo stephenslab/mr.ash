@@ -29,17 +29,17 @@ p <- 1000
 pve <- 0.5
 s <- 10
 
-# I feel like I shouldn't need to sources these two files, but it keeps saying function
+## I feel like I shouldn't need to sources these two files, but it keeps saying function
 # not found when I knit/build after loading even tho I can use it freely in commandline
 source("../R/misc2.R")
 source("../R/datasim.R")
-sim_data = simulate_data(n, p, pve, s)
+sim_data <- simulate_data(n, p, pve, s)
 ```
 
 This is the most basic usage, using the default settings:
 
 ```{r, results='hide'}
-fit <- mr.ash(sim_data$X,sim_data$y,
+fit <- mr_ash(sim_data$X,sim_data$y,
               control = list(max.iter = 500,convtol = 1e-12),
               verbose = "detailed")
 
@@ -78,9 +78,9 @@ fit$data$sa2
 For each iteration, we (blah blah explain elbo): 
 
 ```{r}
-elbo <- fit$varobj
+elbo <- fit$progress$elbo
 elbo <- elbo - min(elbo) + 1e-6
-plot(1:fit$iter,elbo,type = "l",log = "y",lwd = 2,col = "dodgerblue")
+plot(fit$progress$iter, elbo, type = "l",log = "y",lwd = 2,col = "dodgerblue")
 plot(sim_data$beta,coef(fit)[-1],pch = 20,col = "darkblue",xlab = "true",ylab = "estimate")
 abline(a = 0,b = 1,col = "skyblue",lty = "dotted")
 ```
