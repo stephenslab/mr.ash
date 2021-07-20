@@ -14,11 +14,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-Here we go through a simple example of using Mr.ASH. 
+Here we go through a simple example of using Multiple Regression Adaptive Shrinkage, < maybe insert paper link here? >
 
 ```{r setup}
 library(mr.ash)
 ```
+
+
+## Step 1: Data Simulation
 
 We simulate a regression data matrix X with n = 400 samples and p = 2000 variables, and a normal response vector y: 
 
@@ -30,11 +33,14 @@ pve <- 0.5
 s <- 10
 
 ## I feel like I shouldn't need to sources these two files, but it keeps saying function
-# not found when I knit/build after loading even tho I can use it freely in commandline
+## not found when I knit/build after loading even tho I can use it freely in commandline
 source("../R/misc2.R")
 source("../R/datasim.R")
 sim_data <- simulate_data(n, p, pve, s)
 ```
+
+
+## Step 2: Fitting Mr.ASH
 
 This is the most basic usage, using the default settings:
 
@@ -72,10 +78,10 @@ fit <- mr_ash(sim_data$X,sim_data$y,
 The default model is a mixture with 20 components, with prior mixture component variances in increasing order, starting at zero and ending at roughly 1: 
 
 ```{r}
-fit$data$sa2
+fit$sa2
 ```
 
-For each iteration, we (blah blah explain elbo): 
+For each iteration, we calculate the Evidence Lower Bound (ELBO) until the maximum iterations specified is reached (in the case demonstrated here), or when convergence criterion is met. We can observe that the estimated $\beta$ is a good reflection of the 
 
 ```{r}
 elbo <- fit$progress$elbo
@@ -83,6 +89,27 @@ elbo <- elbo - min(elbo) + 1e-6
 plot(fit$progress$iter, elbo, type = "l",log = "y",lwd = 2,col = "dodgerblue")
 plot(sim_data$beta,coef(fit)[-1],pch = 20,col = "darkblue",xlab = "true",ylab = "estimate")
 abline(a = 0,b = 1,col = "skyblue",lty = "dotted")
+```
+
+## Step 3: Extract Posterior Summaries
+
+```{r}
+## Another *source* issue
+source("../R/misc.R")
+posterior <- get_posterior_summary(fit)
+str(posterior)
+
+head(posterior$m) 
+head(posterior$s2)
+head(posterior$lfsr)
+```
+
+Posterior means and variances are $p \times K$ matrices, while posterior local false discovery rate (lfsr) is a vector of length $p$. 
+
+## Session Information: 
+
+```{r}
+print(sessionInfo())
 ```
 
 
