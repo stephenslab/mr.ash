@@ -84,3 +84,18 @@ computelfsrmix <- function (phi, mu, s) {
   
   return(lfsr)
 }
+
+
+# This function extracts mean, sd, and lfsr from fit object
+get_posterior_summary <- function(fit) {
+  posterior <- list()
+  
+  # Separate the posterior summary
+  posterior$m    <- fit$m
+  posterior$s2   <- fit$s2
+  posterior$lfsr <- fit$lfsr
+  
+  # return as posterior object
+  class(posterior) <- c("posterior", "list")
+  return(posterior)
+}
