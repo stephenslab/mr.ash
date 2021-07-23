@@ -1,0 +1,7 @@
+pandoc: 2.3.1
+pkgdown: 1.5.1
+pkgdown_sha: fa4b76ac151cac680dc542174d126d570e411eeb
+articles:
+  intro_mr_ash: intro_mr_ash.html
+last_built: 2021-07-23T21:58Z
+
