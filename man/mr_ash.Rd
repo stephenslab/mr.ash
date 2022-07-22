@@ -27,7 +27,7 @@ the number of samples and p is the number of predictors. The matrix
 cannot be sparse.}
 
 \item{y}{The observed continuously-valued responses, a vector of
-length p.}
+length n.}
 
 \item{sa2}{The vector of prior mixture component variances. The
 variances should be in increasing order, starting at zero; that is,
@@ -43,8 +43,8 @@ posterior mean coefficients are all initially set to zero.}
 
 \item{pi}{The initial estimate of the mixture proportions
 \eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
-mixture weights are initialized to \code{rep(1/K,K)}}, where
-\code{K = length(sa2).}
+mixture weights are initialized to \code{rep(1/K,K)}, where
+\code{K = length(sa2)}.}
 
 \item{sigma2}{The initial estimate of the residual variance,
 \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
@@ -80,28 +80,31 @@ A list object with the following elements:
 \item{pi}{A vector of containing the estimated mixture
   proportions.}
 
-\item{iter}{The number of outer-loop iterations that were
-  performed.}
+\item{progress}{A list containing estimated parameters and objectives
+over each outer-loop iteration.}
 
 \item{update.order}{The ordering used for performing the
   coordinate-wise updates. For \code{update.order = "random"}, the
   orderings for outer-loop iterations are provided in a vector of
   length \code{p*max.iter}, where \code{p} is the number of predictors.}
 
-\item{varobj}{A vector of length \code{numiter}, containing the
-  value of the variational objective (equal to the negative "evidence
-  lower bound") attained at each (outer-loop) model fitting
-  iteration. Note that the objective does not account for the
-  intercept term, even when \code{intercept = TRUE}; therefore, this
-  value should be interpreted as being an approximation to the
-  marginal likelihood \emph{conditional} on the estimate of the
-  intercept.}
+\item{elbo}{Evidence lower bound of final fit.}
 
-\item{data}{The preprocessed data (X, Z, y) provided as input to the model
-  fitting algorithm. \code{data$w} is equal to
-  \code{diag(crossprod(X))}, in which \code{X} is the preprocessed
-  data matrix. Additionally, \code{data$sa2} gives the prior variances
-  used.}
+\item{phi}{A p x K matrix containing the posterior assignment
+  probabilities, where p is the number of predictors, and K is the
+  number of mixture components. (Each row of \code{phi} should sum to
+  1.)}
+
+\item{m}{A p x K matrix containing the posterior means conditional
+  on assignment to each mixture component.}
+
+\item{s2}{A p x K matrix containing the posterior variances
+  conditional on assignment to each mixture component.}
+
+\item{lfsr}{A vector of length p containing the local false
+  discovery rate for each variable}
+
+\item{sa2}{vector of prior mixture component variances}
 }
 \description{
 Model fitting algorithms for Multiple Regression with
@@ -119,12 +122,12 @@ N(X \beta, \sigma I_n),} in which the regression coefficients
 component in the prior, \eqn{g}, is a normal density centered at
 zero, with variance \eqn{\sigma^2 \sigma_k^2}.
 
-The fitting algorithm, it run for a large enough number of
+The fitting algorithm, if run for a large enough number of
 iterations, will find an approximate posterior for the regression
 coefficients, denoted by \eqn{q(\beta)}, residual variance
-parameter \eqn{sigma^2}, and prior mixture weights \eqn{\pi_1,
+parameter \eqn{\sigma^2}, and prior mixture weights \eqn{\pi_1,
 \ldots, \pi_K} maximizing the evidence lower bound, \deqn{F(q, \pi,
-\sigma^2) = E_q \log p(y | X, \beta, \sigma^2) - \sum_{j=1}^p
+\sigma^2) = E_q log p(y | X, \beta, \sigma^2) - \sum_{j=1}^p
 D_{KL}(q_j || g),} where \eqn{D_{KL}(q_j || g)} denotes the
 Kullback-Leibler (KL) divergence, a measure of the "distance"
 between (approximate) posterior \eqn{q_j(\beta_j)} and prior
@@ -132,7 +135,7 @@ between (approximate) posterior \eqn{q_j(\beta_j)} and prior
 approximate posteriors \eqn{q_1, \ldots, q_p}, separately for each
 \eqn{j = 1, \ldots, p} (in an order determined by
 \code{update.order}), then separately updates the mixture weights
-and \eqn{\pi} and residual variance \eqn{\sigma^2}. This
+\eqn{\pi} and residual variance \eqn{\sigma^2}. This
 coordinate-wise update scheme iterates until the convergence
 criterion is met, or until the algorithm hits an upper bound on
 the number of iterations (specified by \code{max.iter}).
@@ -162,18 +165,18 @@ defined by \code{mr_ash_control_default}):
   data.}
 
 \item{\code{update.sigma2}}{If \code{update.sigma2 = TRUE}, the
-  residual variance parameter \eqn{sigma^2} is estimated from the
+  residual variance parameter \eqn{\sigma^2} is estimated from the
   data.}
 
-\item{\code{update.order}}{The order in which the co-ordinate
+\item{\code{update.order}}{The order in which the coordinate
   ascent updates for estimating the posterior mean coefficients are
   performed. \code{update.order} can be \code{NULL}, \code{"random"},
   or any permutation of \eqn{(1,\ldots,p)}, where \code{p} is the
   number of columns in the input matrix \code{X}. When
-  \code{update.order} is \code{NULL}, the co-ordinate ascent updates
+  \code{update.order} is \code{NULL}, the coordinate ascent updates
   are performed in order in which they appear in \code{X}; this is
   equivalent to setting \code{update.order = 1:p}. When
-  \code{update.order = "random"}, the co-ordinate ascent updates are
+  \code{update.order = "random"}, the coordinate ascent updates are
   performed in a randomly generated order, and this random ordering
   is different at each outer-loop iteration.}
 
