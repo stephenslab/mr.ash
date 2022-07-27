@@ -102,9 +102,11 @@ over each outer-loop iteration.}
   conditional on assignment to each mixture component.}
 
 \item{lfsr}{A vector of length p containing the local false
-  discovery rate for each variable}
+  discovery rate for each variable.}
 
-\item{sa2}{vector of prior mixture component variances}
+\item{sa2}{vector of prior mixture component variances.}
+
+\item{fitted}{fitted values for each row of \code{X}.}
 }
 \description{
 Model fitting algorithms for Multiple Regression with

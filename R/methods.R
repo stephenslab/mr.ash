@@ -12,17 +12,17 @@
 #'   the number of samples and p is the number of predictors. When
 #'   \code{newx} is \code{NULL}, the fitted values for the training data
 #'   are provided.
-#' 
+#'
 #' @param type The type of output. For \code{type = "response"},
 #'   predicted or fitted outcomes are returned; for \code{type =
 #'   "coefficients"}, the estimated coefficients are returned.
-#' 
+#'
 #' @param ... Additional arguments passed to the default S3 method.
 #'
 #' @return For \code{type = "response"}, predicted or fitted outcomes
 #' are returned; for \code{type = "coefficients"}, the estimated
-#' coefficients are returned.
-#' 
+#' coefficients (including the intercept in position 1) are returned.
+#'
 #' @examples
 #' ## generate synthetic data
 #' set.seed(1)
@@ -32,23 +32,40 @@
 #' beta        = double(p)
 #' beta[1:10]  = 1:10
 #' y           = X %*% beta + rnorm(n)
-#' 
+#'
 #' ## fit mr.ash model
 #' fit.mr.ash  = mr_ash(X, y)
-#' 
+#'
 #' ## predict
 #' Xnew        = matrix(rnorm(n*p),n,p)
 #' ypred       = predict(fit.mr.ash, Xnew)
-#' 
+#'
 #' @importFrom stats predict
-#' 
+#'
 #' @export predict.mr.ash
-#' 
+#'
 #' @export
-#' 
+#'
 predict.mr.ash <- function (object, newx = NULL,
                             type=c("response","coefficients"),...) {
-  
+
+
+  # argument checking
+  if (class(object)[1] != "mr.ash")
+    stop("object must be of class mr.ash")
+
+  p <- length(object$beta)
+
+  if (!is.null(newx)) {
+
+    if(!is.numeric(newx))
+      stop("newx must be numeric")
+    if (ncol(newx) != p)
+      stop("newx must have the same number of columns as object$beta")
+
+  }
+
+
   type <- match.arg(type)
   if (type == "coefficients"){
     if(!missing(newx))
@@ -69,16 +86,16 @@ predict.mr.ash <- function (object, newx = NULL,
 #'
 #' @description Retrieve posterior mean estimates of the regression
 #'   coefficients in a Mr.ASH model.
-#' 
+#'
 #' @param object A Mr.ASH fit, usually the result of calling
 #'   \code{mr.ash}.
 #'
 #' @param ... Additional arguments passed to the default S3 method.
-#' 
+#'
 #' @return A p+1 vector. The first element gives the estimated
 #'   intercept, and the remaining p elements are the estimated
 #'   regression coefficients.
-#'   
+#'
 #' ## generate synthetic data
 #' set.seed(1)
 #' n           = 200
@@ -87,20 +104,20 @@ predict.mr.ash <- function (object, newx = NULL,
 #' beta        = double(p)
 #' beta[1:10]  = 1:10
 #' y           = X %*% beta + rnorm(n)
-#' 
+#'
 #' ## fit mr.ash model
 #' fit.mr.ash  = mr_ash(X, y)
-#' 
+#'
 #' ## coefficient
 #' coef.mr.ash = coef(fit.mr.ash)
 #' intercept   = coef.mr.ash[1]
 #' beta        = coef.mr.ash[-1]
-#' 
+#'
 #' @importFrom stats coef
-#' 
+#'
 #' @export coef.mr.ash
-#' 
+#'
 #' @export
-#' 
+#'
 coef.mr.ash <- function (object, ...)
   c(object$intercept,object$beta)

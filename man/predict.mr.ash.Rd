@@ -25,7 +25,7 @@ predicted or fitted outcomes are returned; for \code{type =
 \value{
 For \code{type = "response"}, predicted or fitted outcomes
 are returned; for \code{type = "coefficients"}, the estimated
-coefficients are returned.
+coefficients (including the intercept in position 1) are returned.
 }
 \description{
 This function predicts outcomes (y) given the observed

@@ -157,9 +157,11 @@
 #'   conditional on assignment to each mixture component.}
 #'
 #' \item{lfsr}{A vector of length p containing the local false
-#'   discovery rate for each variable}
+#'   discovery rate for each variable.}
 #'
-#' \item{sa2}{vector of prior mixture component variances}
+#' \item{sa2}{vector of prior mixture component variances.}
+#'
+#' \item{fitted}{fitted values for each row of \code{X}.}
 #'
 #'
 #' @seealso \code{\link{predict.mr.ash}}
@@ -277,6 +279,9 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 
   # Check and process input argument "verbose".
   verbose <- match.arg(verbose)
+
+  # write off original X for fitted values
+  og_data_X <- X
 
   # remove covariates
   res    <- remove_covariate(X,y,NULL,standardize,intercept)
@@ -399,6 +404,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   out$beta <- drop(out$beta)
   out$pi <- drop(out$pi)
   out$sa2 <- sa2
+  out$fitted <- as.vector(og_data_X %*% out$beta + out$intercept)
   names(out$beta) <- colnames(X)
   class(out) <- c("mr.ash","list")
   return(out)
