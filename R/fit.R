@@ -346,6 +346,8 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     Phi <- matrix(rep(pi,each = p),nrow = p)
 
   }
+  
+  pi[1] <- pi[1] + 0
 
 
   # run algorithm
