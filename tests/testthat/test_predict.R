@@ -1,6 +1,6 @@
 context("predict")
 
-test_that("predict with newx NULL matches predict with newx = X", {
+test_that("predict with newx = NULL matches predict with newx = X", {
 
   set.seed(1)
   n <- 1000
