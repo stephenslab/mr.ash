@@ -51,7 +51,7 @@ predict.mr.ash <- function (object, newx = NULL,
 
 
   # argument checking
-  if (class(object)[1] != "mr.ash")
+  if (!inherits(object, "mr.ash"))
     stop("object must be of class mr.ash")
 
   p <- length(object$beta)
