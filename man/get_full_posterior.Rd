@@ -23,7 +23,7 @@ A list object with the following elements:
 
 \item{s2}{A p x K matrix containing the posterior variances
   conditional on assignment to each mixture component.}
-  
+
 \item{lfsr}{A vector of length p containing the local false
   discovery rate for each variable}
 }

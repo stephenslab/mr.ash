@@ -16,7 +16,7 @@
 A p+1 vector. The first element gives the estimated
   intercept, and the remaining p elements are the estimated
   regression coefficients.
-  
+
 ## generate synthetic data
 set.seed(1)
 n           = 200
