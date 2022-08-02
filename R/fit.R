@@ -1,4 +1,4 @@
-#' @rdname mr_ash
+#' @rdname fit_mr_ash
 #'
 #' @title Multiple Regression with Adaptive Shrinkage
 #'
@@ -203,7 +203,7 @@
 #'
 #' @export
 #'
-mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
+fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
                     sigma2 = NULL, standardize = FALSE, intercept = TRUE,
                     control = list(),
                     verbose = c("progress","detailed","none")) {
@@ -346,7 +346,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     Phi <- matrix(rep(pi,each = p),nrow = p)
 
   }
-  
+
   pi[1] <- pi[1] + 0
 
 
@@ -417,11 +417,11 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 #' @description Recover the parameters specifying the variational
 #'   approximation to the posterior distribution of the regression
 #'   coefficients. To streamline the model fitting implementation, and
-#'   to reduce memory requirements, \code{\link{mr_ash}} does not store
+#'   to reduce memory requirements, \code{\link{fit_mr_ash}} does not store
 #'   all the parameters needed to specify the approximate posterior.
 #'
 #' @param fit A Mr.ASH fit obtained, for example, by running
-#'   \code{\link{mr_ash}}.
+#'   \code{\link{fit_mr_ash}}.
 #'
 #' @return A list object with the following elements:
 #'
@@ -450,7 +450,7 @@ mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 #' y           = X %*% beta + rnorm(n)
 #'
 #' # Fit mr.ash model.
-#' fit <- mr_ash(X, y)
+#' fit <- fit_mr_ash(X, y)
 #'
 #' @export
 #'
@@ -474,7 +474,7 @@ get_full_posterior <- function (X, y, w, beta, pi, sigma2, sa2) {
   return (list(phi = phi, m = m, s2 = s2, lfsr = lfsr))
 }
 
-#' @rdname mr_ash
+#' @rdname fit_mr_ash
 #'
 #' @export
 #'

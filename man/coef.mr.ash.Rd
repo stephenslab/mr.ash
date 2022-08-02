@@ -27,7 +27,7 @@ beta[1:10]  = 1:10
 y           = X %*% beta + rnorm(n)
 
 ## fit mr.ash model
-fit.mr.ash  = mr_ash(X, y)
+fit.mr.ash  = fit_mr_ash(X, y)
 
 ## coefficient
 coef.mr.ash = coef(fit.mr.ash)
