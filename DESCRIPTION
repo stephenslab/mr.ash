@@ -1,8 +1,8 @@
 Encoding: UTF-8
 Type: Package
 Package: mr.ash
-Version: 0.1-62
-Date: 2022-07-08
+Version: 0.1-63
+Date: 2022-08-02
 Title: Multiple Regression with Adaptive Shrinkage
 Authors@R: c(person("Youngseok","Kim",role=c("aut","cre"),
                     email="youngseok@uchicago.edu"),
@@ -10,7 +10,8 @@ Authors@R: c(person("Youngseok","Kim",role=c("aut","cre"),
                     email="lwang19@uchicago.edu"),
              person("Peter","Carbonetto",role="aut",
                     email="peter.carbonetto@gmail.com"),
-             person("Matthew","Stephens",role="aut"))
+             person("Matthew","Stephens",role="aut"),
+             person("Eric","Weine",role="aut"))
 URL: https://github.com/stephenslab/mr.ash
 BugReports: https://github.com/stephenslab/mr.ash/issues
 Description: Implements variational empirical Bayes methods for linear
