@@ -5,7 +5,7 @@
 #'   estimates of the regression coefficients.
 #'
 #' @param object A mr_ash fit, usually the result of calling
-#'   \code{\link{mr_ash}}.
+#'   \code{\link{fit_mr_ash}}.
 #'
 #' @param newx The input matrix, of dimension (n,p); each column is a
 #'   single predictor; and each row is an observation vector. Here, n is
@@ -34,7 +34,7 @@
 #' y           = X %*% beta + rnorm(n)
 #'
 #' ## fit mr.ash model
-#' fit.mr.ash  = mr_ash(X, y)
+#' fit.mr.ash  = fit_mr_ash(X, y)
 #'
 #' ## predict
 #' Xnew        = matrix(rnorm(n*p),n,p)
@@ -106,7 +106,7 @@ predict.mr.ash <- function (object, newx = NULL,
 #' y           = X %*% beta + rnorm(n)
 #'
 #' ## fit mr.ash model
-#' fit.mr.ash  = mr_ash(X, y)
+#' fit.mr.ash  = fit_mr_ash(X, y)
 #'
 #' ## coefficient
 #' coef.mr.ash = coef(fit.mr.ash)
