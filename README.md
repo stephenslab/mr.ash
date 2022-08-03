@@ -4,6 +4,7 @@
 [![R-CMD-check](https://github.com/stephenslab/mr.ash/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stephenslab/mr.ash/actions/workflows/R-CMD-check.yaml)
 [![CircleCI build status](https://dl.circleci.com/status-badge/img/gh/stephenslab/mr.ash/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/stephenslab/mr.ash/tree/master)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/5ajikmfnhobvm4d7?svg=true)](https://ci.appveyor.com/project/pcarbo/mr-ash)
+[![codecov](https://codecov.io/gh/stephenslab/mr.ash/branch/master/graph/badge.svg?token=0VBKJTPK3U)](https://codecov.io/gh/stephenslab/mr.ash)
 
 R package implementing Multiple Regression with Adaptive Shrinkage
 ("mr.ash") methods and algorithms.
