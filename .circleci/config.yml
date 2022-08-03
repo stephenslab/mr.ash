@@ -34,7 +34,7 @@ jobs:
           no_output_timeout: 15m
           command: R CMD check --as-cran --ignore-vignettes --no-manual --no-examples *tar.gz
       - store_artifacts:
-          path: fastTopics.Rcheck/
+          path: mr.ash.Rcheck/
       - save_cache:
           key: r-pkg-cache-{{ arch }}-{{ .Branch }}
           paths:
