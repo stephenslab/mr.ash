@@ -18,10 +18,8 @@ jobs:
           name: Install package dependencies
           command: |
             mkdir -p ~/R/Library
-            Rscript -e 'install.packages(c("devtools","remotes","quadprog","MCMCpack","irlba","Rtsne","uwot","dplyr","Rcpp","RcppArmadillo","RcppParallel","progress","pbapply","ggplot2","ggrepel","cowplot","plotly","htmlwidgets","testthat","Ternary"))'
-            Rscript -e 'devtools::install_github("slowkow/ggrepel",upgrade="never",force=TRUE)'
-            Rscript -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
-            Rscript -e 'devtools::install_github("linxihui/NNLM",upgrade="never",force=TRUE)'
+            Rscript -e 'install.packages(c("devtools","remotes","Rcpp","RcppArmadillo","rmarkdown","knitr","testthat"))'
+            Rscript -e 'remotes::install_github("stephenslab/mr.ash.alpha",upgrade="never",force=TRUE)'
       - run:
           name: Session information and installed package versions
           command: |
@@ -33,7 +31,7 @@ jobs:
           command: R CMD build --no-build-vignettes --no-manual .
       - run:
           name: Check package
-          no_output_timeout: 55m
+          no_output_timeout: 15m
           command: R CMD check --as-cran --ignore-vignettes --no-manual --no-examples *tar.gz
       - store_artifacts:
           path: fastTopics.Rcheck/
