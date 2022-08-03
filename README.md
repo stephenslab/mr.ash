@@ -1,6 +1,6 @@
 # mr.ash
 
-[![R-CMD-check](https://github.com/stephenslab/mr.ash/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/mr.ash/actions)
+[![R-CMD-check](https://github.com/stephenslab/mr.ash/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/stephenslab/mr.ash/actions/workflows/R-CMD-check.yaml)
 [![CircleCI build status](https://dl.circleci.com/status-badge/img/gh/stephenslab/mr.ash/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/stephenslab/mr.ash/tree/master)
 [![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/5ajikmfnhobvm4d7?svg=true)](https://ci.appveyor.com/project/pcarbo/mr-ash)
 
