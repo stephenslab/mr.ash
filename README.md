@@ -1,6 +1,7 @@
 # mr.ash
 
 [![R-CMD-check](https://github.com/stephenslab/mr.ash/workflows/R-CMD-check/badge.svg)](https://github.com/stephenslab/mr.ash/actions)
+[![CircleCI build status](https://circleci.com/gh/stephenslab/mr.ash.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/mr.ash)
 
 R package implementing Multiple Regression with Adaptive Shrinkage
 ("mr.ash") methods and algorithms.
