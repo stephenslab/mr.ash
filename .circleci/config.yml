@@ -28,11 +28,11 @@ jobs:
             Rscript -e 'rmarkdown::pandoc_version()'
       - run:
           name: Build package
-          command: R CMD build .
+          command: R CMD build --no-manual .
       - run:
           name: Check package
           no_output_timeout: 15m
-          command: R CMD check --as-cran *tar.gz
+          command: R CMD check --as-cran --no-manual *tar.gz
       - store_artifacts:
           path: mr.ash.Rcheck/
       - save_cache:
