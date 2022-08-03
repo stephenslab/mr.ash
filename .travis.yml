@@ -11,7 +11,7 @@ r_packages:
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 install:
-  - R -e 'install.packages(c("testthat","Rcpp","RcppArmadillo","remotes","rmarkdown","knitr"))'
+  - R -e 'install.packages(c("testthat","Rcpp","RcppArmadillo","remotes","rmarkdown","knitr","covr"))'
   - R -e 'remotes::install_github("stephenslab/mr.ash.alpha",upgrade="never",force=TRUE)'  
 env:
   global:
