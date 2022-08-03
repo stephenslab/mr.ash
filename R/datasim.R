@@ -99,28 +99,3 @@ simulate_data <- function(n, p, pve, s) {
              beta = sim_y$beta, pve = pve, s = s)
   return(lst)
 }
-
-
-##############################################
-# Things to delete later if not used: 
-##############################################
-
-# Simulate the gene matrix X. [NOT USED]
-#
-#' @importFrom stats runif
-simulate_gene_data <- function(n, p) {
-  
-  # check input: [CHECK atomic vs. scalar]
-  if (!(is.integer(n) & all(n >= 2)))
-    stop("Input argument \"n\" should be 2 or more")
-  if (!(is.integer(p) & all(p >= 2)))
-    stop("Input argument \"p\" should be 2 or more")
-  
-  # simulate gene data set [BORROWED FROM varbvs.qtl.R]
-  maf <- 0.05 + 0.45*runif(p)
-  X   <- (runif(n*p) < maf) +
-    (runif(n*p) < maf)
-  X   <- matrix(as.double(X),n,p,byrow = TRUE)
-  
-  return(X)
-}
