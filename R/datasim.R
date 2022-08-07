@@ -142,5 +142,5 @@ simulate_regression_data <- function (
       y = y, X = X, Z = Z, u = u, beta = beta
     )
   )
-
+  
 }
