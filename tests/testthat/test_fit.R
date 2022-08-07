@@ -38,7 +38,7 @@ test_that("non-decreasing ELBO", {
   p     <- 400
   pve   <- 0.2
   s     <- 10
-  data  <- simulate_data(n, p, pve, s)
+  data  <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fit mr.ash
   capture.output(fit <- fit_mr_ash(data$X, data$y))
@@ -56,7 +56,7 @@ test_that("lfsr between 0 and 1", {
   p     <- 400
   pve   <- 0.2
   s     <- 10
-  data  <- simulate_data(n, p, pve, s)
+  data  <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fit mr.ash
   capture.output(fit <- fit_mr_ash(data$X, data$y))

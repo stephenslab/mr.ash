@@ -4,34 +4,60 @@
 \alias{simulate_regression_data}
 \title{Simulate Regression Data}
 \usage{
-simulate_regression_data(n, p)
+simulate_regression_data(
+  n,
+  p,
+  s,
+  sigma = 1,
+  pve = 0.5,
+  standardize_X = TRUE,
+  intercept = 0,
+  ncov = 0
+)
 }
 \arguments{
-\item{n}{number of samples}
+\item{n}{number of samples. Must be at least 2.}
 
-\item{p}{number of variables}
+\item{p}{number of regression variables. Must be at least 2.}
 
 \item{s}{number of non-zero effects}
 
-\item{se}{standard deviation of the residual}
+\item{sigma}{(optional) standard deviation of the residual. Defaults to 1.}
 
-\item{pve}{proportion of variance in Y explained by X}
+\item{pve}{(optional) proportion of variance in Y explained by X. Defaults to
+.5.}
 
-\item{misc}{FILL IN OTHER PARAMS}
+\item{standardize_X}{(optional) whether or not to standardize the columns of
+X. Defaults to \code{TRUE}.}
+
+\item{intercept}{(optional) intercept of regression equation. Defaults to 0.
+\eqn{\beta_0} below.}
+
+\item{ncov}{(optional) number of covariates in Z. Defaults to 0}
 }
 \value{
-Y an n vector simulated gaussian (not centered or scaled)
-
-Y_std an n vector simulated gaussian centered and scaled
-
-beta a p vector of effects
-
-sigma
-
-sigma_std
-
-mean_corX mean of correlations of effect variables (lower triangular entries of correlation matrix of effect variables)
+A list with components
+\itemize{
+  \item y - \code{n} vector containing regression response.
+  \item X - \code{n} by \code{p} matrix of regression variables X.
+  \item Z - \code{n} by \code{ncov} matrix of covariates Z.
+  \item u - \code{ncov} vector containing covariate coefficients u.
+  \item beta - \code{p} vector contained regression coefficients \eqn{\beta}.
+}
 }
 \description{
-Simulate non-sparse data matrix X (and a corresponding normal y?)
+Simulate regression data from a mr ash model.
+}
+\details{
+Data are generated from the model \deqn{y | X, \beta, \sigma^2, \beta_0 ~
+N(\beta_0 + X \beta + Zu, \sigma I_n),} where the regression coefficients
+\eqn{\beta} are first generated as \deqn{\beta | s ~ ((p - s) / p) \delta_0 +
+(s / p) N(0, 1),} and then scaled to achieve the desired proportion
+of variance in y explained by X (\code{pve}).
+}
+\examples{
+
+# simulate 100 x 100 regression data with 75\% sparsity
+simulate_regression_data(100, 100, 25)
+
 }

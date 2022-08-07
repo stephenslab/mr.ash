@@ -11,7 +11,7 @@ test_that("Scaling X result in same phi", {
   p        <- 400
   pve      <- 0.2
   s        <- 10
-  data     <- simulate_data(n, p, pve, s)
+  data     <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
   epstol   <- 1e-12
   X.scaled <- data$X *  runif(1, -10, 10) + epstol
 
@@ -35,7 +35,7 @@ test_that("Standardized X yield the same result regardless of
   p        <- 400
   pve      <- 0.2
   s        <- 10
-  data     <- simulate_data(n, p, pve, s)
+  data     <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
   X.std    <- scale(data$X, center = TRUE, scale = TRUE)
 
   # fit mr.ash (X, y), (X.std, y)
@@ -59,7 +59,7 @@ test_that("Check length of beta w/ and w/o intercept flat", {
   p        <- 400
   pve      <- 0.2
   s        <- 10
-  data     <- simulate_data(n, p, pve, s)
+  data     <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fit mr.ash (X, y), intercept == FALSE
   capture.output(fit.Xy <- fit_mr_ash(data$X, data$y, intercept = F))

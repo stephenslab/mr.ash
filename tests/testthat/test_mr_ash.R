@@ -12,7 +12,7 @@ test_that("check identical fit", {
   p     <- 400
   pve   <- 0.2
   s     <- 10
-  data  <- simulate_data(n, p, pve, s)
+  data  <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fitting mr.ash.alpha and convirting classes
   capture.output(fit.alpha <- mr.ash.alpha::mr.ash(data$X, data$y))
@@ -52,7 +52,7 @@ test_that("check identical posterior", {
   p     <- 400
   pve   <- 0.2
   s     <- 10
-  data  <- simulate_data(n, p, pve, s)
+  data  <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fitting mr.ash.alpha
   capture.output(fit.alpha <- mr.ash.alpha::mr.ash(data$X, data$y))

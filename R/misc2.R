@@ -1,15 +1,21 @@
 # ----------------------------------------------------------------------
-# Additional auxiliary functions. 
+# Additional auxiliary functions.
 # Could be merged into misc.R after testing
 # ----------------------------------------------------------------------
 
-# Return true 
+# Return true
 is.scalar <- function(x) {
-  if (!(length(x) == 1 &
-        is.numeric(x)) &
+  if (!(length(x) == 1 &&
+        is.numeric(x)) &&
         !(is.na(x))) {
-    stop("Input argument is not a scalar")
+    return(FALSE)
   } else {
     return(TRUE)
   }
+}
+
+is.int <- function(x) {
+
+  x %% 1 == 0
+
 }
