@@ -1,29 +1,33 @@
-#' @title Simulate Regression Data
+#' @title Simulate Data from Multiple Regression Model
 #'
-#' @description Simulate regression data from a mr ash model.
+#' @description Simulate regression data from a multiple regression
+#'   model.
 #'
-#' @details Data are generated from the model \deqn{y | X, \beta, \sigma^2, \beta_0 ~
-#' N(\beta_0 + X \beta + Zu, \sigma I_n),} where the regression coefficients
-#' \eqn{\beta} are first generated as \deqn{\beta | s ~ ((p - s) / p) \delta_0 +
-#' (s / p) N(0, 1),} and then scaled to achieve the desired proportion
-#' of variance in y explained by X (\code{pve}).
+#' @details Data are generated from the model \deqn{y | X, \beta,
+#' \sigma^2, \beta_0 \sim N(\beta_0 + X \beta + Zu, \sigma I_n),} in
+#' which the non-zero regression coefficients are drawn from the
+#' standard normal, and then scaled to achieve the desired proportion
+#' of variance in y explained by X (see input argument \code{pve}).
 #'
 #' @param n number of samples. Must be at least 2.
 #'
 #' @param p number of regression variables. Must be at least 2.
 #'
-#' @param s number of non-zero effects
+#' @param s number of non-zero regression coefficients.
 #'
-#' @param sigma (optional) standard deviation of the residual. Defaults to 1.
+#' @param sigma standard deviation of the residual.
 #'
-#' @param pve (optional) proportion of variance in Y explained by X. Defaults to
-#' .5.
+#' @param pve proportion of variance in Y explained by X.
 #'
-#' @param standardize_X (optional) whether or not to standardize the columns of
-#' X. Defaults to \code{TRUE}.
+#' @param center_X If \code{center_X = TRUE}, the columns of X are
+#'   centered before simulating y so that each column as a mean of
+#'   zero.
+#' 
+#' @param standardize_X If \code{standardize_X = TRUE}, the columns of
+#'   X are standardized before simulating y so that each column as a
+#'   mean of zero and a standard deviation of 1.
 #'
-#' @param intercept (optional) intercept of regression equation. Defaults to 0.
-#' \eqn{\beta_0} below.
+#' @param intercept intercept of regression equation. \eqn{\beta_0} below.
 #'
 #' @param ncov (optional) number of covariates in Z. Defaults to 0
 #'
@@ -50,8 +54,9 @@ simulate_regression_data <- function (
   p,
   s,
   sigma = 1,
-  pve = .5,
-  standardize_X = TRUE,
+  pve = 0.5,
+  center_X = TRUE,
+  standardize_X = FALSE,
   intercept = 0,
   ncov = 0
 ) {
@@ -62,16 +67,18 @@ simulate_regression_data <- function (
   if (!(is.scalar(p) && p >= 2 && is.int(p)))
     stop("Input argument \"p\" should be an integer equal to 2 or more")
   if (!(is.scalar(s) && s >= 1 && s <= p && is.int(s)))
-    stop("Input argument \"s\" should be an integer between 1 and p (inclusive)")
+    stop("Input argument \"s\" should be an integer between 1 and p ",
+         "(inclusive)")
   if (!(is.scalar(sigma) && sigma >= 0))
     stop("Input argument \"sigma\" should be a scalar greater than 0")
   if (!(is.scalar(pve) && pve >= 0 && pve < 1))
-    stop("Input argument \"pve\" should be a scalar between 0 (inclusive) and 1 (exclusive)")
+    stop("Input argument \"pve\" should be a scalar between 0 (inclusive) ",
+         "and 1 (exclusive)")
   if (!is.scalar(intercept))
     stop("Input argument \"intercept\" should be a scalar")
   if (!(is.scalar(ncov) && ncov >= 0 && is.int(ncov)))
-    stop("Input argument \"pve\" should be a scalar between 0 and 1 (inclusive)")
-
+    stop("Input argument \"pve\" should be a scalar between 0 and 1 ",
+         "(inclusive)")
 
   # simulate data matrix X:
   X <- matrix(rnorm(n * p), n, p)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_regression_data}
 \alias{simulate_regression_data}
-\title{Simulate Regression Data}
+\title{Simulate Data from Multiple Regression Model}
 \usage{
 simulate_regression_data(
   n,
@@ -10,7 +10,8 @@ simulate_regression_data(
   s,
   sigma = 1,
   pve = 0.5,
-  standardize_X = TRUE,
+  center_X = TRUE,
+  standardize_X = FALSE,
   intercept = 0,
   ncov = 0
 )
@@ -20,18 +21,21 @@ simulate_regression_data(
 
 \item{p}{number of regression variables. Must be at least 2.}
 
-\item{s}{number of non-zero effects}
+\item{s}{number of non-zero regression coefficients.}
 
-\item{sigma}{(optional) standard deviation of the residual. Defaults to 1.}
+\item{sigma}{standard deviation of the residual.}
 
-\item{pve}{(optional) proportion of variance in Y explained by X. Defaults to
-.5.}
+\item{pve}{proportion of variance in Y explained by X.}
 
-\item{standardize_X}{(optional) whether or not to standardize the columns of
-X. Defaults to \code{TRUE}.}
+\item{center_X}{If \code{center_X = TRUE}, the columns of X are
+centered before simulating y so that each column as a mean of
+zero.}
 
-\item{intercept}{(optional) intercept of regression equation. Defaults to 0.
-\eqn{\beta_0} below.}
+\item{standardize_X}{If \code{standardize_X = TRUE}, the columns of
+X are standardized before simulating y so that each column as a
+mean of zero and a standard deviation of 1.}
+
+\item{intercept}{intercept of regression equation. \eqn{\beta_0} below.}
 
 \item{ncov}{(optional) number of covariates in Z. Defaults to 0}
 }
@@ -46,14 +50,15 @@ A list with components
 }
 }
 \description{
-Simulate regression data from a mr ash model.
+Simulate regression data from a multiple regression
+  model.
 }
 \details{
-Data are generated from the model \deqn{y | X, \beta, \sigma^2, \beta_0 ~
-N(\beta_0 + X \beta + Zu, \sigma I_n),} where the regression coefficients
-\eqn{\beta} are first generated as \deqn{\beta | s ~ ((p - s) / p) \delta_0 +
-(s / p) N(0, 1),} and then scaled to achieve the desired proportion
-of variance in y explained by X (\code{pve}).
+Data are generated from the model \deqn{y | X, \beta,
+\sigma^2, \beta_0 \sim N(\beta_0 + X \beta + Zu, \sigma I_n),} in
+which the non-zero regression coefficients are drawn from the
+standard normal, and then scaled to achieve the desired proportion
+of variance in y explained by X (see input argument \code{pve}).
 }
 \examples{
 
