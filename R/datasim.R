@@ -21,8 +21,9 @@
 #'
 #' @param center_X If \code{center_X = TRUE}, the columns of X are
 #'   centered before simulating y so that each column as a mean of
-#'   zero.
-#' 
+#'   zero. Note that if \code{standardize_X = TRUE} this argument must
+#'   be set to \code{TRUE}.
+#'
 #' @param standardize_X If \code{standardize_X = TRUE}, the columns of
 #'   X are standardized before simulating y so that each column as a
 #'   mean of zero and a standard deviation of 1.
@@ -32,21 +33,21 @@
 #' @param ncov (optional) number of covariates in Z. Defaults to 0
 #'
 #' @return A list with the following components:
-#' 
+#'
 #' \item{y}{\code{n} vector containing regression response.}
 #'
 #' \item{X}{\code{n} by \code{p} matrix of regression variables X.}
-#' 
+#'
 #' \item{Z}{\code{n} by \code{ncov} matrix of covariates Z.}
-#' 
+#'
 #' \item{u}{\code{ncov} vector containing covariate coefficients u.}
-#' 
+#'
 #' \item{beta}{\code{p} vector contained regression coefficients \eqn{\beta}.}
 #'
 #' \item{intercept}{Describe output intercept here.}
 #'
 #' \item{sigma}{Describe output sigma here.}
-#' 
+#'
 #' @importFrom stats rnorm sd cor
 #'
 #' @export
@@ -55,6 +56,13 @@
 #'
 #' # simulate 100 x 100 regression data with 75% sparsity
 #' simulate_regression_data(n = 100, p = 100, s = 25)
+#'
+#' # simulate 100 x 100 regression data with
+#' # 50% sparsity and 100% variance explained
+#' simulate_regression_data(n = 100, p = 100, s = 50, pve = 1, sigma = 0)
+#'
+#' # simulate 100 x 100 regression data with 50% sparsity and 10 covariates
+#' simulate_regression_data(n = 100, p = 100, s = 50, ncov = 10)
 #'
 simulate_regression_data <- function (
   n,
@@ -69,28 +77,38 @@ simulate_regression_data <- function (
 ) {
 
   # Argument checking
-  if (!(is.scalar(n) && n >= 2 && is.int(n)))
+  if (!(is.scalar(n) && n >= 2))
     stop("Input argument \"n\" should be an integer equal to 2 or more")
-  if (!(is.scalar(p) && p >= 2 && is.int(p)))
+  if (!(is.scalar(p) && p >= 2))
     stop("Input argument \"p\" should be an integer equal to 2 or more")
-  if (!(is.scalar(s) && s >= 1 && s <= p && is.int(s)))
-    stop("Input argument \"s\" should be an integer between 1 and p ",
+  if (!(is.scalar(s) && s >= 0 && s <= p))
+    stop("Input argument \"s\" should be an integer between 0 and p ",
          "(inclusive)")
   if (!(is.scalar(sigma) && sigma >= 0))
     stop("Input argument \"sigma\" should be a scalar greater than 0")
-  if (!(is.scalar(pve) && pve >= 0 && pve < 1))
-    stop("Input argument \"pve\" should be a scalar between 0 (inclusive) ",
-         "and 1 (exclusive)")
+  if (!(is.scalar(pve) && pve >= 0 && pve <= 1))
+    stop("Input argument \"pve\" should be a scalar between 0 ",
+         "and 1 (inclusive)")
   if (!is.scalar(intercept))
     stop("Input argument \"intercept\" should be a scalar")
-  if (!(is.scalar(ncov) && ncov >= 0 && is.int(ncov)))
-    stop("Input argument \"pve\" should be a scalar between 0 and 1 ",
+  if (!(is.scalar(ncov) && ncov >= 0))
+    stop("Input argument \"ncov\" should be an greater than or equal to 0 ",
          "(inclusive)")
+  if(!center_X && standardize_X)
+    stop("Input argument \"center_X\" must be set to TRUE if \"standardize_X\"",
+         " is TRUE")
+  if(pve == 1 && sigma != 0)
+    stop("If input argument \"pve\" is 1, \"sigma\" must be 0")
+
+  # take floor of all integer arguments in case float was given
+  n <- floor(n)
+  p <- floor(p)
+  s <- floor(s)
+  ncov <- floor(ncov)
 
   # simulate data matrix X:
   X <- matrix(rnorm(n * p), n, p)
-  if (standardize_X)
-    X <- scale(X)
+  X <- scale(X, center = center_X, scale = standardize_X)
 
   # check if s <= p
   if (s > p) {
@@ -103,16 +121,22 @@ simulate_regression_data <- function (
 
   # generate effects
   if(s > 0){
+
     beta.values = rnorm(s)
     beta[beta.idx] = beta.values
-  }
 
-  # Adjust the effects so that we control for the proportion of variance
-  # explained (pve). That is, we adjust beta so that r = a/(a+1), where we
-  # define a = beta'*cov(X)*beta. Here, sb is the variance of the (nonzero)
-  # effects.
-  sb   <- pve/(1-pve)/var(drop(X %*% beta))
-  beta <- sqrt(sb * sigma) * beta
+    # Adjust the effects so that we control for the proportion of variance
+    # explained (pve). That is, we adjust beta so that r = a/(a+1), where we
+    # define a = beta'*cov(X)*beta. Here, sb is the variance of the (nonzero)
+    # effects.
+    if (pve < 1) {
+
+      sb   <- pve/(1-pve)/var(drop(X %*% beta))
+      beta <- sqrt(sb * sigma) * beta
+
+    }
+
+  }
 
   # Generate the covariate data (Z), and the linear effects of the
   # covariates (u).
@@ -157,5 +181,5 @@ simulate_regression_data <- function (
       sigma = sigma
     )
   )
-  
+
 }

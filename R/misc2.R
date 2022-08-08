@@ -13,9 +13,3 @@ is.scalar <- function(x) {
     return(TRUE)
   }
 }
-
-is.int <- function(x) {
-
-  x %% 1 == 0
-
-}

@@ -29,7 +29,8 @@ simulate_regression_data(
 
 \item{center_X}{If \code{center_X = TRUE}, the columns of X are
 centered before simulating y so that each column as a mean of
-zero.}
+zero. Note that if \code{standardize_X = TRUE} this argument must
+be set to \code{TRUE}.}
 
 \item{standardize_X}{If \code{standardize_X = TRUE}, the columns of
 X are standardized before simulating y so that each column as a
@@ -71,5 +72,12 @@ of variance in y explained by X (see input argument \code{pve}).
 
 # simulate 100 x 100 regression data with 75\% sparsity
 simulate_regression_data(n = 100, p = 100, s = 25)
+
+# simulate 100 x 100 regression data with
+# 50\% sparsity and 100\% variance explained
+simulate_regression_data(n = 100, p = 100, s = 50, pve = 1, sigma = 0)
+
+# simulate 100 x 100 regression data with 50\% sparsity and 10 covariates
+simulate_regression_data(n = 100, p = 100, s = 50, ncov = 10)
 
 }
