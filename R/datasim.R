@@ -3,8 +3,8 @@
 #' @description Simulate regression data from a multiple regression
 #'   model.
 #'
-#' @details Data are generated from the model \deqn{y | X, \beta,
-#' \sigma^2, \beta_0 \sim N(\beta_0 + X \beta + Zu, \sigma I_n),} in
+#' @details Data are generated from the model
+#' \deqn{y \sim N(b_0 + X b + Zu, \sigma^2 I),} in
 #' which the non-zero regression coefficients are drawn from the
 #' standard normal, and then scaled to achieve the desired proportion
 #' of variance in y explained by X (see input argument \code{pve}).
@@ -27,19 +27,26 @@
 #'   X are standardized before simulating y so that each column as a
 #'   mean of zero and a standard deviation of 1.
 #'
-#' @param intercept intercept of regression equation. \eqn{\beta_0} below.
+#' @param intercept intercept of regression equation, \eqn{b_0}.
 #'
 #' @param ncov (optional) number of covariates in Z. Defaults to 0
 #'
-#' @return A list with components
-#' \itemize{
-#'   \item y - \code{n} vector containing regression response.
-#'   \item X - \code{n} by \code{p} matrix of regression variables X.
-#'   \item Z - \code{n} by \code{ncov} matrix of covariates Z.
-#'   \item u - \code{ncov} vector containing covariate coefficients u.
-#'   \item beta - \code{p} vector contained regression coefficients \eqn{\beta}.
-#' }
+#' @return A list with the following components:
+#' 
+#' \item{y}{\code{n} vector containing regression response.}
 #'
+#' \item{X}{\code{n} by \code{p} matrix of regression variables X.}
+#' 
+#' \item{Z}{\code{n} by \code{ncov} matrix of covariates Z.}
+#' 
+#' \item{u}{\code{ncov} vector containing covariate coefficients u.}
+#' 
+#' \item{beta}{\code{p} vector contained regression coefficients \eqn{\beta}.}
+#'
+#' \item{intercept}{Describe output intercept here.}
+#'
+#' \item{sigma}{Describe output sigma here.}
+#' 
 #' @importFrom stats rnorm sd cor
 #'
 #' @export
@@ -47,7 +54,7 @@
 #' @examples
 #'
 #' # simulate 100 x 100 regression data with 75% sparsity
-#' simulate_regression_data(100, 100, 25)
+#' simulate_regression_data(n = 100, p = 100, s = 25)
 #'
 simulate_regression_data <- function (
   n,
@@ -104,7 +111,7 @@ simulate_regression_data <- function (
   # explained (pve). That is, we adjust beta so that r = a/(a+1), where we
   # define a = beta'*cov(X)*beta. Here, sb is the variance of the (nonzero)
   # effects.
-  sb   <- pve/(1-pve)/var(c(X %*% beta))
+  sb   <- pve/(1-pve)/var(drop(X %*% beta))
   beta <- sqrt(sb * sigma) * beta
 
   # Generate the covariate data (Z), and the linear effects of the
@@ -125,7 +132,7 @@ simulate_regression_data <- function (
   y <- intercept + X %*% beta + sqrt(sigma)*rnorm(n)
   if (ncov > 0)
     y <- y + Z %*% u
-  y <- c(y)
+  y <- drop(y)
 
   # give names to outputs
   rnames <- paste0("s", 1:n)
@@ -146,7 +153,8 @@ simulate_regression_data <- function (
 
   return(
     list(
-      y = y, X = X, Z = Z, u = u, beta = beta
+      y = y, X = X, Z = Z, u = u, beta = beta, intercept = intercept,
+      sigma = sigma
     )
   )
   

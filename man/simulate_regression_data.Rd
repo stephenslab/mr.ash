@@ -35,27 +35,34 @@ zero.}
 X are standardized before simulating y so that each column as a
 mean of zero and a standard deviation of 1.}
 
-\item{intercept}{intercept of regression equation. \eqn{\beta_0} below.}
+\item{intercept}{intercept of regression equation, \eqn{b_0}.}
 
 \item{ncov}{(optional) number of covariates in Z. Defaults to 0}
 }
 \value{
-A list with components
-\itemize{
-  \item y - \code{n} vector containing regression response.
-  \item X - \code{n} by \code{p} matrix of regression variables X.
-  \item Z - \code{n} by \code{ncov} matrix of covariates Z.
-  \item u - \code{ncov} vector containing covariate coefficients u.
-  \item beta - \code{p} vector contained regression coefficients \eqn{\beta}.
-}
+A list with the following components:
+
+\item{y}{\code{n} vector containing regression response.}
+
+\item{X}{\code{n} by \code{p} matrix of regression variables X.}
+
+\item{Z}{\code{n} by \code{ncov} matrix of covariates Z.}
+
+\item{u}{\code{ncov} vector containing covariate coefficients u.}
+
+\item{beta}{\code{p} vector contained regression coefficients \eqn{\beta}.}
+
+\item{intercept}{Describe output intercept here.}
+
+\item{sigma}{Describe output sigma here.}
 }
 \description{
 Simulate regression data from a multiple regression
   model.
 }
 \details{
-Data are generated from the model \deqn{y | X, \beta,
-\sigma^2, \beta_0 \sim N(\beta_0 + X \beta + Zu, \sigma I_n),} in
+Data are generated from the model
+\deqn{y \sim N(b_0 + X b + Zu, \sigma^2 I),} in
 which the non-zero regression coefficients are drawn from the
 standard normal, and then scaled to achieve the desired proportion
 of variance in y explained by X (see input argument \code{pve}).
@@ -63,6 +70,6 @@ of variance in y explained by X (see input argument \code{pve}).
 \examples{
 
 # simulate 100 x 100 regression data with 75\% sparsity
-simulate_regression_data(100, 100, 25)
+simulate_regression_data(n = 100, p = 100, s = 25)
 
 }
