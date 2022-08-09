@@ -169,7 +169,7 @@
 #' fit0 <- init_mr_ash()
 #'
 #' ### fit Mr.ASH
-#' fit.mr.ash <- mr_ash(X,y,fit0)
+#' fit.mr.ash <- fit_mr_ash(X,y,fit0)
 #'
 #' ### prediction routine
 #' Xnew        = matrix(rnorm(n*p),n,p)
