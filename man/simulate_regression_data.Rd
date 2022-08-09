@@ -17,28 +17,29 @@ simulate_regression_data(
 )
 }
 \arguments{
-\item{n}{number of samples. Must be at least 2.}
+\item{n}{The number of samples. Should be 2 or greater.}
 
-\item{p}{number of regression variables. Must be at least 2.}
+\item{p}{The number of regression variables. Should be 2 or greater.}
 
-\item{s}{number of non-zero regression coefficients.}
+\item{s}{A non-negative number specifying the number of non-zero
+regression coefficients.}
 
-\item{sigma}{standard deviation of the residual.}
+\item{sigma}{The standard deviation of the residual.}
 
-\item{pve}{proportion of variance in Y explained by X.}
+\item{pve}{The proportion of variance in y explained by X.}
 
 \item{center_X}{If \code{center_X = TRUE}, the columns of X are
 centered before simulating y so that each column as a mean of
 zero. Note that if \code{standardize_X = TRUE} this argument must
-be set to \code{TRUE}.}
+also be set to \code{TRUE}.}
 
 \item{standardize_X}{If \code{standardize_X = TRUE}, the columns of
-X are standardized before simulating y so that each column as a
+X are standardized before simulating y so that each column has a
 mean of zero and a standard deviation of 1.}
 
-\item{intercept}{intercept of regression equation, \eqn{b_0}.}
+\item{intercept}{The intercept \eqn{b_0} in the regression model.}
 
-\item{ncov}{(optional) number of covariates in Z. Defaults to 0}
+\item{ncov}{The number of covariates (columns of Z).}
 }
 \value{
 A list with the following components:
@@ -58,15 +59,14 @@ A list with the following components:
 \item{sigma}{Describe output sigma here.}
 }
 \description{
-Simulate regression data from a multiple regression
-  model.
+Simulate data from a multiple regression model.
 }
 \details{
-Data are generated from the model
-\deqn{y \sim N(b_0 + X b + Zu, \sigma^2 I),} in
-which the non-zero regression coefficients are drawn from the
-standard normal, and then scaled to achieve the desired proportion
-of variance in y explained by X (see input argument \code{pve}).
+Data are generated from the linear regressionmodel \deqn{y
+\sim N(b_0 + Xb + Zu, \sigma^2I),} in which the non-zero elements
+of vector \eqn{b} are drawn from the standard normal, and scaled to
+achieve the desired proportion of variance in y explained by X (see
+input argument \dQuote{pve}).
 }
 \examples{
 
