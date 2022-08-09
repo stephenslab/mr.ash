@@ -24,7 +24,8 @@ test_that("check identical fit", {
   # attr(fit.alpha, "class") <- "list"
 
   # fitting mr.ash
-  capture.output(fit <- fit_mr_ash(data$X, data$y))
+  fit0 <- init_mr_ash()
+  capture.output(fit <- fit_mr_ash(data$X, data$y, fit0))
 
   # Conform mr.ash output to mr.ash.alpha output
   fit$elbo     <- NULL
@@ -59,7 +60,8 @@ test_that("check identical posterior", {
   post.alpha <- mr.ash.alpha::get.full.posterior(fit.alpha)
 
   # fitting mr.ash
-  capture.output(fit <- fit_mr_ash(data$X, data$y))
+  fit0 <- init_mr_ash()
+  capture.output(fit <- fit_mr_ash(data$X, data$y, fit0))
   post <- list(phi = fit$phi, m = fit$m, s2 = fit$s2)
 
   # Check same phi value

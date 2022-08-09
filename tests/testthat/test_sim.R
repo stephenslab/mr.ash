@@ -15,7 +15,7 @@ test_that("pve from simulated data matches input pve", {
     )
 
 
-    a = drop(t(sim$beta) %*% cov(sim$X) %*% sim$beta)
+    a = drop(t(sim$b) %*% cov(sim$X) %*% sim$b)
     r = a / (a + 1)
     sim_pve_vec[i] <- r
 
@@ -33,7 +33,7 @@ test_that("pve from simulated data is 1 when pve is 1 and sigma is 0", {
   )
 
 
-  a = drop(t(sim$beta) %*% cov(sim$X) %*% sim$beta)
+  a = drop(t(sim$b) %*% cov(sim$X) %*% sim$b)
   r = a / (a + 1)
 
   expect_equal(r, 1, scale = 1, tolerance = 1e-2)
