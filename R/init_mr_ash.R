@@ -28,35 +28,53 @@
 #' @export
 #'
 init_mr_ash <- function (
-  sa2 = NULL, beta.init = NULL, pi = NULL, sigma2 = NULL
+  sa2, beta.init, pi, sigma2
 ) {
 
-  if (!is.null(sa2)) {
+  # additional check on pi if provided
+  if (
+    (!missing(pi) && !missing(sa2) && length(pi) != length(sa2)) ||
+    (!missing(pi) && is.null(sa2) && length(pi) != 20)
+  ) {
+
+    stop("pi and sa2 must be of the same length.",
+         " Either provide an sa2 with the same length as pi",
+         " or provide a pi of length 20 to match the default length of sa2")
+
+  }
+
+  if (!missing(sa2)) {
     if (any(sa2 < 0))
       stop ("all the mixture component variances must be non-negative.")
     if (sa2[1] != 0)
       stop ("the first mixture component variance sa2[1] must be 0.")
     if (!all(sort(sa2) == sa2))
       stop ("sa2 must be sorted")
+  } else {
+    sa2 <- NULL
   }
 
-  if (!is.null(beta.init)) {
-    if (length(beta.init) != p)
-      stop("The length of beta.init must match the number of columns of X")
+  if (!missing(beta.init)) {
     if (!is.numeric(beta.init))
       stop("beta.init must be a numeric vector")
   }
+  else {
+    beta.init <- NULL
+  }
 
-  if (!is.null(pi)) {
+  if (!missing(pi)) {
 
     if (!is.numeric(pi))
       stop("pi must be a numeric vector")
-    if (!is.null(sa2) && length(sa2) != length(pi))
+    if (!missing(sa2) && length(sa2) != length(pi))
       stop("pi and sa2 must be of the same length")
 
+  } else {
+    pi <- NULL
   }
 
-  if (!is.null(sigma2)) {
+
+  if (!missing(sigma2)) {
 
     if (!is.numeric(sigma2))
       stop("sigma2 must be numeric")
@@ -65,18 +83,8 @@ init_mr_ash <- function (
     if (sigma2 <= 0)
       stop("sigma2 must be greater than 0")
 
-  }
-
-  # additional check on pi if provided
-  if (
-    (!is.null(pi) && !is.null(sa2) && length(pi) != length(sa2)) ||
-    (!is.null(pi) && is.null(sa2) && length(pi) != 20)
-  ) {
-
-    stop("pi and sa2 must be of the same length.",
-         " Either provide an sa2 with the same length as pi",
-         " or provide a pi of length 20 to match the default length of sa2")
-
+  } else {
+    sigma2 <- NULL
   }
 
  fit0 <- list(

@@ -17,9 +17,11 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
 
   # Fit the mr.ash model, then fit a second time in which the fit is
   # initialized to the estimates returned from first mr.ash call.
-  capture.output(fit1 <- fit_mr_ash(X,y,control = list(convtol = 1e-14)))
-  capture.output(fit2 <- fit_mr_ash(X,y,beta.init = fit1$beta,pi = fit1$pi,
-                                sa2 = fit1$sa2,sigma2 = fit1$sigma2,
+  fit0_1 <- init_mr_ash()
+  capture.output(fit1 <- fit_mr_ash(X,y,fit0,control = list(convtol = 1e-14)))
+  fit0_2 <- init_mr_ash(beta.init = fit1$beta,pi = fit1$pi,
+                        sa2 = fit1$sa2,sigma2 = fit1$sigma2)
+  capture.output(fit2 <- fit_mr_ash(X,y,fit0_2,
                                 control = list(convtol = 1e-14)))
 
   # The mr.ash model fits, aside from a few bookkeeping details,
@@ -41,7 +43,8 @@ test_that("non-decreasing ELBO", {
   data  <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fit mr.ash
-  capture.output(fit <- fit_mr_ash(data$X, data$y))
+  fit0 <- init_mr_ash()
+  capture.output(fit <- fit_mr_ash(data$X, data$y,fit0))
 
   # ELBO should be non-decreasing
   expect_true(all(fit$elbo == cummax(fit$elbo)))
@@ -59,7 +62,8 @@ test_that("lfsr between 0 and 1", {
   data  <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
 
   # fit mr.ash
-  capture.output(fit <- fit_mr_ash(data$X, data$y))
+  fit0 <- init_mr_ash()
+  capture.output(fit <- fit_mr_ash(data$X, data$y,fit0))
   test <- sum(fit$lfsr < 0 | fit$lfsr > 1)
   expect_equal(test, 0, scale = 1, tolerance = 1e-8)
 })

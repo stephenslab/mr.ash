@@ -242,6 +242,10 @@ fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
   if (is.null(fit0$beta.init))
     beta <- as.vector(double(p))
   else {
+
+    if (length(fit0$beta.init) != p)
+      stop("The length of beta.init must match the number of columns of X")
+
     if (standardize)
       beta <- drop(fit0$beta.init) * attr(X,"scaled:scale")
     else
@@ -286,7 +290,8 @@ fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
     }
   } else {
 
-    Phi <- matrix(rep(fit0$pi,each = p),nrow = p)
+    pi <- fit0$pi
+    Phi <- matrix(rep(pi,each = p),nrow = p)
 
   }
 
@@ -332,7 +337,7 @@ fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
     out$beta <- out$beta / attr(X,"scaled:scale")
 
   ## warn if necessary
-  if (control$update.pi & out$pi[K] > 1/K)
+  if (control$update.pi && out$pi[K] > 1/K)
     warning(sprintf(paste("The mixture proportion associated with the",
                           "largest prior variance is greater than %0.2e;",
                           "this indicates that the model fit could be",
