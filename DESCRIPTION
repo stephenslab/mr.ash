@@ -1,7 +1,7 @@
 Encoding: UTF-8
 Type: Package
 Package: mr.ash
-Version: 0.1-70
+Version: 0.1-71
 Date: 2022-08-09
 Title: Multiple Regression with Adaptive Shrinkage
 Authors@R: c(person("Youngseok","Kim",role=c("aut","cre"),
