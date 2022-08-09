@@ -85,28 +85,8 @@
 #' @param y The observed continuously-valued responses, a vector of
 #'   length n.
 #'
-#' @param sa2 The vector of prior mixture component variances. The
-#'   variances should be in increasing order, starting at zero; that is,
-#'   \code{sort(sa2)} should be the same as \code{sa2}. When \code{sa2}
-#'   is \code{NULL}, the default setting is used, \code{sa2[k] =
-#'   (2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
-#'   setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.
-#'
-#' @param beta.init The initial estimate of the (approximate)
-#'   posterior mean regression coefficients. This should be \code{NULL},
-#'   or a vector of length p. When \code{beta.init} is \code{NULL}, the
-#'   posterior mean coefficients are all initially set to zero.
-#'
-#' @param pi The initial estimate of the mixture proportions
-#'   \eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
-#'   mixture weights are initialized to \code{rep(1/K,K)}, where
-#'   \code{K = length(sa2)}.
-#'
-#' @param sigma2 The initial estimate of the residual variance,
-#'   \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
-#'   initialized to the empirical variance of the residuals based on the
-#'   initial estimates of the regression coefficients, \code{beta.init},
-#'   after removing linear effects of the intercept and any covariances.
+#' @param fit0 Initialized \code{mr.ash} object resulting from a call to
+#' \code{init_mr_ash}.
 #'
 #' @param standardize The logical flag for standardization of the
 #'   columns of X variable, prior to the model fitting. The coefficients
@@ -186,8 +166,10 @@
 #' beta[1:10] <- 1:10
 #' y          <- drop(X %*% beta + rnorm(n))
 #'
+#' fit0 <- init_mr_ash()
+#'
 #' ### fit Mr.ASH
-#' fit.mr.ash <- mr_ash(X,y)
+#' fit.mr.ash <- mr_ash(X,y,fit0)
 #'
 #' ### prediction routine
 #' Xnew        = matrix(rnorm(n*p),n,p)
@@ -203,8 +185,7 @@
 #'
 #' @export
 #'
-fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
-                    sigma2 = NULL, standardize = FALSE, intercept = TRUE,
+fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
                     control = list(),
                     verbose = c("progress","detailed","none")) {
 
@@ -221,31 +202,6 @@ fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     stop("X and y must be numeric")
   }
 
-  if (!is.null(sa2)) {
-    if (any(sa2 < 0))
-      stop ("all the mixture component variances must be non-negative.")
-    if (sa2[1] != 0)
-      stop ("the first mixture component variance sa2[1] must be 0.")
-    if (!all(sort(sa2) == sa2))
-      stop ("sa2 must be sorted")
-  }
-
-  if (!is.null(beta.init)) {
-    if (length(beta.init) != p)
-      stop("The length of beta.init must match the number of columns of X")
-    if (!is.numeric(beta.init))
-      stop("beta.init must be a numeric vector")
-  }
-
-  if (!is.null(pi)) {
-
-    if (!is.numeric(pi))
-      stop("pi must be a numeric vector")
-    if (!is.null(sa2) && length(sa2) != length(pi))
-      stop("pi and sa2 must be of the same length")
-
-  }
-
   if (!is.null(standardize)) {
 
     if (!is.logical(standardize))
@@ -260,19 +216,11 @@ fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
 
   }
 
-  if (!is.null(sigma2)) {
-
-    if (!is.numeric(sigma2))
-      stop("sigma2 must be numeric")
-    if (length(sigma2) != 1)
-      stop("sigma2 must be a single number")
-    if (sigma2 <= 0)
-      stop("sigma2 must be greater than 0")
-
-  }
-
   if(!is.list(control))
     stop("control must be a list")
+
+  if (!inherits(fit0, "mr.ash"))
+    stop("fit0 must be of class mr.ash")
 
   # Check and process input argument "control".
   control <- modifyList(mr_ash_control_default(),control,keep.null = TRUE)
@@ -291,13 +239,13 @@ fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   ZtZiZy <- res$ZtZiZy
 
   # initialize beta
-  if (is.null(beta.init))
+  if (is.null(fit0$beta.init))
     beta <- as.vector(double(p))
   else {
     if (standardize)
-      beta <- drop(beta.init) * attr(X,"scaled:scale")
+      beta <- drop(fit0$beta.init) * attr(X,"scaled:scale")
     else
-      beta <- drop(beta.init)
+      beta <- drop(fit0$beta.init)
   }
   beta[1] <- beta[1] + 0 # to make sure beta.init is not modified
 
@@ -305,24 +253,28 @@ fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
   r <- drop(y - X %*% beta)
 
   # sigma2
-  if (is.null(sigma2))
+  if (is.null(fit0$sigma2))
     sigma2 <- c(var.n(r))
+  else
+    sigma2 <- fit0$sigma2
 
   # precompute x_j^T x_j
   w <- colSums(X^2)
 
   # set sa2 if missing
-  if (is.null(sa2)) {
+  if (is.null(fit0$sa2)) {
     sa2 <- (2^((0:19) / 20) - 1)^2
     sa2 <- sa2 / median(w) * n
+  } else {
+    sa2 <- fit0$sa2
   }
   K <- length(sa2)
 
   # change sa2 depending on w
 
   # initialize other parameters
-  if (is.null(pi)) {
-    if (is.null(beta.init)) {
+  if (is.null(fit0$pi)) {
+    if (is.null(fit0$beta.init)) {
       Phi <- matrix(1,p,K)/K
       pi <- rep(1,K)/K
     } else {
@@ -334,16 +286,7 @@ fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     }
   } else {
 
-    # additional check on pi if provided
-    if (length(pi) != length(sa2)) {
-
-      stop("pi and sa2 must be of the same length.",
-           " Either provide an sa2 with the same length as pi",
-           " or provide a pi of length 20 to match the default length of sa2")
-
-    }
-
-    Phi <- matrix(rep(pi,each = p),nrow = p)
+    Phi <- matrix(rep(fit0$pi,each = p),nrow = p)
 
   }
 
