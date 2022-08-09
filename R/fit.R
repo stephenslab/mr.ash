@@ -359,7 +359,7 @@ fit_mr_ash <- function (X, y, sa2 = NULL, beta.init = NULL, pi = NULL,
     o <- random_order(p,control$max.iter)
   method_q <- "sigma_dep_q"
   if (verbose != "none") {
-    cat("Fitting mr.ash model (mr.ash 0.1-69).\n")
+    cat("Fitting mr.ash model (mr.ash 0.1-70).\n")
     cat(sprintf("number of samples: %d\n",n))
     cat(sprintf("number of variables: %d\n",p))
     cat(sprintf("number of mixture components: %d\n",K))

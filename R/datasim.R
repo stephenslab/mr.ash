@@ -43,8 +43,8 @@
 #' \item{u}{Vector of length \code{ncov} the containing covariate
 #'   coefficients, u.}
 #'
-#' \item{beta}{Vector of length \code{p} containing the regression
-#'   coefficients \eqn{\beta}.}
+#' \item{b}{Vector of length \code{p} containing the regression
+#'   coefficients \eqn{b}.}
 #'
 #' \item{intercept}{The intercept in the regression model.}
 #'
@@ -119,19 +119,19 @@ simulate_regression_data <- function (
   }
 
   # Generate the regression coefficientss.
-  beta.idx <- sample(p, s)
-  beta <- rep(0, p)
+  b.idx <- sample(p, s)
+  b <- rep(0, p)
   if (s > 0) {
-    beta.values <- rnorm(s)
-    beta[beta.idx] <- beta.values
+    b.values <- rnorm(s)
+    b[b.idx] <- b.values
 
     # Adjust the effects so that we control for the proportion of
-    # variance explained (pve). That is, we adjust beta so that r =
-    # a/(a+1), where we define a = beta'*cov(X)*beta. Here, sb is the
+    # variance explained (pve). That is, we adjust b so that r =
+    # a/(a+1), where we define a = b'*cov(X)*b. Here, sb is the
     # variance of the (nonzero) effects.
     if (pve < 1) {
-      sb   <- pve/(1-pve)/var(drop(X %*% beta))
-      beta <- sqrt(sb * sigma) * beta
+      sb <- pve/(1-pve)/var(drop(X %*% b))
+      b  <- sqrt(sb * sigma) * b
     }
   }
 
@@ -146,7 +146,7 @@ simulate_regression_data <- function (
   }
 
   # Generate the quantitative trait measurements.
-  y <- intercept + X %*% beta + sqrt(sigma)*rnorm(n)
+  y <- intercept + X %*% b + sqrt(sigma)*rnorm(n)
   if (ncov > 0)
     y <- y + Z %*% u
   y <- drop(y)
@@ -157,7 +157,7 @@ simulate_regression_data <- function (
   names(y)    <- rnames
   rownames(X) <- rnames
   colnames(X) <- cnames_X
-  names(beta) <- cnames_X
+  names(b)    <- cnames_X
   if (ncov > 0) {
     cnames_Z    <- paste0("c", 1:ncov)
     names(u)    <- cnames_Z
@@ -166,14 +166,6 @@ simulate_regression_data <- function (
   }
 
   # Create the final output.
-  return(list(y = y,
-              X = X,
-              Z = Z,
-              u = u,
-              beta = beta,
-              intercept = intercept,
-              sigma = sigma
-    )
-  )
-
+  return(list(y = y, X = X, Z = Z, u = u, b = b, intercept = intercept,
+              sigma = sigma))
 }

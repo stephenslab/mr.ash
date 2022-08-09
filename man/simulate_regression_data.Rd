@@ -53,8 +53,8 @@ A list with the following components:
 \item{u}{Vector of length \code{ncov} the containing covariate
   coefficients, u.}
 
-\item{beta}{Vector of length \code{p} containing the regression
-  coefficients \eqn{\beta}.}
+\item{b}{Vector of length \code{p} containing the regression
+  coefficients \eqn{b}.}
 
 \item{intercept}{The intercept in the regression model.}
 
