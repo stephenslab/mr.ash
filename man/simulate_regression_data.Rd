@@ -44,19 +44,21 @@ mean of zero and a standard deviation of 1.}
 \value{
 A list with the following components:
 
-\item{y}{\code{n} vector containing regression response.}
+\item{y}{Vector of length n containing the regression responses.}
 
 \item{X}{\code{n} by \code{p} matrix of regression variables X.}
 
 \item{Z}{\code{n} by \code{ncov} matrix of covariates Z.}
 
-\item{u}{\code{ncov} vector containing covariate coefficients u.}
+\item{u}{Vector of length \code{ncov} the containing covariate
+  coefficients, u.}
 
-\item{beta}{\code{p} vector contained regression coefficients \eqn{\beta}.}
+\item{beta}{Vector of length \code{p} containing the regression
+  coefficients \eqn{\beta}.}
 
-\item{intercept}{Describe output intercept here.}
+\item{intercept}{The intercept in the regression model.}
 
-\item{sigma}{Describe output sigma here.}
+\item{sigma}{The standard deviation of the residual.}
 }
 \description{
 Simulate data from a multiple regression model.
@@ -70,14 +72,15 @@ input argument \dQuote{pve}).
 }
 \examples{
 
-# simulate 100 x 100 regression data with 75\% sparsity
+# Simulate 100 x 100 regression data with 75\% sparsity.
 simulate_regression_data(n = 100, p = 100, s = 25)
 
-# simulate 100 x 100 regression data with
-# 50\% sparsity and 100\% variance explained
+# simulate 100 x 100 regression data with # 50\% sparsity and 100\%
+variance explained.
 simulate_regression_data(n = 100, p = 100, s = 50, pve = 1, sigma = 0)
 
-# simulate 100 x 100 regression data with 50\% sparsity and 10 covariates
+# Simulate 100 x 100 regression data with 50\% sparsity and 10
+covariates.
 simulate_regression_data(n = 100, p = 100, s = 50, ncov = 10)
 
 }
