@@ -7,7 +7,7 @@ test_that("pve from simulated data matches input pve", {
   sim_pve_vec <- numeric(num_sims)
   for (i in 1:num_sims) {
     sim <- simulate_regression_data(
-      n = 10000, p = 100, s = 10, pve = exp_pve_vec[i], intercept = -
+      n = 10000, p = 100, s = 10, pve = exp_pve_vec[i], intercept = -1
     )
     sim_pve_vec[i] <- with(sim,var(drop(X %*% b))/var(y))
   }
