@@ -104,7 +104,9 @@ simulate_regression_data <- function (
          "\"standardize_X\" = TRUE")
   if (pve == 1 && sigma != 0)
     stop("If \"pve\" = 1, \"sigma\" must be 0")
-
+  if (s == 0 && pve > 0)
+    stop("If s = 0, then pve must also be 0")
+  
   # Take floor of all integer arguments (in case a non-integer value
   # was given).
   n    <- floor(n)
@@ -133,8 +135,8 @@ simulate_regression_data <- function (
     # a/(a+1), where we define a = b'*cov(X)*b. Here, sb is the
     # variance of the (nonzero) effects.
     if (pve < 1) {
-      sb <- pve/(1-pve)/var(drop(X %*% b))
-      b  <- sqrt(sb * sigma) * b
+      sb <- sqrt(pve/(1-pve)/var(drop(X %*% b)))
+      b  <- sb * sigma * b
     }
   }
 
@@ -149,7 +151,7 @@ simulate_regression_data <- function (
   }
 
   # Generate the quantitative trait measurements.
-  y <- intercept + X %*% b + sqrt(sigma)*rnorm(n)
+  y <- intercept + X %*% b + sigma*rnorm(n)
   if (ncov > 0)
     y <- y + Z %*% u
   y <- drop(y)
@@ -169,6 +171,6 @@ simulate_regression_data <- function (
   }
 
   # Create the final output.
-  return(list(y = y, X = X, Z = Z, u = u, b = b, intercept = intercept,
-              sigma = sigma))
+  return(list(y = y, X = X, Z = Z, u = u, b = b,
+              intercept = intercept, sigma = sigma))
 }
