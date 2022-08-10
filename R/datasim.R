@@ -17,7 +17,10 @@
 #'
 #' @param sigma The standard deviation of the residual.
 #'
-#' @param pve The proportion of variance in y explained by X.
+#' @param pve Assuming \code{ncov = 0}, this is the proportion of
+#'   variance in y explained by X. When \code{ncov > 0}, this is the
+#'   proportion of variance in y explained by X after removing the
+#'   linear effects of the covariates Z.
 #'
 #' @param center_X If \code{center_X = TRUE}, the columns of X are
 #'   centered before simulating y so that each column as a mean of

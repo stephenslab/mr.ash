@@ -26,7 +26,10 @@ regression coefficients.}
 
 \item{sigma}{The standard deviation of the residual.}
 
-\item{pve}{The proportion of variance in y explained by X.}
+\item{pve}{Assuming \code{ncov = 0}, this is the proportion of
+variance in y explained by X. When \code{ncov > 0}, this is the
+proportion of variance in y explained by X after removing the
+linear effects of the covariates Z.}
 
 \item{center_X}{If \code{center_X = TRUE}, the columns of X are
 centered before simulating y so that each column as a mean of

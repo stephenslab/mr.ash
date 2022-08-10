@@ -18,7 +18,7 @@ fit_mr_ash(
 
 mr_ash_control_default()
 
-init_mr_ash(sa2 = NULL, beta.init = NULL, pi = NULL, sigma2 = NULL)
+init_mr_ash(sa2, beta.init, pi, sigma2)
 }
 \arguments{
 \item{X}{The input matrix, of dimension (n,p); each column is a
@@ -203,7 +203,7 @@ y          <- drop(X \%*\% beta + rnorm(n))
 fit0 <- init_mr_ash()
 
 ### fit Mr.ASH
-fit.mr.ash <- mr_ash(X,y,fit0)
+fit.mr.ash <- fit_mr_ash(X,y,fit0)
 
 ### prediction routine
 Xnew        = matrix(rnorm(n*p),n,p)
