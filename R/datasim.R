@@ -100,7 +100,7 @@ simulate_regression_data <- function (
     stop("Input argument \"ncov\" should be an greater than or equal to 0 ",
          "(inclusive)")
   if (!center_X && standardize_X)
-    stop("Input argument \"center_X\" must be set to TRUE when ",
+    stop("Input argument \"center_X\" must be set to TRUE whenever ",
          "\"standardize_X\" = TRUE")
   if (pve == 1 && sigma != 0)
     stop("If \"pve\" = 1, \"sigma\" must be 0")
@@ -114,15 +114,15 @@ simulate_regression_data <- function (
   s    <- floor(s)
   ncov <- floor(ncov)
 
+  # Check that s <= p.
+  if (s > p) {
+    stop("Input s should be no greater than p")
+  }
+
   # Simulate data matrix.
   X <- matrix(rnorm(n*p), n, p)
   X <- scale(X,center = center_X, scale = standardize_X)
-
-  # Check that s <= p.
-  if (s > p) {
-    stop("s should be no greater than p")
-  }
-
+  
   # Generate the regression coefficientss.
   b.idx <- sample(p, s)
   b <- rep(0, p)

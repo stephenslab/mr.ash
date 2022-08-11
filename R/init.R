@@ -45,11 +45,11 @@ init_mr_ash <- function (
 
   if (!missing(sa2)) {
     if (any(sa2 < 0))
-      stop ("all the mixture component variances must be non-negative.")
+      stop("all the mixture component variances must be non-negative.")
     if (sa2[1] != 0)
-      stop ("the first mixture component variance sa2[1] must be 0.")
+      stop("the first mixture component variance sa2[1] must be 0.")
     if (!all(sort(sa2) == sa2))
-      stop ("sa2 must be sorted")
+      stop("sa2 must be sorted")
   } else {
     sa2 <- NULL
   }

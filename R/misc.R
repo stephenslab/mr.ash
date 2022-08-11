@@ -1,3 +1,10 @@
+# Return TRUE if and only if x is a finite, numeric scalar.
+is.scalar <- function(x)
+  length(x) == 1 &&
+  is.numeric(x) &&
+  !is.na(x) &&
+  is.finite(x)
+
 # Remove covariate effects Regresses Z out from X and y; that is, X
 # and y are projected into the space orthogonal to Z.
 #'
