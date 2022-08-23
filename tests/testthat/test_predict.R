@@ -14,9 +14,8 @@ test_that("predict with newx = NULL matches predict with newx = X", {
 
   y <- rnorm(n) + X %*% beta
 
-  fit0 <- init_mr_ash()
   out_n <- suppressWarnings(
-    fit_mr_ash(X, y, fit0, intercept = F, verbose = "none")
+    fit_mr_ash(X, y, intercept = F, verbose = "none")
   )
 
   preds_new <- predict(out_n, X)
