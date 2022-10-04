@@ -71,13 +71,13 @@ initialized to the empirical variance of the residuals based on the
 initial estimates of the regression coefficients, \code{b},
 after removing linear effects of the intercept and any covariances.}
 
-\item{init.method}{method used to initialize \code{b} if not provided.
-When set to \code{"glmnet"}, an L1 penalized regression of \code{y} on
-\code{X} is run (using cross-validation to select the magnitude of
-regularization) and the resulting regression coefficients are used as the
-initial values of \code{b}. It set to \code{"null"}, all regression
-coefficients are initialized to \code{0}. See \code{\link[glment]{cv.glmnet}} for
-more details.}
+\item{init.method}{method used to initialize \code{b} if not
+provided.  When set to \code{"glmnet"}, an L1 penalized regression
+of \code{y} on \code{X} is run (using cross-validation to select
+the magnitude of regularization) and the resulting regression
+coefficients are used as the initial values of \code{b}. It set to
+\code{"null"}, all regression coefficients are initialized to
+\code{0}. See \code{\link[glment]{cv.glmnet}} for more details.}
 }
 \value{
 A list object with the following elements:
@@ -222,17 +222,17 @@ bhat     = predict(fit.mr.ash, type = "coefficients")
 
 
 # initialization examples
-data <- simulate_regression_data(n = 100, p = 100, s = 50)
+dat <- simulate_regression_data(n = 100, p = 100, s = 50)
 
 # initialize with default values for all parameters
-fit0_def <- init_mr_ash(data$X, data$y)
+fit0_def <- init_mr_ash(dat$X, dat$y)
 
 # initialize b with all 0s
-fit0_null <- init_mr_ash(data$X, data$y, init.method = "null")
+fit0_null <- init_mr_ash(dat$X, dat$y, init.method = "null")
 
 # specify custom mixture distribution for b
 fit0_custom_mixt <- init_mr_ash(
-  data$X, data$y, sa2 = (2^((0:19) / 20) - 1)^2, pi = rep(1/20, 20)
+  dat$X, dat$y, sa2 = (2^((0:19) / 20) - 1)^2, pi = rep(1/20, 20)
 )
 
 }
