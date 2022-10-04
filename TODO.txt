@@ -3,6 +3,9 @@ to do
 
 + Add automated testing with continuous integration.
 
++ Check that the calculations are correct when the first prior mixture
+  component has a nonzero variance.
+
 + Create "progress" output.
 
 + Implement mr_ash_init.

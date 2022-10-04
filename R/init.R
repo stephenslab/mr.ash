@@ -1,31 +1,26 @@
 #' @rdname fit_mr_ash
 #'
-#' @param X The input matrix, of dimension (n,p); each column is a
-#'   single predictor; and each row is an observation vector. Here, n is
-#'   the number of samples and p is the number of predictors. The matrix
-#'   cannot be sparse.
+#' @param X The data matrix, a numeric matrix of dimension n x p; each
+#'   column is a single predictor, and each row is an observation
+#'   vector. Here, n is the number of samples and p is the number of
+#'   predictors.
 #'
-#' @param y The observed continuously-valued responses, a vector of
-#'   length n.
+#' @param y The observed outcomes, a numeric vector of length n.
 #'
-#' @param sa2 The vector of prior mixture component variances. The
-#'   variances should be in increasing order, starting at zero; that is,
-#'   \code{sort(sa2)} should be the same as \code{sa2}. When \code{sa2}
-#'   is \code{NULL}, the default setting is used, \code{sa2[k] =
-#'   (2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
-#'   setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.
+#' @param b Optional input argument specifying the initial estimate of
+#'   the regression coefficients. It should be numeric vector of length
+#'   p.
 #'
-#' @param b The initial estimate of the (approximate)
-#'   posterior mean regression coefficients. This should be \code{NULL},
-#'   or a vector of length p. When \code{b} is \code{NULL}, the
-#'   posterior mean coefficients are all initially set to zero.
+#' @param prior.sd Optional input argument specifying the standard
+#'   deviations of the mixture components in the mixture-of-normals
+#'   prior.
 #'
-#' @param pi The initial estimate of the mixture proportions
+#' @param prior.weights Optio initial estimate of the mixture proportions
 #'   \eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
 #'   mixture weights are initialized to \code{rep(1/K,K)}, where
 #'   \code{K = length(sa2)}.
 #'
-#' @param sigma2 The initial estimate of the residual variance,
+#' @param resid.sd The initial estimate of the residual variance,
 #'   \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
 #'   initialized to the empirical variance of the residuals based on the
 #'   initial estimates of the regression coefficients, \code{b},
@@ -39,11 +34,11 @@
 #'   \code{"null"}, all regression coefficients are initialized to
 #'   \code{0}. See \code{\link[glment]{cv.glmnet}} for more details.
 #'
-#' @return A \code{mr.ash} object
+#' @return A \code{mr.ash} object.
 #'
+#' @seealso \code{\link{fit_mr_ash}}
+#' 
 #' @examples
-#'
-#' # initialization examples
 #' dat <- simulate_regression_data(n = 100, p = 100, s = 50)
 #'
 #' # initialize with default values for all parameters
@@ -60,25 +55,44 @@
 #' @export
 #'
 init_mr_ash <- function (
-  X, y, sa2, b, pi, sigma2, init.method = c("glmnet", "null")
-) {
+  X, y, b, prior.sd, prior.weights, resid.sd,
+  init.method = c("glmnet", "null")) {
 
-  # get sizes
+  # Check and process input argument X.
+  if (!(is.matrix(X) & is.numeric(X)))
+    stop("Input argument X should be a numeric matrix")
+  if (any(is.infinite(X)) | anyNA(X))
+    stop("All entries of X should be finite and non-missing")
+  if (is.integer(X))
+    storage.mode(X) <- "double"
   n <- nrow(X)
   p <- ncol(X)
+  if (n < 2 | p < 2)
+    stop("Input matrix X should have at least 2 rows and 2 columns")
 
+  # Check and process input argument y.
+  if (!is.numeric(y))
+    stop("X and y must be numeric")
+  if (any(is.infinite(y)) | anyNA(y))
+    stop("All entries of y should be finite and non-missing")
+  y <- as.vector(y,mode = "double")
+  if (length(y) != n)
+    stop("The length of y should be the same as nrow(X)")
+
+  # Process input argument init.method.
   init.method <- match.arg(init.method)
 
+  # Check and process optional input b. If not provided, initialize
+  # the coefficients using the chosen init.method.
   if (!missing(b)) {
     if (!is.numeric(b))
       stop("b must be a numeric vector")
     if (!length(b) == p)
       stop("b must have the same length as number of columns in X")
-  }
-  else {
-    if (init.method == "null") {
+  } else {
+    if (init.method == "null")
       b <- rep(0,p)
-    } else if (init.method == "glmnet") {
+    else if (init.method == "glmnet") {
       lasso_cv_fit <- glmnet::cv.glmnet(X, y)
 
       # extract coefficients, excluding intercept
@@ -86,14 +100,18 @@ init_mr_ash <- function (
     }
   }
 
-  # check that the dimensions of X and y match
-  if (length(y) != n) {
-    stop("The length of y must match the number of rows of X")
-  }
+  browser()
+  
+  # Check and process optional input prior.sd. 
+  # TO DO
+  
+  # Check and process optional input prior.weights.
+  # TO DO
 
-  if (!is.numeric(X) || !is.numeric(y)) {
-    stop("X and y must be numeric")
-  }
+  # Check and process optioinal input resid.sd
+  # TO DO
+  
+  # check that the dimensions of X and y match
 
   if (!missing(sigma2)) {
     if (!is.numeric(sigma2))
@@ -133,7 +151,7 @@ init_mr_ash <- function (
       warning("some element(s) of pi are 0.",
               " This mixture component will not change with model training")
 
-    pi <- pi / sum(pi)
+    pi <- pi/sum(pi)
 
   } else {
 
@@ -152,11 +170,12 @@ init_mr_ash <- function (
 
   }
 
- fit0 <- list(
-   sa2 = sa2, b = b, pi = pi, sigma2 = sigma2, progress = data.frame()
- )
-
- class(fit0) <- c("mr.ash","list")
- return(fit0)
-
+  # TO DO: Add names to all the outputs.
+  
+  # Prepare the final output.
+  fit0 <- list(
+    sa2 = sa2, b = b, pi = pi, sigma2 = sigma2, progress = data.frame()
+  )
+  class(fit0) <- c("mr.ash","list")
+  return(fit0)
 }

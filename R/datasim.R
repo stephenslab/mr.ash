@@ -83,29 +83,28 @@ simulate_regression_data <- function (
 
   # Argument checking.
   if (!(is.scalar(n) && n >= 2))
-    stop("Input argument \"n\" should be an integer equal to 2 or more")
+    stop("Input argument n should be an integer equal to 2 or more")
   if (!(is.scalar(p) && p >= 2))
-    stop("Input argument \"p\" should be an integer equal to 2 or more")
+    stop("Input argument p should be an integer equal to 2 or more")
   if (!(is.scalar(s) && s >= 0 && s <= p))
-    stop("Input argument \"s\" should be an integer between 0 and p ",
+    stop("Input argument s should be an integer between 0 and p ",
          "(inclusive)")
   if (!(is.scalar(sigma) && sigma >= 0))
-    stop("Input argument \"sigma\" should be a scalar greater than 0")
+    stop("Input argument sigma should be a scalar greater than 0")
   if (!(is.scalar(pve) && pve >= 0 && pve <= 1))
-    stop("Input argument \"pve\" should be a scalar between 0 ",
+    stop("Input argument pve should be a scalar between 0 ",
          "and 1 (inclusive)")
   if (!is.scalar(intercept))
-    stop("Input argument \"intercept\" should be a scalar")
+    stop("Input argument intercept should be a scalar")
   if (!(is.scalar(ncov) && ncov >= 0))
-    stop("Input argument \"ncov\" should be an greater than or equal to 0 ",
+    stop("Input argument ncov should be an greater than or equal to 0 ",
          "(inclusive)")
   if (!center_X && standardize_X)
-    stop("Input argument \"center_X\" must be set to TRUE whenever ",
-         "\"standardize_X\" = TRUE")
+    stop("Input argument center_X should be TRUE when standardize_X is TRUE")
   if (pve == 1 && sigma != 0)
-    stop("If \"pve\" = 1, \"sigma\" must be 0")
+    stop("If pve = 1, sigma should be zero")
   if (s == 0 && pve > 0)
-    stop("If s = 0, then pve must also be 0")
+    stop("If s = 0, then pve should also be zero")
   
   # Take floor of all integer arguments (in case a non-integer value
   # was given).

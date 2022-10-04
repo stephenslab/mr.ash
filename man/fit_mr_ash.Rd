@@ -18,16 +18,23 @@ fit_mr_ash(
 
 mr_ash_control_default()
 
-init_mr_ash(X, y, sa2, b, pi, sigma2, init.method = c("glmnet", "null"))
+init_mr_ash(
+  X,
+  y,
+  b,
+  prior.sd,
+  prior.weights,
+  resid.sd,
+  init.method = c("glmnet", "null")
+)
 }
 \arguments{
-\item{X}{The input matrix, of dimension (n,p); each column is a
-single predictor; and each row is an observation vector. Here, n is
-the number of samples and p is the number of predictors. The matrix
-cannot be sparse.}
+\item{X}{The data matrix, a numeric matrix of dimension n x p; each
+column is a single predictor, and each row is an observation
+vector. Here, n is the number of samples and p is the number of
+predictors.}
 
-\item{y}{The observed continuously-valued responses, a vector of
-length n.}
+\item{y}{The observed outcomes, a numeric vector of length n.}
 
 \item{fit0}{Initialized \code{mr.ash} object resulting from a call to
 \code{init_mr_ash}.}
@@ -48,24 +55,20 @@ console at each iteration; when \code{verbose = "progressbar"}, a
 plus (\dQuote{+}) is printed for each outer-loop iteration; and
 when \code{verbose = "none"}, no progress information is printed.}
 
-\item{sa2}{The vector of prior mixture component variances. The
-variances should be in increasing order, starting at zero; that is,
-\code{sort(sa2)} should be the same as \code{sa2}. When \code{sa2}
-is \code{NULL}, the default setting is used, \code{sa2[k] =
-(2^(0.05*(k-1)) - 1)^2}, for \code{k = 1:20}. For this default
-setting, \code{sa2[1] = 0}, and \code{sa2[20]} is roughly 1.}
+\item{b}{Optional input argument specifying the initial estimate of
+the regression coefficients. It should be numeric vector of length
+p.}
 
-\item{b}{The initial estimate of the (approximate)
-posterior mean regression coefficients. This should be \code{NULL},
-or a vector of length p. When \code{b} is \code{NULL}, the
-posterior mean coefficients are all initially set to zero.}
+\item{prior.sd}{Optional input argument specifying the standard
+deviations of the mixture components in the mixture-of-normals
+prior.}
 
-\item{pi}{The initial estimate of the mixture proportions
+\item{prior.weights}{Optio initial estimate of the mixture proportions
 \eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
 mixture weights are initialized to \code{rep(1/K,K)}, where
 \code{K = length(sa2)}.}
 
-\item{sigma2}{The initial estimate of the residual variance,
+\item{resid.sd}{The initial estimate of the residual variance,
 \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
 initialized to the empirical variance of the residuals based on the
 initial estimates of the regression coefficients, \code{b},
@@ -119,7 +122,7 @@ over each outer-loop iteration.}
 
 \item{fitted}{fitted values for each row of \code{X}.}
 
-A \code{mr.ash} object
+A \code{mr.ash} object.
 }
 \description{
 Model fitting algorithms for Multiple Regression with
@@ -220,8 +223,6 @@ rmse        = norm(ynew - ypred, '2') / sqrt(n)
 bhat     = predict(fit.mr.ash, type = "coefficients")
 # this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
 
-
-# initialization examples
 dat <- simulate_regression_data(n = 100, p = 100, s = 50)
 
 # initialize with default values for all parameters
@@ -242,4 +243,6 @@ regression. Ph.D. thesis, University of Chicago.
 }
 \seealso{
 \code{\link{predict.mr.ash}}
+
+\code{\link{fit_mr_ash}}
 }
