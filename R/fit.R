@@ -159,48 +159,33 @@
 #' @examples
 #' # Simulate a data set.
 #' set.seed(1)
-#' n          <- 200
-#' p          <- 300
-#' X          <- matrix(rnorm(n*p),n,p)
-#' beta       <- double(p)
-#' beta[1:10] <- 1:10
-#' y          <- drop(X %*% beta + rnorm(n))
-#'
-#' fit0 <- init_mr_ash()
+#' n <- 200
+#' p <- 300
+#' data <- simulate_regression_data(n, p, s = 250)
 #'
 #' ### fit Mr.ASH
-#' fit.mr.ash <- fit_mr_ash(X,y,fit0)
+#' fit.mr.ash <- fit_mr_ash(data$X,data$y)
 #'
 #' ### prediction routine
 #' Xnew        = matrix(rnorm(n*p),n,p)
-#' ynew        = Xnew %*% beta + rnorm(n)
+#' ynew        = Xnew %*% data$b + rnorm(n)
 #' ypred       = predict(fit.mr.ash, Xnew)
 #'
 #' ### test error
 #' rmse        = norm(ynew - ypred, '2') / sqrt(n)
 #'
 #' ### coefficients
-#' betahat     = predict(fit.mr.ash, type = "coefficients")
-#' # this equals c(fit.mr.ash$intercept, fit.mr.ash$beta)
+#' bhat     = predict(fit.mr.ash, type = "coefficients")
+#' # this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
 #'
 #' @export
 #'
-fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
-                        control = list(),
-                        verbose = c("progress","detailed","none")) {
+fit_mr_ash <- function (
+  X, y, fit0 = init_mr_ash(X, y), standardize = FALSE, intercept = TRUE,
+  control = list(), verbose = c("progress", "detailed", "none")) {
 
-  # get sizes
   n <- nrow(X)
   p <- ncol(X)
-
-  # check that the dimensions of X and y match
-  if (length(y) != n) {
-    stop("The length of y must match the number of rows of X")
-  }
-
-  if (!is.numeric(X) || !is.numeric(y)) {
-    stop("X and y must be numeric")
-  }
 
   if (!is.null(standardize)) {
 
@@ -238,65 +223,20 @@ fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
   ZtZiZX <- res$ZtZiZX
   ZtZiZy <- res$ZtZiZy
 
-  # initialize beta
-  if (is.null(fit0$beta.init))
-    beta <- as.vector(double(p))
-  else {
+  # standard beta
 
-    if (length(fit0$beta.init) != p)
-      stop("The length of beta.init must match the number of columns of X")
-
-    if (standardize)
-      beta <- drop(fit0$beta.init) * attr(X,"scaled:scale")
-    else
-      beta <- drop(fit0$beta.init)
-  }
-  beta[1] <- beta[1] + 0 # to make sure beta.init is not modified
+  if (standardize)
+    beta <- drop(fit0$b) * attr(X,"scaled:scale")
+  else
+    beta <- drop(fit0$b)
 
   # initialize r
   r <- drop(y - X %*% beta)
 
-  # sigma2
-  if (is.null(fit0$sigma2))
-    sigma2 <- c(var.n(r))
-  else
-    sigma2 <- fit0$sigma2
-
   # precompute x_j^T x_j
   w <- colSums(X^2)
 
-  # set sa2 if missing
-  if (is.null(fit0$sa2)) {
-    sa2 <- (2^((0:19) / 20) - 1)^2
-    sa2 <- sa2 / median(w) * n
-  } else {
-    sa2 <- fit0$sa2
-  }
-  K <- length(sa2)
-
-  # change sa2 depending on w
-
-  # initialize other parameters
-  if (is.null(fit0$pi)) {
-    if (is.null(fit0$beta.init)) {
-      Phi <- matrix(1,p,K)/K
-      pi <- rep(1,K)/K
-    } else {
-      S   <- outer(1/w, sa2, '+') * sigma2
-      Phi <- -beta^2/S/2 - log(S)/2
-      Phi <- exp(Phi - apply(Phi,1,max))
-      Phi <- Phi / rowSums(Phi)
-      pi  <- colMeans(Phi)
-    }
-  } else {
-
-    pi <- fit0$pi
-    Phi <- matrix(rep(pi,each = p),nrow = p)
-
-  }
-
-  pi[1] <- pi[1] + 0
-
+  K <- length(fit0$sa2)
 
   # run algorithm
   if (is.null(control$update.order))
@@ -314,8 +254,8 @@ fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
   }
   if (verbose == "detailed")
     cat("iter                elbo ||b-b'||   sigma2 w>0\n")
-  out <- mr_ash_rcpp(X,y,w,sa2,pi,beta,as.vector(r),
-                     sigma2,o,control$max.iter,control$min.iter,
+  out <- mr_ash_rcpp(X,y,w,fit0$sa2,fit0$pi,beta,as.vector(r),
+                     fit0$sigma2,o,control$max.iter,control$min.iter,
                      control$convtol,control$epstol,method_q,
                      control$update.pi,control$update.sigma2,
                      switch(verbose,none = 0,progress = 1,detailed = 2))
@@ -346,14 +286,14 @@ fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
                           "of the variances \"sa2\"."),1/K))
 
   # Add dimension names and prepare the final fit object.
-  res <- get_full_posterior(X,y,w,out$beta,out$pi,out$sigma2,sa2)
+  res <- get_full_posterior(X,y,w,out$beta,out$pi,out$sigma2,fit0$sa2)
   out$m <- res$m
   out$s2 <- res$s2
   out$phi <- res$phi
   out$lfsr <- res$lfsr
-  out$beta <- drop(out$beta)
+  out$b <- drop(out$beta)
   out$pi <- drop(out$pi)
-  out$sa2 <- sa2
+  out$sa2 <- fit0$sa2
   out$fitted <- as.vector(og_data_X %*% out$beta + out$intercept)
   names(out$beta) <- colnames(X)
   class(out) <- c("mr.ash","list")

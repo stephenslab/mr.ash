@@ -115,9 +115,8 @@ simulate_regression_data <- function (
   ncov <- floor(ncov)
 
   # Check that s <= p.
-  if (s > p) {
+  if (s > p)
     stop("Input s should be no greater than p")
-  }
 
   # Simulate data matrix.
   X <- matrix(rnorm(n*p), n, p)
