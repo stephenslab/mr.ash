@@ -186,8 +186,8 @@
 #' @export
 #'
 fit_mr_ash <- function (X, y, fit0, standardize = FALSE, intercept = TRUE,
-                    control = list(),
-                    verbose = c("progress","detailed","none")) {
+                        control = list(),
+                        verbose = c("progress","detailed","none")) {
 
   # get sizes
   n <- nrow(X)

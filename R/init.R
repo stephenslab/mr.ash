@@ -18,12 +18,11 @@
 #'   \code{K = length(sa2)}.
 #'
 #' @param sigma2 The initial estimate of the residual variance,
-#'   \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
-#'   initialized to the empirical variance of the residuals based on the
-#'   initial estimates of the regression coefficients, \code{beta.init},
-#'   after removing linear effects of the intercept and any covariances.
-#'
-#' @return A \code{mr.ash} object
+#'   \eqn{\sigma^2}. If \code{sigma2} is not specified, the residual
+#'   variance is initialized to the empirical variance of the residuals
+#'   based on the initial estimates of the regression coefficients,
+#'   \code{beta.init}, after removing linear effects of the intercept
+#'   and any covariances.
 #'
 #' @export
 #'
@@ -36,18 +35,16 @@ init_mr_ash <- function (
     (!missing(pi) && !missing(sa2) && length(pi) != length(sa2)) ||
     (!missing(pi) && is.null(sa2) && length(pi) != 20)
   ) {
-
-    stop("pi and sa2 must be of the same length.",
-         " Either provide an sa2 with the same length as pi",
-         " or provide a pi of length 20 to match the default length of sa2")
-
+    stop("pi and sa2 must be of the same length. Either provide an sa2 ",
+         "with the same length as pi or provide a pi of length 20 to ",
+         "match the default length of sa2")
   }
 
   if (!missing(sa2)) {
     if (any(sa2 < 0))
-      stop("all the mixture component variances must be non-negative.")
+      stop("all the mixture component variances must be non-negative")
     if (sa2[1] != 0)
-      stop("the first mixture component variance sa2[1] must be 0.")
+      stop("the first mixture component variance sa2[1] must be zero")
     if (!all(sort(sa2) == sa2))
       stop("sa2 must be sorted")
   } else {
@@ -63,26 +60,21 @@ init_mr_ash <- function (
   }
 
   if (!missing(pi)) {
-
     if (!is.numeric(pi))
       stop("pi must be a numeric vector")
     if (!missing(sa2) && length(sa2) != length(pi))
       stop("pi and sa2 must be of the same length")
-
   } else {
     pi <- NULL
   }
 
-
   if (!missing(sigma2)) {
-
     if (!is.numeric(sigma2))
       stop("sigma2 must be numeric")
     if (length(sigma2) != 1)
       stop("sigma2 must be a single number")
     if (sigma2 <= 0)
       stop("sigma2 must be greater than 0")
-
   } else {
     sigma2 <- NULL
   }
