@@ -25,7 +25,9 @@ init_mr_ash(
   prior.sd,
   prior.weights,
   resid.sd,
-  init.method = c("glmnet", "null")
+  init.method = c("glmnet", "null"),
+  s = "lambda.1se",
+  ...
 )
 }
 \arguments{
@@ -81,6 +83,14 @@ the magnitude of regularization) and the resulting regression
 coefficients are used as the initial values of \code{b}. It set to
 \code{"null"}, all regression coefficients are initialized to
 \code{0}. See \code{\link[glment]{cv.glmnet}} for more details.}
+
+\item{s}{The value of the glmnet penaalty parameter at which the
+coeffients are extracted (relevant for \code{init.method =
+"glmnet"} only).}
+
+\item{\dots}{Additional arguments passed to
+\code{\link[glmnet]{cv.glmnet}} (relevant for \code{init.method =
+"glmnet"} only).}
 }
 \value{
 A list object with the following elements:
@@ -224,12 +234,17 @@ bhat     = predict(fit.mr.ash, type = "coefficients")
 # this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
 
 dat <- simulate_regression_data(n = 100, p = 100, s = 50)
+X <- dat$X
+y <- dat$y
 
-# initialize with default values for all parameters
-fit0_def <- init_mr_ash(dat$X, dat$y)
+# Initialize the coefficients using glmnet.
+fit0_glmnet <- init_mr_ash(X, y)
 
-# initialize b with all 0s
-fit0_null <- init_mr_ash(dat$X, dat$y, init.method = "null")
+# Initialize the coefficients to zero.
+fit0_null <- init_mr_ash(X, y, init.method = "null")
+
+# Randomly initialize the coefficients.
+fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
 
 # specify custom mixture distribution for b
 fit0_custom_mixt <- init_mr_ash(

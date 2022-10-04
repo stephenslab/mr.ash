@@ -34,19 +34,32 @@
 #'   \code{"null"}, all regression coefficients are initialized to
 #'   \code{0}. See \code{\link[glment]{cv.glmnet}} for more details.
 #'
+#' @param s The value of the glmnet penaalty parameter at which the
+#'   coeffients are extracted (relevant for \code{init.method =
+#'   "glmnet"} only).
+#' 
+#' @param \dots Additional arguments passed to
+#'   \code{\link[glmnet]{cv.glmnet}} (relevant for \code{init.method =
+#'   "glmnet"} only).
+#' 
 #' @return A \code{mr.ash} object.
 #'
 #' @seealso \code{\link{fit_mr_ash}}
 #' 
 #' @examples
-#' dat <- simulate_regression_data(n = 100, p = 100, s = 50)
+#' dat <- simulate_regression_data(n = 400, p = 100, s = 20)
+#' X <- dat$X
+#' y <- dat$y
 #'
-#' # initialize with default values for all parameters
-#' fit0_def <- init_mr_ash(dat$X, dat$y)
+#' # Initialize the coefficients using glmnet.
+#' fit0_glmnet <- init_mr_ash(X, y)
 #'
-#' # initialize b with all 0s
-#' fit0_null <- init_mr_ash(dat$X, dat$y, init.method = "null")
+#' # Initialize the coefficients to zero.
+#' fit0_null <- init_mr_ash(X, y, init.method = "null")
 #'
+#' # Randomly initialize the coefficients.
+#' fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
+#' 
 #' # specify custom mixture distribution for b
 #' fit0_custom_mixt <- init_mr_ash(
 #'   dat$X, dat$y, sa2 = (2^((0:19) / 20) - 1)^2, pi = rep(1/20, 20)
@@ -56,7 +69,9 @@
 #'
 init_mr_ash <- function (
   X, y, b, prior.sd, prior.weights, resid.sd,
-  init.method = c("glmnet", "null")) {
+  init.method = c("glmnet", "null"),
+  s = "lambda.1se",
+  ...) {
 
   # Check and process input argument X.
   if (!(is.matrix(X) & is.numeric(X)))
@@ -73,9 +88,9 @@ init_mr_ash <- function (
   # Check and process input argument y.
   if (!is.numeric(y))
     stop("X and y must be numeric")
+  y <- as.vector(y,mode = "double")
   if (any(is.infinite(y)) | anyNA(y))
     stop("All entries of y should be finite and non-missing")
-  y <- as.vector(y,mode = "double")
   if (length(y) != n)
     stop("The length of y should be the same as nrow(X)")
 
@@ -86,21 +101,23 @@ init_mr_ash <- function (
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
     if (!is.numeric(b))
-      stop("b must be a numeric vector")
+      stop("Input argument b should be a numeric vector")
+    b <- as.vector(b,mode = "double")
+    if (any(is.infinite(b)) | anyNA(b))
+      stop("All entries of b should be finite and non-missing")
     if (!length(b) == p)
-      stop("b must have the same length as number of columns in X")
+      stop("Input argument b should have one entry for each column of X")
   } else {
     if (init.method == "null")
       b <- rep(0,p)
-    else if (init.method == "glmnet") {
-      lasso_cv_fit <- glmnet::cv.glmnet(X, y)
-
-      # extract coefficients, excluding intercept
-      b <- as.vector(coef(lasso_cv_fit, s = "lambda.min"))[-1]
-    }
+    else if (init.method == "glmnet")
+      b <- init_coef_glmnet(X,y,s,...)
   }
 
-  browser()
+  # Prepare the final output.
+  fit <- list(b = b)
+  class(fit) <- c("mr.ash","list")
+  return(fit)
   
   # Check and process optional input prior.sd. 
   # TO DO
@@ -108,11 +125,9 @@ init_mr_ash <- function (
   # Check and process optional input prior.weights.
   # TO DO
 
-  # Check and process optioinal input resid.sd
+  # Check and process optioinal input resid.sd.
   # TO DO
   
-  # check that the dimensions of X and y match
-
   if (!missing(sigma2)) {
     if (!is.numeric(sigma2))
       stop("sigma2 must be numeric")
@@ -173,9 +188,16 @@ init_mr_ash <- function (
   # TO DO: Add names to all the outputs.
   
   # Prepare the final output.
-  fit0 <- list(
+  fit <- list(
     sa2 = sa2, b = b, pi = pi, sigma2 = sigma2, progress = data.frame()
   )
-  class(fit0) <- c("mr.ash","list")
-  return(fit0)
+  class(fit) <- c("mr.ash","list")
+  return(fit)
+}
+
+#' @importFrom glmnet cv.glmnet
+#' @importFrom glmnet coef.glmnet
+init_coef_glmnet <- function (X, y, s, ...) {
+  fit <- cv.glmnet(X, y, ...)
+  return(drop(coef.glmnet(fit, s = s))[-1])
 }
