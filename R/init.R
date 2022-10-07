@@ -35,10 +35,6 @@
 #'   \code{\link[glmnet]{cv.glmnet}} (relevant for \code{init.method =
 #'   "glmnet"} only).
 #' 
-#' @return A \code{mr.ash} object.
-#'
-#' @seealso \code{\link{fit_mr_ash}}
-#' 
 #' @examples
 #' dat <- simulate_regression_data(n = 400, p = 100, s = 20)
 #' X <- dat$X
@@ -47,16 +43,15 @@
 #' # Initialize the coefficients using glmnet.
 #' fit0_glmnet <- init_mr_ash(X, y)
 #'
-#' # Initialize the coefficients to zero.
+#' # Initialize the coefficients to be all zero.
 #' fit0_null <- init_mr_ash(X, y, init.method = "null")
 #'
 #' # Randomly initialize the coefficients.
 #' fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
 #' 
-#' # specify custom mixture distribution for b
-#' fit0_custom_mixt <- init_mr_ash(
-#'   dat$X, dat$y, sa2 = (2^((0:19) / 20) - 1)^2, pi = rep(1/20, 20)
-#' )
+#' # Specify a custom mixture prior.
+#' fit0_custom <- init_mr_ash(X, y, prior.sd = (2^((0:19)/20) - 1),
+#'                            prior.weights = rep(1,20))
 #'
 #' @importFrom stats sd
 #' 
@@ -134,7 +129,7 @@ init_mr_ash <- function (
 
     # Set the standard deviations of the mixture components in an
     # automated way based on the data.
-    prior.sd <- init_resid_sd(X,y,resid.sd^2)
+    prior.sd <- init_prior_sd(X, y, resid.sd^2)
   }
   prior.sd <- as.vector(prior.sd, mode = "double")
     
@@ -150,9 +145,8 @@ init_mr_ash <- function (
       stop("All entries of prior.sd should be non-negative")
     if (any(prior.weights == 0))
       warning("Mixture components with weights of zero will be ignored")
-  } else {
-    # TO DO.
-  }
+  } else
+    prior.weights <- init_prior_weights(X, b, resid.sd^2, prior.sd^2)
   prior.weights <- prior.weights / sum(prior.weights)
   prior.weights <- as.vector(prior.weights, mode = "double")
   k <- length(prior.weights)
@@ -167,9 +161,6 @@ init_mr_ash <- function (
               progress  = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
-
-
-  # Prepare the final output.
 }
 
 # Initialize the posterior mean estimates of the regression
@@ -184,11 +175,58 @@ init_coef_glmnet <- function (X, y, s, ...) {
 
 # Get a reasonable setting for the standard deviations of the mixture
 # components in the mixture-of-normals prior based on the data (X, y).
-# Input se is an estimate of the residual variance, and n is the
+# Input se is an estimate of the residual *variance*, and n is the
 # number of standard deviations to return. This code is based on the
 # autoselect.mixsd function from the ashr package.
-init_resid_sd <- function (X, y, se = 1, n = 20) {
-  res <- bayes_lr_ridge(X, y, se)
-  smax <- with(res, 2*sqrt(max(bhat^2 - shat)))
+init_prior_sd <- function (X, y, se = 1, n = 20) {
+    
+  # For each variable (column of X), compute the least-squares
+  # estimate of b, and its variance. The first two lines are not very
+  # memory efficient, and could be improved.
+  X    <- scale(X, center = TRUE, scale = FALSE)
+  xx   <- colSums(X^2)
+  y    <- y - mean(y)
+  bhat <- drop(y %*% X)/xx
+  shat <- se/xx
+
+  # Generate a uniform grid of standard deviations between 0 and smax.
+  smax <- 2*sqrt(max(bhat^2 - shat))
   return(seq(0, smax, length.out = n))
+}
+
+# Initialize the mixture weights in the mixture-of-normals prior by
+# performing a single M-step update in which b is treated as a current
+# estimate of the posterior mean of the regression coefficient.
+#
+# Here, se and s0 are *variances* (not standard deviations).
+#
+init_prior_weights <- function (X, b, se = 1, s0) {
+
+  # Get the number of variables (n) and the number of mixture
+  # components (k).
+  n <- ncol(X)
+  k <- length(s0)
+  
+  # Compute the variances of the least-squares estimates. The first
+  # two lines are not very memory efficient, and could be improved.
+  X    <- scale(X, center = TRUE, scale = FALSE)
+  xx   <- colSums(X^2)
+  shat <- se/xx
+  
+  # Compute the Bayes factors separately for each mixture component.
+  # The log-Bayes factors are stored in an n x k matrix. If s0 = 1,
+  # then the Bayes factor is equal to 1 by definition (i.e., the
+  # log-Bayes factor is 0).
+  lbf <- matrix(0,n,k)
+  for (i in 1:k)
+    if (s0[i] > 0)
+      lbf[,i] <- bayes_lr_ridge(b, shat, s0[i])$lbf
+
+  # Compute the "responsibilities"; that is, the probability that the
+  # effect for the ith variable was drawn from the kth component.
+  P <- exp(lbf - apply(lbf, 1, max))
+  P <- P/rowSums(P)
+
+  # Compute the MLE of the mixture weights.
+  return(colMeans(P))
 }

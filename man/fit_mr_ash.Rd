@@ -124,8 +124,6 @@ over each outer-loop iteration.}
 \item{sa2}{vector of prior mixture component variances.}
 
 \item{fitted}{fitted values for each row of \code{X}.}
-
-A \code{mr.ash} object.
 }
 \description{
 Model fitting algorithms for Multiple Regression with
@@ -233,16 +231,15 @@ y <- dat$y
 # Initialize the coefficients using glmnet.
 fit0_glmnet <- init_mr_ash(X, y)
 
-# Initialize the coefficients to zero.
+# Initialize the coefficients to be all zero.
 fit0_null <- init_mr_ash(X, y, init.method = "null")
 
 # Randomly initialize the coefficients.
 fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
 
-# specify custom mixture distribution for b
-fit0_custom_mixt <- init_mr_ash(
-  dat$X, dat$y, sa2 = (2^((0:19) / 20) - 1)^2, pi = rep(1/20, 20)
-)
+# Specify a custom mixture prior.
+fit0_custom_prior <- init_mr_ash(X, y, prior.sd = (2^((0:19)/20) - 1),
+                                 prior.weights = rep(1,20))
 
 }
 \references{
@@ -251,6 +248,4 @@ regression. Ph.D. thesis, University of Chicago.
 }
 \seealso{
 \code{\link{predict.mr.ash}}
-
-\code{\link{fit_mr_ash}}
 }
