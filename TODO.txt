@@ -1,10 +1,9 @@
 to do
 =====
 
-+ Add automated testing with continuous integration.
-
-+ Check that the calculations are correct when the first prior mixture
-  component has a nonzero variance.
++ Write function to compute "single-effect" posterior distribution for
+  each variable, and put this in a separate .R file. (See my code in
+  the mr-ash repo.)
 
 + Create "progress" output.
 

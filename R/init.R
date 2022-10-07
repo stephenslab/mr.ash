@@ -141,7 +141,7 @@ init_mr_ash <- function (
   names(b) <- colnames(X)
   fit <- list(b         = b,
               resid.sd  = resid.sd,
-              prior     = list(sd = prior.sd,weights = prior.weights),
+              prior     = list(sd = prior.sd),
               progress  = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
@@ -189,17 +189,11 @@ init_coef_glmnet <- function (X, y, s, ...) {
 
 # Get a reasonable setting for the standard deviations of the mixture
 # components in the mixture-of-normals prior based on the data (X, y).
-# Input sigma2 is an estimate of the residual variance, and n is the
+# Input se is an estimate of the residual variance, and n is the
 # number of standard deviations to return. This code is based on the
 # autoselect.mixsd function from the ashr package.
-init_resid_sd <- function (X, y, sigma2 = 1, n = 20) {
-
-  # The first two lines here are not very memory efficient, and could
-  # be improved.
-  X  <- scale(X, center = TRUE, scale = FALSE)
-  xx <- colSums(X^2)
-  s  <- sqrt(sigma2/xx)
-  b  <- drop(y %*% X)/xx
-  smax <- 2*sqrt(max(b^2 - s^2))
+init_resid_sd <- function (X, y, se = 1, n = 20) {
+  res <- bayes_lr_ridge(X, y, se)
+  smax <- with(res,2*sqrt(max(bhat^2 - shat)))
   return(seq(0, smax, length.out = n))
 }
