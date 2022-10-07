@@ -65,26 +65,18 @@ p.}
 deviations of the mixture components in the mixture-of-normals
 prior.}
 
-\item{prior.weights}{Optio initial estimate of the mixture proportions
-\eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
-mixture weights are initialized to \code{rep(1/K,K)}, where
-\code{K = length(sa2)}.}
+\item{prior.weights}{Optional initial estimate of the prior mixture
+proportions.}
 
-\item{resid.sd}{The initial estimate of the residual variance,
-\eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
-initialized to the empirical variance of the residuals based on the
-initial estimates of the regression coefficients, \code{b},
-after removing linear effects of the intercept and any covariances.}
+\item{resid.sd}{Initial estimate of the residual standard deviation.}
 
-\item{init.method}{method used to initialize \code{b} if not
-provided.  When set to \code{"glmnet"}, an L1 penalized regression
-of \code{y} on \code{X} is run (using cross-validation to select
-the magnitude of regularization) and the resulting regression
-coefficients are used as the initial values of \code{b}. It set to
-\code{"null"}, all regression coefficients are initialized to
-\code{0}. See \code{\link[glment]{cv.glmnet}} for more details.}
+\item{init.method}{Method used to initialize the estimates of the
+regression coefficients.  When \code{init.method = "glmnet"}, the
+estimates are initialized using
+\code{\link[glmnet]{cv.glmnet}}. When \code{init.ethod = "null"},
+the estimates are initialized to zero.}
 
-\item{s}{The value of the glmnet penaalty parameter at which the
+\item{s}{The value of the glmnet penalty parameter at which the
 coeffients are extracted (relevant for \code{init.method =
 "glmnet"} only).}
 
@@ -233,7 +225,7 @@ rmse        = norm(ynew - ypred, '2') / sqrt(n)
 bhat     = predict(fit.mr.ash, type = "coefficients")
 # this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
 
-dat <- simulate_regression_data(n = 100, p = 100, s = 50)
+dat <- simulate_regression_data(n = 400, p = 100, s = 20)
 X <- dat$X
 y <- dat$y
 

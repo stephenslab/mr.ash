@@ -15,26 +15,18 @@
 #'   deviations of the mixture components in the mixture-of-normals
 #'   prior.
 #'
-#' @param prior.weights Optio initial estimate of the mixture proportions
-#'   \eqn{\pi_1, \ldots, \pi_K}. If \code{pi} is \code{NULL}, the
-#'   mixture weights are initialized to \code{rep(1/K,K)}, where
-#'   \code{K = length(sa2)}.
+#' @param prior.weights Optional initial estimate of the prior mixture
+#'   proportions.
 #'
-#' @param resid.sd The initial estimate of the residual variance,
-#'   \eqn{\sigma^2}. If \code{sigma2 = NULL}, the residual variance is
-#'   initialized to the empirical variance of the residuals based on the
-#'   initial estimates of the regression coefficients, \code{b},
-#'   after removing linear effects of the intercept and any covariances.
+#' @param resid.sd Initial estimate of the residual standard deviation.
 #'
-#' @param init.method method used to initialize \code{b} if not
-#'   provided.  When set to \code{"glmnet"}, an L1 penalized regression
-#'   of \code{y} on \code{X} is run (using cross-validation to select
-#'   the magnitude of regularization) and the resulting regression
-#'   coefficients are used as the initial values of \code{b}. It set to
-#'   \code{"null"}, all regression coefficients are initialized to
-#'   \code{0}. See \code{\link[glment]{cv.glmnet}} for more details.
+#' @param init.method Method used to initialize the estimates of the
+#'   regression coefficients.  When \code{init.method = "glmnet"}, the
+#'   estimates are initialized using
+#'   \code{\link[glmnet]{cv.glmnet}}. When \code{init.ethod = "null"},
+#'   the estimates are initialized to zero.
 #'
-#' @param s The value of the glmnet penaalty parameter at which the
+#' @param s The value of the glmnet penalty parameter at which the
 #'   coeffients are extracted (relevant for \code{init.method =
 #'   "glmnet"} only).
 #' 
@@ -65,19 +57,19 @@
 #'   dat$X, dat$y, sa2 = (2^((0:19) / 20) - 1)^2, pi = rep(1/20, 20)
 #' )
 #'
+#' @importFrom stats sd
+#' 
 #' @export
 #'
 init_mr_ash <- function (
   X, y, b, prior.sd, prior.weights, resid.sd,
   init.method = c("glmnet", "null"),
-  s = "lambda.1se",
-  ...) {
+  s = "lambda.1se", ...) {
 
   # Check and process input argument X.
-  if (!(is.matrix(X) & is.numeric(X)))
-    stop("Input argument X should be a numeric matrix")
-  if (any(is.infinite(X)) | anyNA(X))
-    stop("All entries of X should be finite and non-missing")
+  if (!is.numeric.matrix(X))
+    stop("Input argument X should be a numeric matrix, and all entries of ",
+         "X should be finite and non-missing")
   if (is.integer(X))
     storage.mode(X) <- "double"
   n <- nrow(X)
@@ -86,11 +78,10 @@ init_mr_ash <- function (
     stop("Input matrix X should have at least 2 rows and 2 columns")
 
   # Check and process input argument y.
-  if (!is.numeric(y))
-    stop("X and y must be numeric")
+  if (!is.numeric.vector(y))
+    stop("Input argument y should be a vector and all entries should be ",
+         "finite and non-missing")
   y <- as.vector(y,mode = "double")
-  if (any(is.infinite(y)) | anyNA(y))
-    stop("All entries of y should be finite and non-missing")
   if (length(y) != n)
     stop("The length of y should be the same as nrow(X)")
 
@@ -100,11 +91,10 @@ init_mr_ash <- function (
   # Check and process optional input b. If not provided, initialize
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
-    if (!is.numeric(b))
-      stop("Input argument b should be a numeric vector")
+    if (!is.numeric.vector(b))
+      stop("Input argument b should be a vector and all entries should be ",
+           "finite and non-missing")
     b <- as.vector(b,mode = "double")
-    if (any(is.infinite(b)) | anyNA(b))
-      stop("All entries of b should be finite and non-missing")
     if (!length(b) == p)
       stop("Input argument b should have one entry for each column of X")
   } else {
@@ -114,48 +104,54 @@ init_mr_ash <- function (
       b <- init_coef_glmnet(X,y,s,...)
   }
 
-  # Prepare the final output.
-  fit <- list(b = b)
-  class(fit) <- c("mr.ash","list")
-  return(fit)
+  # Check and process optioinal input resid.sd.
+  if (!missing(resid.sd)) {
+    if (!is.scalar(resid.sd) && resid.sd < 0)
+      stop("Input argument resid.sd should be a number greater than zero")
+  } else {
+      
+    # Initialize the residual s.d. to the MLE (assuming the
+    # coefficients, b, are known).
+    resid.sd <- sqrt((n-1)/n) * sd(y - X %*% b)
+  }
+  resid.sd <- as.vector(resid.sd,mode = "double")
   
   # Check and process optional input prior.sd. 
-  # TO DO
-  
+  if (!missing(prior.weights) & missing(prior.sd))
+    stop("If prior.weights is provided then prior.sd should also be provided")
+  if (!missing(prior.sd)) {
+    if (!is.numeric.vector(prior.sd))
+      stop("Input argument prior.sd should be a vector and all entries ",
+           "should be finite and non-missing")
+    if (any(prior.sd < 0))
+      stop("All entries of prior.sd should be non-negative")
+    if (prior.sd[1] != 0)
+      stop("The first entry of prior.sd should be zero")
+    if (!all(diff(prior.sd) > 0))
+      stop("The entries of prior.sd should be increasing")
+  } else {
+
+    # Set the standard deviations of the mixture components in an
+    # automated way based on the data.
+    prior.sd <- init_resid_sd(X,y,resid.sd^2)
+  }
+  prior.sd <- as.vector(prior.sd,mode = "double")
+    
+  # Prepare the final output.
+  names(b) <- colnames(X)
+  fit <- list(b         = b,
+              resid.sd  = resid.sd,
+              prior     = list(sd = prior.sd,weights = prior.weights),
+              progress  = NULL)
+  class(fit) <- c("mr.ash","list")
+  return(fit)
+
   # Check and process optional input prior.weights.
   # TO DO
 
-  # Check and process optioinal input resid.sd.
-  # TO DO
-  
-  if (!missing(sigma2)) {
-    if (!is.numeric(sigma2))
-      stop("sigma2 must be numeric")
-    if (length(sigma2) != 1)
-      stop("sigma2 must be a single number")
-    if (sigma2 <= 0)
-      stop("sigma2 must be greater than 0")
-  } else {
-    # initialize r
-    r <- drop(y - X %*% b)
-    sigma2 <- c(var.n(r))
-  }
-
-  if ((missing(pi) && !missing(sa2)) || (!missing(pi) && missing(sa2))) {
-    stop("Either both pi and sa2 should be specified",
-         "or neither should be specified")
-  } else if (!missing(pi) && !missing(sa2)) {
-
+  if (TRUE) {
     if(length(pi) != length(sa2))
       stop("pi and sa2 must be of the same length")
-
-    if (any(sa2 < 0))
-      stop("all the mixture component variances must be non-negative.")
-    if (sa2[1] != 0)
-      stop("the first mixture component variance sa2[1] must be 0.")
-    if (!all(sort(sa2) == sa2))
-      stop("sa2 must be sorted")
-
     if (!is.numeric(pi))
       stop("pi must be a numeric vector")
     if (!missing(sa2) && length(sa2) != length(pi))
@@ -170,34 +166,40 @@ init_mr_ash <- function (
 
   } else {
 
-    d <- diag(crossprod(X))
-    bhat <-	drop(t(X) %*% y)/d
-    sehat <- sqrt(sigma2/d)
-    sigmaamax <- 2*sqrt(max(bhat^2-sehat^2))
-    sa2 <- seq(from = 0, to = sigmaamax, length.out = 20)
-
     w <- colSums(X^2)
     S   <- outer(1/w, sa2, '+') * sigma2
     Phi <- -b^2/S/2 - log(S)/2
     Phi <- exp(Phi - apply(Phi,1,max))
     Phi <- Phi / rowSums(Phi)
     pi  <- colMeans(Phi)
-
   }
 
-  # TO DO: Add names to all the outputs.
-  
   # Prepare the final output.
-  fit <- list(
-    sa2 = sa2, b = b, pi = pi, sigma2 = sigma2, progress = data.frame()
-  )
-  class(fit) <- c("mr.ash","list")
-  return(fit)
 }
 
+# Initialize the posterior mean estimates of the regression
+# coefficients using glmnet.
+#
 #' @importFrom glmnet cv.glmnet
 #' @importFrom glmnet coef.glmnet
 init_coef_glmnet <- function (X, y, s, ...) {
   fit <- cv.glmnet(X, y, ...)
   return(drop(coef.glmnet(fit, s = s))[-1])
+}
+
+# Get a reasonable setting for the standard deviations of the mixture
+# components in the mixture-of-normals prior based on the data (X, y).
+# Input sigma2 is an estimate of the residual variance, and n is the
+# number of standard deviations to return. This code is based on the
+# autoselect.mixsd function from the ashr package.
+init_resid_sd <- function (X, y, sigma2 = 1, n = 20) {
+
+  # The first two lines here are not very memory efficient, and could
+  # be improved.
+  X  <- scale(X, center = TRUE, scale = FALSE)
+  xx <- colSums(X^2)
+  s  <- sqrt(sigma2/xx)
+  b  <- drop(y %*% X)/xx
+  smax <- 2*sqrt(max(b^2 - s^2))
+  return(seq(0, smax, length.out = n))
 }

@@ -1,9 +1,14 @@
-# Return TRUE if and only if x is a finite, numeric scalar.
-is.scalar <- function(x)
-  length(x) == 1 &&
-  is.numeric(x) &&
-  !is.na(x) &&
-  is.finite(x)
+# Return TRUE if x is a finite numeric matrix with no missing entries.
+is.numeric.matrix <- function (x)
+  is.matrix(x) && is.numeric(x) && !anyNA(x) && all(is.finite(x))
+
+# Return TRUE if x is a finite numeric vector with no missing entries.
+is.numeric.vector <- function (x)
+  is.numeric(x) && !anyNA(x) && all(is.finite(x))
+
+# Return TRUE if x is a finite numeric scalar with no missing entries.
+is.scalar <- function (x)
+  is.numeric.vector(x) & length(x) == 1
 
 # Remove covariate effects Regresses Z out from X and y; that is, X
 # and y are projected into the space orthogonal to Z.
