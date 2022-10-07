@@ -66,7 +66,8 @@ deviations of the mixture components in the mixture-of-normals
 prior.}
 
 \item{prior.weights}{Optional initial estimate of the prior mixture
-proportions.}
+proportions. This vector will automatically be normalized so that
+the entries represent proportions (that is, they add up to 1).}
 
 \item{resid.sd}{Initial estimate of the residual standard deviation.}
 

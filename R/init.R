@@ -16,8 +16,9 @@
 #'   prior.
 #'
 #' @param prior.weights Optional initial estimate of the prior mixture
-#'   proportions.
-#'
+#'   proportions. This vector will automatically be normalized so that
+#'   the entries represent proportions (that is, they add up to 1).
+#' 
 #' @param resid.sd Initial estimate of the residual standard deviation.
 #'
 #' @param init.method Method used to initialize the estimates of the
@@ -81,7 +82,7 @@ init_mr_ash <- function (
   if (!is.numeric.vector(y))
     stop("Input argument y should be a vector and all entries should be ",
          "finite and non-missing")
-  y <- as.vector(y,mode = "double")
+  y <- as.vector(y, mode = "double")
   if (length(y) != n)
     stop("The length of y should be the same as nrow(X)")
 
@@ -94,14 +95,14 @@ init_mr_ash <- function (
     if (!is.numeric.vector(b))
       stop("Input argument b should be a vector and all entries should be ",
            "finite and non-missing")
-    b <- as.vector(b,mode = "double")
+    b <- as.vector(b, mode = "double")
     if (!length(b) == p)
       stop("Input argument b should have one entry for each column of X")
   } else {
     if (init.method == "null")
-      b <- rep(0,p)
+      b <- rep(0, p)
     else if (init.method == "glmnet")
-      b <- init_coef_glmnet(X,y,s,...)
+      b <- init_coef_glmnet(X, y, s, ...)
   }
 
   # Check and process optioinal input resid.sd.
@@ -114,7 +115,7 @@ init_mr_ash <- function (
     # coefficients, b, are known).
     resid.sd <- sqrt((n-1)/n) * sd(y - X %*% b)
   }
-  resid.sd <- as.vector(resid.sd,mode = "double")
+  resid.sd <- as.vector(resid.sd, mode = "double")
   
   # Check and process optional input prior.sd. 
   if (!missing(prior.weights) & missing(prior.sd))
@@ -135,44 +136,38 @@ init_mr_ash <- function (
     # automated way based on the data.
     prior.sd <- init_resid_sd(X,y,resid.sd^2)
   }
-  prior.sd <- as.vector(prior.sd,mode = "double")
+  prior.sd <- as.vector(prior.sd, mode = "double")
     
+  # Check and process optional input prior.weights.
+  if (!missing(prior.weights)) {
+    if (!is.numeric.vector(prior.weights))
+      stop("Input argument prior.weights should be a vector and all entries ",
+           "should be finite and non-missing")
+    if(length(prior.weights) != length(prior.sd))
+      stop("prior.sd and prior.weights should have the same number of ",
+           "elements")
+    if (any(prior.weights < 0))
+      stop("All entries of prior.sd should be non-negative")
+    if (any(prior.weights == 0))
+      warning("Mixture components with weights of zero will be ignored")
+  } else {
+    # TO DO.
+  }
+  prior.weights <- prior.weights / sum(prior.weights)
+  prior.weights <- as.vector(prior.weights, mode = "double")
+  k <- length(prior.weights)
+  
   # Prepare the final output.
   names(b) <- colnames(X)
+  names(prior.sd) <- paste0("k",1:k)
+  names(prior.weights) <- paste0("k",1:k)
   fit <- list(b         = b,
               resid.sd  = resid.sd,
-              prior     = list(sd = prior.sd),
+              prior     = list(sd = prior.sd, weights = prior.weights),
               progress  = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
 
-  # Check and process optional input prior.weights.
-  # TO DO
-
-  if (TRUE) {
-    if(length(pi) != length(sa2))
-      stop("pi and sa2 must be of the same length")
-    if (!is.numeric(pi))
-      stop("pi must be a numeric vector")
-    if (!missing(sa2) && length(sa2) != length(pi))
-      stop("pi and sa2 must be of the same length")
-    if (any(pi < 0))
-      stop("all elements of pi must be greater than or equal to 0")
-    if (any(pi == 0))
-      warning("some element(s) of pi are 0.",
-              " This mixture component will not change with model training")
-
-    pi <- pi/sum(pi)
-
-  } else {
-
-    w <- colSums(X^2)
-    S   <- outer(1/w, sa2, '+') * sigma2
-    Phi <- -b^2/S/2 - log(S)/2
-    Phi <- exp(Phi - apply(Phi,1,max))
-    Phi <- Phi / rowSums(Phi)
-    pi  <- colMeans(Phi)
-  }
 
   # Prepare the final output.
 }
@@ -194,6 +189,6 @@ init_coef_glmnet <- function (X, y, s, ...) {
 # autoselect.mixsd function from the ashr package.
 init_resid_sd <- function (X, y, se = 1, n = 20) {
   res <- bayes_lr_ridge(X, y, se)
-  smax <- with(res,2*sqrt(max(bhat^2 - shat)))
+  smax <- with(res, 2*sqrt(max(bhat^2 - shat)))
   return(seq(0, smax, length.out = n))
 }

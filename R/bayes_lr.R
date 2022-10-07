@@ -29,3 +29,12 @@ bayes_lr_ridge <- function (X, y, se = 1, s0 = 1) {
               s1   = s1,
               lbf  = lbf))
 }
+
+function () {
+    w <- colSums(X^2)
+    S   <- outer(1/w, sa2, '+') * sigma2
+    Phi <- -b^2/S/2 - log(S)/2
+    Phi <- exp(Phi - apply(Phi,1,max))
+    Phi <- Phi / rowSums(Phi)
+    pi  <- colMeans(Phi)
+}
