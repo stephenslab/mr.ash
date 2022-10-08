@@ -238,8 +238,8 @@ fit0_null <- init_mr_ash(X, y, init.method = "null")
 fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
 
 # Specify a custom mixture prior.
-fit0_custom_prior <- init_mr_ash(X, y, prior.sd = (2^((0:19)/20) - 1),
-                                 prior.weights = rep(1,20))
+fit0_custom <- init_mr_ash(X, y, prior.sd = (2^((0:19)/20) - 1),
+                           prior.weights = rep(1,20))
 
 }
 \references{

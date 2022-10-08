@@ -179,27 +179,17 @@ init_coef_glmnet <- function (X, y, s, ...) {
 # number of standard deviations to return. This code is based on the
 # autoselect.mixsd function from the ashr package.
 init_prior_sd <- function (X, y, se = 1, n = 20) {
-    
-  # For each variable (column of X), compute the least-squares
-  # estimate of b, and its variance. The first two lines are not very
-  # memory efficient, and could be improved.
-  X    <- scale(X, center = TRUE, scale = FALSE)
-  xx   <- colSums(X^2)
-  y    <- y - mean(y)
-  bhat <- drop(y %*% X)/xx
-  shat <- se/xx
-
-  # Generate a uniform grid of standard deviations between 0 and smax.
-  smax <- 2*sqrt(max(bhat^2 - shat))
+  res <- simple_lr(X, y, se)
+  smax <- with(res, 2*sqrt(max(bhat^2 - shat)))
   return(seq(0, smax, length.out = n))
 }
 
 # Initialize the mixture weights in the mixture-of-normals prior by
-# performing a single M-step update in which b is treated as a current
-# estimate of the posterior mean of the regression coefficient.
-#
-# Here, se and s0 are *variances* (not standard deviations).
-#
+# findinging the mixture weights that "best fit" b if we treat b as
+# the "true" posterior mean of the regression coefficients. Here, se
+# and s0 are *variances* (not standard deviations); specifically, se
+# is an estimate of the variance of the residual and s0 specifies the
+# variances in the mixture-of-normals prior.
 init_prior_weights <- function (X, b, se = 1, s0) {
 
   # Get the number of variables (n) and the number of mixture
@@ -207,11 +197,8 @@ init_prior_weights <- function (X, b, se = 1, s0) {
   n <- ncol(X)
   k <- length(s0)
   
-  # Compute the variances of the least-squares estimates. The first
-  # two lines are not very memory efficient, and could be improved.
-  X    <- scale(X, center = TRUE, scale = FALSE)
-  xx   <- colSums(X^2)
-  shat <- se/xx
+  # Compute the variances of the least-squares estimates.
+  shat <- simple_lr(X, y, se)$shat
   
   # Compute the Bayes factors separately for each mixture component.
   # The log-Bayes factors are stored in an n x k matrix. If s0 = 1,
@@ -227,6 +214,6 @@ init_prior_weights <- function (X, b, se = 1, s0) {
   P <- exp(lbf - apply(lbf, 1, max))
   P <- P/rowSums(P)
 
-  # Compute the MLE of the mixture weights.
+  # Compute the M-step update for the mixture weights.
   return(colMeans(P))
 }

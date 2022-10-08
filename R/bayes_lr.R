@@ -1,3 +1,17 @@
+# For each variable (column of X), compute the least-squares
+# estimate of b, and its variance.
+simple_lr <- function (X, y, se = 1) {
+
+  # The first two lines are not very memory efficient, and could be
+  # improved.
+  X    <- scale(X, center = TRUE, scale = FALSE)
+  xx   <- colSums(X^2)
+  y    <- y - mean(y)
+  bhat <- drop(y %*% X)/xx
+  shat <- se/xx
+  return(list(bhat = bhat, shat = shat))
+}
+
 # Fit a univariate linear regression model y ~ x*b + e, e ~ N(0,se),
 # separately for each column of X, in which b ~ N(0,s0). Here, se and
 # s0 are *variances* (not standard deviations). X and y are assumed to
