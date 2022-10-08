@@ -204,7 +204,7 @@ init_prior_weights <- function (X, b, se = 1, s0) {
   # The log-Bayes factors are stored in an n x k matrix. If s0 = 1,
   # then the Bayes factor is equal to 1 by definition (i.e., the
   # log-Bayes factor is 0).
-  lbf <- matrix(0,n,k)
+  lbf <- matrix(0, n, k)
   for (i in 1:k)
     if (s0[i] > 0)
       lbf[,i] <- bayes_lr_ridge(b, shat, s0[i])$lbf
