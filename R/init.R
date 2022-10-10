@@ -144,7 +144,8 @@ init_mr_ash <- function (
     if (any(prior.weights < 0))
       stop("All entries of prior.sd should be non-negative")
     if (any(prior.weights == 0))
-      warning("Mixture components with weights of zero will be ignored")
+      warning("Mixture components with weights initialized to zero will ",
+              "never be used")
   } else
     prior.weights <- init_prior_weights(X, b, resid.sd^2, prior.sd^2)
   prior.weights <- prior.weights / sum(prior.weights)
