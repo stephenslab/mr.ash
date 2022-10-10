@@ -147,7 +147,7 @@ init_mr_ash <- function (
       warning("Mixture components with weights initialized to zero will ",
               "never be used")
   } else
-    prior.weights <- init_prior_weights(X, b, resid.sd^2, prior.sd^2)
+    prior.weights <- init_prior_weights(X, y, b, resid.sd^2, prior.sd^2)
   prior.weights <- prior.weights / sum(prior.weights)
   prior.weights <- as.vector(prior.weights, mode = "double")
   k <- length(prior.weights)
@@ -191,7 +191,7 @@ init_prior_sd <- function (X, y, se = 1, n = 20) {
 # and s0 are *variances* (not standard deviations); specifically, se
 # is an estimate of the variance of the residual and s0 specifies the
 # variances in the mixture-of-normals prior.
-init_prior_weights <- function (X, b, se = 1, s0) {
+init_prior_weights <- function (X, y, b, se = 1, s0) {
 
   # Get the number of variables (n) and the number of mixture
   # components (k).
