@@ -236,7 +236,7 @@ fit_mr_ash <- function (
   # precompute x_j^T x_j
   w <- colSums(X^2)
 
-  K <- length(fit0$sa2)
+  K <- length(fit0$prior$sd)
 
   # run algorithm
   if (is.null(control$update.order))
@@ -254,11 +254,11 @@ fit_mr_ash <- function (
   }
   if (verbose == "detailed")
     cat("iter                elbo ||b-b'||   sigma2 w>0\n")
-  out <- mr_ash_rcpp(X,y,w,fit0$sa2,fit0$pi,beta,as.vector(r),
-                     fit0$sigma2,o,control$max.iter,control$min.iter,
-                     control$convtol,control$epstol,method_q,
-                     control$update.pi,control$update.sigma2,
-                     switch(verbose,none = 0,progress = 1,detailed = 2))
+  out <- mr_ash_rcpp(X, y, w, fit0$prior$sd, fit0$prior$weights, beta, as.vector(r),
+                     fit0$resid.sd, o, control$max.iter, control$min.iter,
+                     control$convtol, control$epstol, method_q,
+                     control$update.pi, control$update.sigma2,
+                     switch(verbose, none = 0, progress = 1, detailed = 2))
 
   # polish return object
   out$progress <- data.frame(iter   = 1:control$max.iter,
@@ -286,7 +286,7 @@ fit_mr_ash <- function (
                           "of the variances \"sa2\"."),1/K))
 
   # Add dimension names and prepare the final fit object.
-  res <- get_full_posterior(X,y,w,out$beta,out$pi,out$sigma2,fit0$sa2)
+  res <- get_full_posterior(X,y,w,out$beta,out$pi,out$sigma2,fit0$prior$sd)
   out$m <- res$m
   out$s2 <- res$s2
   out$phi <- res$phi
