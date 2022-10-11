@@ -1,15 +1,21 @@
 # For each variable (column of X), compute the least-squares estimate
 # of b (bhat), and its variance (shat). If y is NULL, only the
-# variance (shat) is returned.
+# variance (shat) is computed.
 simple_lr <- function (X, y = NULL, se = 1) {
 
   # The first two lines are not very memory efficient, and could be
   # improved.
-  X    <- scale(X, center = TRUE, scale = FALSE)
-  xx   <- colSums(X^2)
-  y    <- y - mean(y)
-  bhat <- drop(y %*% X)/xx
+  X <- scale(X, center = TRUE, scale = FALSE)
+  xx <- colSums(X^2)
   shat <- se/xx
+
+  # Compute the least-squares estimates.
+  if (is.null(y)) 
+    bhat <- is.numeric(NA)
+  else {
+    y <- y - mean(y)
+    bhat <- drop(y %*% X)/xx
+  }
   return(list(bhat = bhat, shat = shat))
 }
 
