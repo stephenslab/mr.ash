@@ -1,6 +1,7 @@
-# For each variable (column of X), compute the least-squares
-# estimate of b, and its variance.
-simple_lr <- function (X, y, se = 1) {
+# For each variable (column of X), compute the least-squares estimate
+# of b (bhat), and its variance (shat). If y is NULL, only the
+# variance (shat) is returned.
+simple_lr <- function (X, y = NULL, se = 1) {
 
   # The first two lines are not very memory efficient, and could be
   # improved.
