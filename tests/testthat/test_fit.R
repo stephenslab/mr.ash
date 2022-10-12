@@ -18,8 +18,9 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
   # Fit the mr.ash model, then fit a second time in which the fit is
   # initialized to the estimates returned from first mr.ash call.
   capture.output(fit1 <- fit_mr_ash(X,y,control = list(convtol = 1e-14)))
-  fit0_2 <- init_mr_ash(X, y, b = fit1$b,pi = fit1$pi,
-                        sa2 = fit1$sa2,sigma2 = fit1$sigma2)
+
+  fit0_2 <- init_mr_ash(X, y, b = fit1$b,prior.weights = fit1$prior$weights,
+                        prior.sd = fit1$prior$sd,resid.sd = fit1$resid.sd)
   capture.output(fit2 <- fit_mr_ash(X,y,fit0_2,
                                 control = list(convtol = 1e-14)))
 
@@ -27,7 +28,7 @@ test_that("re-running mr.ash after solution has converged yields same fit",{
   # should be almost the same.
   fit1$progress <- NULL
   fit2$progress <- NULL
-  expect_equal(fit1,fit2,scale = 1,tolerance = 1e-8)
+  expect_equal(fit1,fit2,scale = 1,tolerance = 1e-5)
 })
 
 # ELBO output non-decreasing

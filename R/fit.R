@@ -47,18 +47,18 @@
 #'
 #' \item{\code{max.iter}}{The maximum number of outer loop iterations.}
 #'
-#' \item{\code{convtol}}{When \code{update.pi = TRUE}, the
+#' \item{\code{convtol}}{When \code{update.prior.weights = TRUE}, the
 #'   outer-loop updates terminate when the largest change in the mixture
-#'   weights is less than \code{convtol*K}; when \code{update.pi =
+#'   weights is less than \code{convtol*K}; when \code{update.prior.weights =
 #'   FALSE}, the outer-loop updates stop when the largest change in the
 #'   estimates of the posterior mean coefficients is less than
 #'   \code{convtol*K}.}
 #'
-#' \item{\code{update.pi}}{If \code{update.pi = TRUE}, the mixture
+#' \item{\code{update.prior.weights}}{If \code{update.prior.weights = TRUE}, the mixture
 #'   proportions in the mixture-of-normals prior are estimated from the
 #'   data.}
 #'
-#' \item{\code{update.sigma2}}{If \code{update.sigma2 = TRUE}, the
+#' \item{\code{update.resid.sd}}{If \code{update.resid.sd = TRUE}, the
 #'   residual variance parameter \eqn{\sigma^2} is estimated from the
 #'   data.}
 #'
@@ -108,11 +108,11 @@
 #'
 #' \item{intercept}{The estimated intercept.}
 #'
-#' \item{beta}{Posterior mean estimates of the regression coefficients.}
+#' \item{b}{Posterior mean estimates of the regression coefficients.}
 #'
-#' \item{sigma2}{The estimated residual variance.}
+#' \item{resid.sd}{The estimated residual variance.}
 #'
-#' \item{pi}{A vector of containing the estimated mixture
+#' \item{posterior.weights}{A vector of containing the estimated mixture
 #'   proportions.}
 #'
 #' \item{progress}{A list containing estimated parameters and objectives
@@ -139,7 +139,7 @@
 #' \item{lfsr}{A vector of length p containing the local false
 #'   discovery rate for each variable.}
 #'
-#' \item{sa2}{vector of prior mixture component variances.}
+#' \item{prior}{list of values used in prior}
 #'
 #' \item{fitted}{fitted values for each row of \code{X}.}
 #'
@@ -257,7 +257,7 @@ fit_mr_ash <- function (
   out <- mr_ash_rcpp(X, y, w, fit0$prior$sd, fit0$prior$weights, beta, as.vector(r),
                      fit0$resid.sd, o, control$max.iter, control$min.iter,
                      control$convtol, control$epstol, method_q,
-                     control$update.pi, control$update.sigma2,
+                     control$update.prior.weights, control$update.resid.sd,
                      switch(verbose, none = 0, progress = 1, detailed = 2))
 
   # polish return object
@@ -267,17 +267,17 @@ fit_mr_ash <- function (
                              sigma2 = out$sigma2byiter,
                              w1     = out$w1)
   out$progress <- out$progress[1:out$iter,]
-  out <- out[c("beta","sigma2","pi","progress")]
+  out <- out[c("b","resid.sd","posterior.weights","progress")]
   out$elbo <- tail(out$progress$elbo,n = 1)
-  out$intercept <- c(ZtZiZy - ZtZiZX %*% out$beta)
+  out$intercept <- c(ZtZiZy - ZtZiZX %*% out$b)
   out$update.order <- o
 
   # rescale beta as needed
   if (standardize)
-    out$beta <- out$beta / attr(X,"scaled:scale")
+    out$b <- out$b / attr(X,"scaled:scale")
 
   ## warn if necessary
-  if (control$update.pi && out$pi[K] > 1/K)
+  if (control$update.prior.weights && out$posterior.weights[K] > 1/K)
     warning(sprintf(paste("The mixture proportion associated with the",
                           "largest prior variance is greater than %0.2e;",
                           "this indicates that the model fit could be",
@@ -286,16 +286,23 @@ fit_mr_ash <- function (
                           "of the variances \"sa2\"."),1/K))
 
   # Add dimension names and prepare the final fit object.
-  res <- get_full_posterior(X,y,w,out$beta,out$pi,out$sigma2,fit0$prior$sd)
+  res <- get_full_posterior(
+    X,y,w,out$b,out$posterior.weights,out$resid.sd,fit0$prior$sd
+  )
+
   out$m <- res$m
   out$s2 <- res$s2
   out$phi <- res$phi
   out$lfsr <- res$lfsr
-  out$b <- drop(out$beta)
-  out$pi <- drop(out$pi)
-  out$sa2 <- fit0$sa2
-  out$fitted <- as.vector(og_data_X %*% out$beta + out$intercept)
-  names(out$beta) <- colnames(X)
+  out$fitted <- as.vector(og_data_X %*% out$b + out$intercept)
+  out$b <- drop(out$b)
+  out$posterior.weights <- drop(out$posterior.weights)
+
+  out$prior <- list()
+  out$prior$sd <- fit0$prior$sd
+  out$prior$weights <- fit0$prior$weights
+
+  names(out$b) <- colnames(X)
   class(out) <- c("mr.ash","list")
   return(out)
 }
@@ -370,7 +377,7 @@ mr_ash_control_default <- function()
   list(min.iter      = 1,
        max.iter      = 1000,
        convtol       = 1e-8,
-       update.pi     = TRUE,
-       update.sigma2 = TRUE,
+       update.prior.weights     = TRUE,
+       update.resid.sd = TRUE,
        update.order  = NULL,
        epstol        = 1e-12)

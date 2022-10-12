@@ -54,14 +54,14 @@ predict.mr.ash <- function (object, newx = NULL,
   if (!inherits(object, "mr.ash"))
     stop("object must be of class mr.ash")
 
-  p <- length(object$beta)
+  p <- length(object$b)
 
   if (!is.null(newx)) {
 
     if(!is.numeric(newx))
       stop("newx must be numeric")
     if (ncol(newx) != p)
-      stop("newx must have the same number of columns as object$beta")
+      stop("newx must have the same number of columns as object$b")
 
   }
 
@@ -120,4 +120,4 @@ predict.mr.ash <- function (object, newx = NULL,
 #' @export
 #'
 coef.mr.ash <- function (object, ...)
-  c(object$intercept,object$beta)
+  c(object$intercept,object$b)
