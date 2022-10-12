@@ -1,10 +1,5 @@
 to do
 =====
 
-+ Write function to compute "single-effect" posterior distribution for
-  each variable, and put this in a separate .R file. (See my code in
-  the mr-ash repo.)
-
 + Create "progress" output.
 
-+ Implement mr_ash_init.
