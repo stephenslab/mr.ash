@@ -121,7 +121,7 @@ simulate_regression_data <- function (
   X <- matrix(rnorm(n*p), n, p)
   X <- scale(X,center = center_X, scale = standardize_X)
   
-  # Generate the regression coefficientss.
+  # Generate the regression coefficients.
   b.idx <- sample(p, s)
   b <- rep(0, p)
   if (s > 0) {

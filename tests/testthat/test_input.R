@@ -1,6 +1,5 @@
 # Tests here check that the flags used in function mr_ash are functional,
 # and that function is not sensitive to X scaling.
-
 context("input")
 
 # Testing that multiplying X by a constant does not affect output phi
@@ -13,16 +12,18 @@ test_that("Scaling X result in same phi", {
   s        <- 10
   data     <- simulate_regression_data(n = n, p = p, pve = pve, s = s)
   epstol   <- 1e-12
-  X.scaled <- data$X *  runif(1, -10, 10) + epstol
+  X.scaled <- data$X * runif(1, -10, 10) + epstol
 
   # fit mr.ash (X, y), (X.scaled, y)
-  capture.output(fit.Xy   <- fit_mr_ash(data$X, data$y))
-  capture.output(fit.Xsy  <- fit_mr_ash(X.scaled, data$y))
+  fit0 <- init_mr_ash(data$X, data$y)
+  capture.output(fit.Xy <- fit_mr_ash(data$X, data$y, fit0 = fit0,
+                                      standardize = TRUE))
+  capture.output(fit.Xsy <- fit_mr_ash(X.scaled, data$y, fit0 = fit0,
+                                       standardize = TRUE))
 
   # Check that phi values are invariant wrt X scaling
   expect_equal(fit.Xy$phi,fit.Xsy$phi,scale = 1,tolerance = 1e-8)
 })
-
 
 # When data set is standardized, setting "standardize == TRUE"
 # should have no effect on the output... right?
