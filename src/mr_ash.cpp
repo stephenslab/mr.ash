@@ -133,9 +133,9 @@ List mr_ash_rcpp (const arma::mat& X, const arma::vec& y,
   // ---------------------------------------------------------------------
   // RETURN VALUES
   // ---------------------------------------------------------------------
-  return List::create(Named("beta")   = beta,
-                      Named("sigma2") = sigma2,
-                      Named("pi")     = pi,
+  return List::create(Named("b")   = beta,
+                      Named("resid.sd") = sigma2,
+                      Named("posterior.weights")     = pi,
                       Named("iter")   = iter,
                       Named("varobj") = varobj,
 		      Named("dbeta")  = dbeta,

@@ -90,11 +90,11 @@ A list object with the following elements:
 
 \item{intercept}{The estimated intercept.}
 
-\item{beta}{Posterior mean estimates of the regression coefficients.}
+\item{b}{Posterior mean estimates of the regression coefficients.}
 
-\item{sigma2}{The estimated residual variance.}
+\item{resid.sd}{The estimated residual variance.}
 
-\item{pi}{A vector of containing the estimated mixture
+\item{posterior.weights}{A vector of containing the estimated mixture
   proportions.}
 
 \item{progress}{A list containing estimated parameters and objectives
@@ -121,7 +121,7 @@ over each outer-loop iteration.}
 \item{lfsr}{A vector of length p containing the local false
   discovery rate for each variable.}
 
-\item{sa2}{vector of prior mixture component variances.}
+\item{prior}{list of values used in prior}
 
 \item{fitted}{fitted values for each row of \code{X}.}
 }
@@ -172,18 +172,18 @@ defined by \code{mr_ash_control_default}):
 
 \item{\code{max.iter}}{The maximum number of outer loop iterations.}
 
-\item{\code{convtol}}{When \code{update.pi = TRUE}, the
+\item{\code{convtol}}{When \code{update.prior.weights = TRUE}, the
   outer-loop updates terminate when the largest change in the mixture
-  weights is less than \code{convtol*K}; when \code{update.pi =
+  weights is less than \code{convtol*K}; when \code{update.prior.weights =
   FALSE}, the outer-loop updates stop when the largest change in the
   estimates of the posterior mean coefficients is less than
   \code{convtol*K}.}
 
-\item{\code{update.pi}}{If \code{update.pi = TRUE}, the mixture
+\item{\code{update.prior.weights}}{If \code{update.prior.weights = TRUE}, the mixture
   proportions in the mixture-of-normals prior are estimated from the
   data.}
 
-\item{\code{update.sigma2}}{If \code{update.sigma2 = TRUE}, the
+\item{\code{update.resid.sd}}{If \code{update.resid.sd = TRUE}, the
   residual variance parameter \eqn{\sigma^2} is estimated from the
   data.}
 
