@@ -47,7 +47,7 @@ test_that("Standardized X yield the same result regardless of
   capture.output(fit.Xy  <- fit_mr_ash(X.std, data$y))
 
   # Check that phi values are invariant wrt standardize flag
-  expect_equal(fit.Xy$phi,fit.Xsy$phi,scale = 1,tolerance = 1e-6)
+  expect_equal(fit.Xy$phi,fit.Xsy$phi, scale = 1, tolerance = 1e-5)
   # range(abs(fit.Xy$phi - fit.Xsy$phi))
 })
 

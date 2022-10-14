@@ -1,4 +1,4 @@
-context("simulation")
+context("data")
 
 test_that("when s = 0, sd(y) should be close to sigma", {
   set.seed(1)

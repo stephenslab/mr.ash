@@ -22,12 +22,18 @@
 #'   proportion of variance in y explained by X after removing the
 #'   linear effects of the covariates Z.
 #'
-#' @param center_X If \code{center_X = TRUE}, the columns of X are
+#' @param flim The variables (columns of X) are simulated as binomial
+#'   random variables with 2 trials, in which the binomial success rate
+#'   for each variable is drawn uniformly between \code{flim[1]} and
+#'   \code{flim[2]}. A wider range of binomial probabilities simulates a
+#'   greater variety of variances in the columns of X.
+#' 
+#' @param center If \code{center = TRUE}, the columns of X are
 #'   centered before simulating y so that each column as a mean of
-#'   zero. Note that if \code{standardize_X = TRUE} this argument must
+#'   zero. Note that if \code{standardize = TRUE} this argument must
 #'   also be set to \code{TRUE}.
 #'
-#' @param standardize_X If \code{standardize_X = TRUE}, the columns of
+#' @param standardize If \code{standardize = TRUE}, the columns of
 #'   X are standardized before simulating y so that each column has a
 #'   mean of zero and a standard deviation of 1.
 #'
@@ -53,7 +59,8 @@
 #'
 #' \item{sigma}{The standard deviation of the residual.}
 #'
-#' @importFrom stats rnorm sd cor
+#' @importFrom stats rnorm
+#' @importFrom stats runif
 #'
 #' @export
 #'
@@ -76,8 +83,9 @@ simulate_regression_data <- function (
   s,
   sigma = 1,
   pve = 0.5,
-  center_X = TRUE,
-  standardize_X = FALSE,
+  flim = c(0.05,0.5),
+  center = TRUE,
+  standardize = FALSE,
   intercept = 0,
   ncov = 0) {
 
@@ -91,6 +99,12 @@ simulate_regression_data <- function (
          "(inclusive)")
   if (!(is.scalar(sigma) && sigma >= 0))
     stop("Input argument sigma should be a scalar greater than 0")
+  flim <- sort(flim)
+  if (!(is.numeric.vector(flim) & length(flim) == 2 &
+        flim[1] > 0 & flim[2] < 1))
+    stop("Input argument flim should be a vector of length 2 specifying ",
+         "the range of binomial success rates to simulate (should be two ",
+         "numbers between 0 and 1, and cannot be exactly 0 or 1)")
   if (!(is.scalar(pve) && pve >= 0 && pve <= 1))
     stop("Input argument pve should be a scalar between 0 ",
          "and 1 (inclusive)")
@@ -99,8 +113,8 @@ simulate_regression_data <- function (
   if (!(is.scalar(ncov) && ncov >= 0))
     stop("Input argument ncov should be an greater than or equal to 0 ",
          "(inclusive)")
-  if (!center_X && standardize_X)
-    stop("Input argument center_X should be TRUE when standardize_X is TRUE")
+  if (!center && standardize)
+    stop("Input argument center should be TRUE when standardize is TRUE")
   if (pve == 1 && sigma != 0)
     stop("If pve = 1, sigma should be zero")
   if (s == 0 && pve > 0)
@@ -118,8 +132,13 @@ simulate_regression_data <- function (
     stop("Input s should be no greater than p")
 
   # Simulate data matrix.
-  X <- matrix(rnorm(n*p), n, p)
-  X <- scale(X,center = center_X, scale = standardize_X)
+  f <- runif(p, flim[1], flim[2])
+  X <- (runif(n*p) < f) +
+       (runif(n*p) < f)
+  X <- matrix(as.double(X), n, p, byrow = TRUE)
+  
+  # Center and scale the columns of X (if requested).
+  X <- scale(X,center = center, scale = standardize)
   
   # Generate the regression coefficients.
   b.idx <- sample(p, s)
@@ -156,15 +175,15 @@ simulate_regression_data <- function (
 
   # Add row and column names to the outputs.
   rnames      <- paste0("s", 1:n)
-  cnames_X    <- paste0("v", 1:p)
+  cnames      <- paste0("v", 1:p)
   names(y)    <- rnames
   rownames(X) <- rnames
-  colnames(X) <- cnames_X
-  names(b)    <- cnames_X
+  colnames(X) <- cnames
+  names(b)    <- cnames
   if (ncov > 0) {
-    cnames_Z    <- paste0("c", 1:ncov)
-    names(u)    <- cnames_Z
-    colnames(Z) <- cnames_Z
+    cnames      <- paste0("c", 1:ncov)
+    names(u)    <- cnames
+    colnames(Z) <- cnames
     rownames(Z) <- rnames
   }
 

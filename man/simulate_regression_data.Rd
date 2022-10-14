@@ -10,8 +10,9 @@ simulate_regression_data(
   s,
   sigma = 1,
   pve = 0.5,
-  center_X = TRUE,
-  standardize_X = FALSE,
+  flim = c(0.05, 0.95),
+  center = TRUE,
+  standardize = FALSE,
   intercept = 0,
   ncov = 0
 )
@@ -31,12 +32,18 @@ variance in y explained by X. When \code{ncov > 0}, this is the
 proportion of variance in y explained by X after removing the
 linear effects of the covariates Z.}
 
-\item{center_X}{If \code{center_X = TRUE}, the columns of X are
+\item{flim}{The variables (columns of X) are simulated as binomial
+random variables with 2 trials, in which the binomial success rate
+for each variable is drawn uniformly between \code{flim[1]} and
+\code{flim[2]}. A wider range of binomial probabilities simulates a
+greater variety of variances in the columns of X.}
+
+\item{center}{If \code{center = TRUE}, the columns of X are
 centered before simulating y so that each column as a mean of
-zero. Note that if \code{standardize_X = TRUE} this argument must
+zero. Note that if \code{standardize = TRUE} this argument must
 also be set to \code{TRUE}.}
 
-\item{standardize_X}{If \code{standardize_X = TRUE}, the columns of
+\item{standardize}{If \code{standardize = TRUE}, the columns of
 X are standardized before simulating y so that each column has a
 mean of zero and a standard deviation of 1.}
 
