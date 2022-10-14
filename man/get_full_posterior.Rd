@@ -8,7 +8,7 @@ get_full_posterior(X, y, w, beta, pi, sigma2, sa2)
 }
 \arguments{
 \item{fit}{A Mr.ASH fit obtained, for example, by running
-\code{\link{mr_ash}}.}
+\code{\link{fit_mr_ash}}.}
 }
 \value{
 A list object with the following elements:
@@ -23,7 +23,7 @@ A list object with the following elements:
 
 \item{s2}{A p x K matrix containing the posterior variances
   conditional on assignment to each mixture component.}
-  
+
 \item{lfsr}{A vector of length p containing the local false
   discovery rate for each variable}
 }
@@ -31,7 +31,7 @@ A list object with the following elements:
 Recover the parameters specifying the variational
   approximation to the posterior distribution of the regression
   coefficients. To streamline the model fitting implementation, and
-  to reduce memory requirements, \code{\link{mr_ash}} does not store
+  to reduce memory requirements, \code{\link{fit_mr_ash}} does not store
   all the parameters needed to specify the approximate posterior.
 }
 \examples{
@@ -45,6 +45,6 @@ beta[1:10]  = 1:10
 y           = X \%*\% beta + rnorm(n)
 
 # Fit mr.ash model.
-fit <- mr_ash(X, y)
+fit <- fit_mr_ash(X, y)
 
 }

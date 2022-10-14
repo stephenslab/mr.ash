@@ -2,36 +2,88 @@
 % Please edit documentation in R/datasim.R
 \name{simulate_regression_data}
 \alias{simulate_regression_data}
-\title{Simulate Regression Data}
+\title{Simulate Data from Multiple Regression Model}
 \usage{
-simulate_regression_data(n, p)
+simulate_regression_data(
+  n,
+  p,
+  s,
+  sigma = 1,
+  pve = 0.5,
+  center_X = TRUE,
+  standardize_X = FALSE,
+  intercept = 0,
+  ncov = 0
+)
 }
 \arguments{
-\item{n}{number of samples}
+\item{n}{The number of samples. Should be 2 or greater.}
 
-\item{p}{number of variables}
+\item{p}{The number of regression variables. Should be 2 or greater.}
 
-\item{s}{number of non-zero effects}
+\item{s}{A non-negative number specifying the number of non-zero
+regression coefficients.}
 
-\item{se}{standard deviation of the residual}
+\item{sigma}{The standard deviation of the residual.}
 
-\item{pve}{proportion of variance in Y explained by X}
+\item{pve}{Assuming \code{ncov = 0}, this is the proportion of
+variance in y explained by X. When \code{ncov > 0}, this is the
+proportion of variance in y explained by X after removing the
+linear effects of the covariates Z.}
 
-\item{misc}{FILL IN OTHER PARAMS}
+\item{center_X}{If \code{center_X = TRUE}, the columns of X are
+centered before simulating y so that each column as a mean of
+zero. Note that if \code{standardize_X = TRUE} this argument must
+also be set to \code{TRUE}.}
+
+\item{standardize_X}{If \code{standardize_X = TRUE}, the columns of
+X are standardized before simulating y so that each column has a
+mean of zero and a standard deviation of 1.}
+
+\item{intercept}{The intercept \eqn{b_0} in the regression model.}
+
+\item{ncov}{The number of covariates (columns of Z).}
 }
 \value{
-Y an n vector simulated gaussian (not centered or scaled)
+A list with the following components:
 
-Y_std an n vector simulated gaussian centered and scaled
+\item{y}{Vector of length n containing the regression responses.}
 
-beta a p vector of effects
+\item{X}{\code{n} by \code{p} matrix of regression variables X.}
 
-sigma
+\item{Z}{\code{n} by \code{ncov} matrix of covariates Z.}
 
-sigma_std
+\item{u}{Vector of length \code{ncov} the containing covariate
+  coefficients, u.}
 
-mean_corX mean of correlations of effect variables (lower triangular entries of correlation matrix of effect variables)
+\item{b}{Vector of length \code{p} containing the regression
+  coefficients \eqn{b}.}
+
+\item{intercept}{The intercept in the regression model.}
+
+\item{sigma}{The standard deviation of the residual.}
 }
 \description{
-Simulate non-sparse data matrix X (and a corresponding normal y?)
+Simulate data from a multiple regression model.
+}
+\details{
+Data are generated from the linear regressionmodel \deqn{y
+\sim N(b_0 + Xb + Zu, \sigma^2I),} in which the non-zero elements
+of vector \eqn{b} are drawn from the standard normal, and scaled to
+achieve the desired proportion of variance in y explained by X (see
+input argument \dQuote{pve}).
+}
+\examples{
+
+# Simulate 100 x 100 regression data with 75\% sparsity.
+simulate_regression_data(n = 100, p = 100, s = 25)
+
+# simulate 100 x 100 regression data with # 50\% sparsity and 100\%
+variance explained.
+simulate_regression_data(n = 100, p = 100, s = 50, pve = 1, sigma = 0)
+
+# Simulate 100 x 100 regression data with 50\% sparsity and 10
+covariates.
+simulate_regression_data(n = 100, p = 100, s = 50, ncov = 10)
+
 }
