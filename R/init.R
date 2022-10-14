@@ -130,7 +130,7 @@ init_mr_ash <- function (
 
     # Set the standard deviations of the mixture components in an
     # automated way based on the data.
-    prior.sd <- init_prior_sd(X, y, resid.sd^2)
+    prior.sd <- init_prior_sd(X, y)
   }
   prior.sd <- as.vector(prior.sd, mode = "double")
     
@@ -178,11 +178,11 @@ init_coef_glmnet <- function (X, y, s, ...) {
 # Get a reasonable setting for the standard deviations of the mixture
 # components in the mixture-of-normals prior based on the data (X, y).
 # Input se is an estimate of the residual *variance*, and n is the
-# number of standard deviations to return. This code is based on the
-# autoselect.mixsd function from the ashr package.
-init_prior_sd <- function (X, y, se = 1, n = 20) {
-  res <- simple_lr(X, y, se)
-  smax <- with(res, 2*sqrt(max(bhat^2 - shat)))
+# number of standard deviations to return. This code is adapted from
+# the autoselect.mixsd function in the ashr package.
+init_prior_sd <- function (X, y, n = 20) {
+  res <- simple_lr(X, y)
+  smax <- 2*max(res$bhat)
   return(seq(0, smax, length.out = n))
 }
 
