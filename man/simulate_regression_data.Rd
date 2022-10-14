@@ -74,6 +74,7 @@ achieve the desired proportion of variance in y explained by X (see
 input argument \dQuote{pve}).
 }
 \examples{
+set.seed(1)
 
 # Simulate 100 x 100 regression data with 75\% sparsity.
 simulate_regression_data(n = 100, p = 100, s = 25)

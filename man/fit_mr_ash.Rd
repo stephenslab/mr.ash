@@ -224,6 +224,7 @@ rmse        = norm(ynew - ypred, '2') / sqrt(n)
 bhat     = predict(fit.mr.ash, type = "coefficients")
 # this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
 
+set.seed(1)
 dat <- simulate_regression_data(n = 400, p = 100, s = 20)
 X <- dat$X
 y <- dat$y

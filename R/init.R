@@ -36,6 +36,7 @@
 #'   "glmnet"} only).
 #' 
 #' @examples
+#' set.seed(1)
 #' dat <- simulate_regression_data(n = 400, p = 100, s = 20)
 #' X <- dat$X
 #' y <- dat$y
