@@ -58,16 +58,17 @@
 #' @export
 #'
 #' @examples
-#'
+#' set.seed(1)
+#' 
 #' # Simulate 100 x 100 regression data with 75% sparsity.
 #' simulate_regression_data(n = 100, p = 100, s = 25)
 #'
 #' # simulate 100 x 100 regression data with # 50% sparsity and 100%
-#' variance explained.
+#' # variance explained.
 #' simulate_regression_data(n = 100, p = 100, s = 50, pve = 1, sigma = 0)
 #'
 #' # Simulate 100 x 100 regression data with 50% sparsity and 10
-#' covariates.
+#' # covariates.
 #' simulate_regression_data(n = 100, p = 100, s = 50, ncov = 10)
 #'
 simulate_regression_data <- function (
