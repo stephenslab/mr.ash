@@ -18,7 +18,7 @@ jobs:
           name: Install package dependencies
           command: |
             mkdir -p ~/R/Library
-            Rscript -e 'install.packages(c("devtools","remotes","Rcpp","RcppArmadillo","rmarkdown","knitr","testthat"))'
+            Rscript -e 'install.packages(c("devtools","remotes","Rcpp","RcppArmadillo","glmnet","rmarkdown","knitr","testthat"))'
             Rscript -e 'remotes::install_github("stephenslab/mr.ash.alpha",upgrade="never",force=TRUE)'
       - run:
           name: Session information and installed package versions
@@ -28,11 +28,11 @@ jobs:
             Rscript -e 'rmarkdown::pandoc_version()'
       - run:
           name: Build package
-          command: R CMD build --no-manual .
+          command: R CMD build --no-manual --no-build-vignettes .
       - run:
           name: Check package
           no_output_timeout: 15m
-          command: R CMD check --as-cran --no-manual *tar.gz
+          command: R CMD check --as-cran --no-manual --ignore-vignettes *tar.gz
       - store_artifacts:
           path: mr.ash.Rcheck/
       - save_cache:

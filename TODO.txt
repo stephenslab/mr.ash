@@ -1,5 +1,7 @@
 to do
 =====
 
++ Add check for columns of X that have zero variance.
+
 + Create "progress" output.
 
