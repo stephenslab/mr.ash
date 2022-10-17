@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           install.packages(c("remotes","rcmdcheck","devtools","remotes"))
-          install.packages(c("Rcpp","RcppArmadillo","glmnet","testthat"))
+          install.packages(c("Rcpp","RcppArmadillo","glmnet","matrixStats","testthat"))
           remotes::install_github("stephenslab/mr.ash.alpha",upgrade="never",force=TRUE)
         shell: Rscript {0}
       - name: Check
