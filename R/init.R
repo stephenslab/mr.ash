@@ -179,10 +179,12 @@ init_mr_ash <- function (
   names(b) <- colnames(X)
   names(prior.sd) <- paste0("k",1:k)
   names(prior.weights) <- paste0("k",1:k)
-  fit <- list(b         = b,
-              resid.sd  = resid.sd,
-              prior     = list(sd = prior.sd, weights = prior.weights),
-              progress  = NULL)
+  fit <- list(b           = b,
+              resid.sd    = resid.sd,
+              prior       = list(sd = prior.sd, weights = prior.weights),
+              intercept   = intercept,
+              standardize = standardize,
+              progress    = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
 }
