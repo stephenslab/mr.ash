@@ -10,7 +10,7 @@ simulate_regression_data(
   s,
   sigma = 1,
   pve = 0.5,
-  flim = c(0.05, 0.95),
+  flim = c(0.05, 0.5),
   center = TRUE,
   standardize = FALSE,
   intercept = 0,

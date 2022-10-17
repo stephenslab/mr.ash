@@ -1,3 +1,7 @@
+# Return TRUE if x is TRUE or FALSE.
+is.trueorfalse <- function (x)
+  is.logical(x) & (length(x) == 1) & !anyNA(x)
+
 # Return TRUE if x is a finite numeric matrix with no missing entries.
 is.numeric.matrix <- function (x)
   is.matrix(x) && is.numeric(x) && !anyNA(x) && all(is.finite(x))

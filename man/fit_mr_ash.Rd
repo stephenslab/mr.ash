@@ -21,6 +21,8 @@ mr_ash_control_default()
 init_mr_ash(
   X,
   y,
+  intercept = TRUE,
+  standardize = FALSE,
   b,
   prior.sd,
   prior.weights,
@@ -41,12 +43,16 @@ predictors.}
 \item{fit0}{Initialized \code{mr.ash} object resulting from a call to
 \code{init_mr_ash}.}
 
-\item{standardize}{The logical flag for standardization of the
-columns of X variable, prior to the model fitting. The coefficients
-are always returned on the original scale.}
+\item{standardize}{When \code{standardize = TRUE},
+\dQuote{standardize} the variables. (Internally, the columns of X
+are divided by the the standard deviations so that each column has
+a standard deviation of one.) Note that the coefficients are always
+returned on the original scale.}
 
-\item{intercept}{When \code{intercept = TRUE}, an intercept is
-included in the regression model.}
+\item{intercept}{Should intercept be estimated (\code{intercept =
+TRUE}) or set to zero (\code{intercept = FALSE}). Please note that
+\code{intercept = FALSE} is generally not recommended and could
+produce unexpected results.}
 
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}

@@ -7,6 +7,17 @@
 #'
 #' @param y The observed outcomes, a numeric vector of length n.
 #'
+#' @param intercept Should intercept be estimated (\code{intercept =
+#'   TRUE}) or set to zero (\code{intercept = FALSE}). Please note that
+#'   \code{intercept = FALSE} is generally not recommended and could
+#'   produce unexpected results.
+#'
+#' @param standardize When \code{standardize = TRUE},
+#'   \dQuote{standardize} the variables. (Internally, the columns of X
+#'   are divided by the the standard deviations so that each column has
+#'   a standard deviation of one.) Note that the coefficients are always
+#'   returned on the original scale.
+#' 
 #' @param b Optional input argument specifying the initial estimate of
 #'   the regression coefficients. It should be numeric vector of length
 #'   p.
@@ -59,7 +70,9 @@
 #' @export
 #'
 init_mr_ash <- function (
-  X, y, b, prior.sd, prior.weights, resid.sd,
+  X, y, 
+  intercept = TRUE, standardize = FALSE,
+  b, prior.sd, prior.weights, resid.sd,
   init.method = c("glmnet", "null"),
   s = "lambda.1se", ...) {
 
@@ -85,6 +98,12 @@ init_mr_ash <- function (
   # Process input argument init.method.
   init.method <- match.arg(init.method)
 
+  # Check optional inputs "intercept" and "standardize".
+  if (!is.trueorfalse(intercept))
+    stop("Input argument \"intercept\" should be TRUE or FALSE")
+  if (!is.trueorfalse(standardize))
+    stop("Input argument \"intercept\" should be TRUE or FALSE")
+  
   # Check and process optional input b. If not provided, initialize
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
