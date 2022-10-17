@@ -66,6 +66,7 @@
 #'                            prior.weights = rep(1,20))
 #'
 #' @importFrom stats sd
+#' @importFrom matrixStats colSds
 #' 
 #' @export
 #'
@@ -86,7 +87,9 @@ init_mr_ash <- function (
   p <- ncol(X)
   if (n < 2 | p < 2)
     stop("Input matrix X should have at least 2 rows and 2 columns")
-
+  if (any(colSds(X) <= 0))
+    stop("All columns of X should have nonzero variance")
+  
   # Check and process input argument y.
   if (!is.numeric.vector(y))
     stop("Input argument y should be a vector and all entries should be ",
