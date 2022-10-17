@@ -174,6 +174,9 @@ init_mr_ash <- function (
   prior.weights <- prior.weights / sum(prior.weights)
   prior.weights <- as.vector(prior.weights, mode = "double")
   k <- length(prior.weights)
+
+  # Compute initial estimate of intercept.
+  # TO DO.
   
   # Prepare the final output.
   names(b) <- colnames(X)
