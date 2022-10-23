@@ -17,7 +17,7 @@
 #'   are divided by the the standard deviations so that each column has
 #'   a standard deviation of one.) Note that the coefficients are always
 #'   returned on the original scale.
-#' 
+#'
 #' @param b Optional input argument specifying the initial estimate of
 #'   the regression coefficients. It should be numeric vector of length
 #'   p.
@@ -29,7 +29,7 @@
 #' @param prior.weights Optional initial estimate of the prior mixture
 #'   proportions. This vector will automatically be normalized so that
 #'   the entries represent proportions (that is, they add up to 1).
-#' 
+#'
 #' @param resid.sd Initial estimate of the residual standard deviation.
 #'
 #' @param init.method Method used to initialize the estimates of the
@@ -41,11 +41,11 @@
 #' @param s The value of the glmnet penalty parameter at which the
 #'   coeffients are extracted (relevant for \code{init.method =
 #'   "glmnet"} only).
-#' 
+#'
 #' @param \dots Additional arguments passed to
 #'   \code{\link[glmnet]{cv.glmnet}} (relevant for \code{init.method =
 #'   "glmnet"} only).
-#' 
+#'
 #' @examples
 #' set.seed(1)
 #' dat <- simulate_regression_data(n = 400, p = 100, s = 20)
@@ -60,18 +60,18 @@
 #'
 #' # Randomly initialize the coefficients.
 #' fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
-#' 
+#'
 #' # Specify a custom mixture prior.
 #' fit0_custom <- init_mr_ash(X, y, prior.sd = (2^((0:19)/20) - 1),
 #'                            prior.weights = rep(1,20))
 #'
 #' @importFrom stats sd
 #' @importFrom matrixStats colSds
-#' 
+#'
 #' @export
 #'
 init_mr_ash <- function (
-  X, y, 
+  X, y,
   intercept = TRUE, standardize = FALSE,
   b, prior.sd, prior.weights, resid.sd,
   init.method = c("glmnet", "null"),
@@ -85,11 +85,12 @@ init_mr_ash <- function (
     storage.mode(X) <- "double"
   n <- nrow(X)
   p <- ncol(X)
+  column_sds <- colSds(X)
   if (n < 2 | p < 2)
     stop("Input matrix X should have at least 2 rows and 2 columns")
-  if (any(colSds(X) <= 0))
+  if (any(column_sds <= 0))
     stop("All columns of X should have nonzero variance")
-  
+
   # Check and process input argument y.
   if (!is.numeric.vector(y))
     stop("Input argument y should be a vector and all entries should be ",
@@ -97,6 +98,8 @@ init_mr_ash <- function (
   y <- as.vector(y, mode = "double")
   if (length(y) != n)
     stop("The length of y should be the same as nrow(X)")
+
+  X <- scale(X, center = intercept, scale = standardize)
 
   # Process input argument init.method.
   init.method <- match.arg(init.method)
@@ -106,7 +109,7 @@ init_mr_ash <- function (
     stop("Input argument \"intercept\" should be TRUE or FALSE")
   if (!is.trueorfalse(standardize))
     stop("Input argument \"intercept\" should be TRUE or FALSE")
-  
+
   # Check and process optional input b. If not provided, initialize
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
@@ -120,7 +123,9 @@ init_mr_ash <- function (
     if (init.method == "null")
       b <- rep(0, p)
     else if (init.method == "glmnet")
-      b <- init_coef_glmnet(X, y, s, ...)
+      b <- init_coef_glmnet(
+        X, y, s, ...
+      )
   }
 
   # Check and process optioinal input resid.sd.
@@ -128,14 +133,14 @@ init_mr_ash <- function (
     if (!is.scalar(resid.sd) && resid.sd < 0)
       stop("Input argument resid.sd should be a number greater than zero")
   } else {
-      
+
     # Initialize the residual s.d. to the MLE (assuming the
     # coefficients, b, are known).
     resid.sd <- sqrt((n-1)/n) * sd(y - X %*% b)
   }
   resid.sd <- as.vector(resid.sd, mode = "double")
-  
-  # Check and process optional input prior.sd. 
+
+  # Check and process optional input prior.sd.
   if (!missing(prior.weights) & missing(prior.sd))
     stop("If prior.weights is provided then prior.sd should also be provided")
   if (!missing(prior.sd)) {
@@ -152,10 +157,10 @@ init_mr_ash <- function (
 
     # Set the standard deviations of the mixture components in an
     # automated way based on the data.
-    prior.sd <- init_prior_sd(X, y)
+    prior.sd <- init_prior_sd(X, y, standardize, column_sds)
   }
   prior.sd <- as.vector(prior.sd, mode = "double")
-    
+
   # Check and process optional input prior.weights.
   if (!missing(prior.weights)) {
     if (!is.numeric.vector(prior.weights))
@@ -177,7 +182,13 @@ init_mr_ash <- function (
 
   # Compute initial estimate of intercept.
   # TO DO.
-  
+
+  if (standardize) {
+
+    b <- b * column_sds
+
+  }
+
   # Prepare the final output.
   names(b) <- colnames(X)
   names(prior.sd) <- paste0("k",1:k)
@@ -207,9 +218,18 @@ init_coef_glmnet <- function (X, y, s, ...) {
 # Input se is an estimate of the residual *variance*, and n is the
 # number of standard deviations to return. This code is adapted from
 # the autoselect.mixsd function in the ashr package.
-init_prior_sd <- function (X, y, n = 20) {
+init_prior_sd <- function (X, y, standardize, column_sds = NULL, n = 20) {
   res <- simple_lr(X, y)
-  smax <- 2*max(res$bhat)
+  if(!standardize) {
+
+    smax <- 2*max(res$bhat)
+
+  } else {
+
+    smax <- 2*max(res$bhat * column_sds)
+
+  }
+
   return(seq(0, smax, length.out = n))
 }
 
@@ -225,10 +245,10 @@ init_prior_weights <- function (X, b, se = 1, s0) {
   # components (k).
   n <- ncol(X)
   k <- length(s0)
-  
+
   # Compute the variances of the least-squares estimates.
   shat <- simple_lr(X, se = se)$shat
-  
+
   # Compute the Bayes factors separately for each mixture component.
   # The log-Bayes factors are stored in an n x k matrix. If s0 = 1,
   # then the Bayes factor is equal to 1 by definition (i.e., the

@@ -5,12 +5,11 @@ simple_lr <- function (X, y = NULL, se = 1) {
 
   # The first two lines are not very memory efficient, and could be
   # improved.
-  X <- scale(X, center = TRUE, scale = FALSE)
   xx <- colSums(X^2)
   shat <- se/xx
 
   # Compute the least-squares estimates.
-  if (is.null(y)) 
+  if (is.null(y))
     bhat <- is.numeric(NA)
   else {
     y <- y - mean(y)
