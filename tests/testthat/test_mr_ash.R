@@ -48,6 +48,7 @@ test_that("check identical fit", {
   fit$sa2 <- fit$prior$sd
   fit$sigma2 <- fit$resid.sd
   fit$beta <- fit$b
+  fit$intercept <- fit$b_0
   fit          <- fit[names(fit.alpha)]
   # attr(fit, "class") <- "list"
 

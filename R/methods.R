@@ -78,7 +78,7 @@ predict.mr.ash <- function (object, newx = NULL,
     if (!all(object$data$Z == 1))
       stop("predict.mr.ash is not implemented for covariates Z other than ",
            "intercept")
-    return(drop(object$intercept + newx %*% coef(object)[-1]))
+    return(drop(object$b_0 + newx %*% coef(object)[-1]))
   }
 }
 
@@ -120,4 +120,4 @@ predict.mr.ash <- function (object, newx = NULL,
 #' @export
 #'
 coef.mr.ash <- function (object, ...)
-  c(object$intercept,object$b)
+  c(object$b_0,object$b)

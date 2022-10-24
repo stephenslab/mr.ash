@@ -181,7 +181,12 @@ init_mr_ash <- function (
   k <- length(prior.weights)
 
   # Compute initial estimate of intercept.
-  # TO DO.
+  b_0 <- 0
+  if (intercept) {
+
+    b_0 <- mean(y - X %*% b)
+
+  }
 
   if (standardize) {
 
@@ -191,14 +196,16 @@ init_mr_ash <- function (
 
   # Prepare the final output.
   names(b) <- colnames(X)
+  names(b_0) <- c("(Intercept)")
   names(prior.sd) <- paste0("k",1:k)
   names(prior.weights) <- paste0("k",1:k)
-  fit <- list(b           = b,
-              resid.sd    = resid.sd,
-              prior       = list(sd = prior.sd, weights = prior.weights),
-              intercept   = intercept,
-              standardize = standardize,
-              progress    = NULL)
+  fit <- list(b             = b,
+              b_0           = b_0,
+              resid.sd      = resid.sd,
+              prior         = list(sd = prior.sd, weights = prior.weights),
+              intercept     = intercept,
+              standardize   = standardize,
+              progress      = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
 }
@@ -220,16 +227,7 @@ init_coef_glmnet <- function (X, y, s, ...) {
 # the autoselect.mixsd function in the ashr package.
 init_prior_sd <- function (X, y, standardize, column_sds = NULL, n = 20) {
   res <- simple_lr(X, y)
-  if(!standardize) {
-
-    smax <- 2*max(res$bhat)
-
-  } else {
-
-    smax <- 2*max(res$bhat * column_sds)
-
-  }
-
+  smax <- 2*max(res$bhat * column_sds)
   return(seq(0, smax, length.out = n))
 }
 

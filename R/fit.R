@@ -88,13 +88,6 @@
 #' @param fit0 Initialized \code{mr.ash} object resulting from a call to
 #' \code{init_mr_ash}.
 #'
-#' @param standardize The logical flag for standardization of the
-#'   columns of X variable, prior to the model fitting. The coefficients
-#'   are always returned on the original scale.
-#'
-#' @param intercept When \code{intercept = TRUE}, an intercept is
-#'   included in the regression model.
-#'
 #' @param control A list of parameters controlling the behaviour of
 #'   the optimization algorithm. See \sQuote{Details}.
 #'
@@ -106,7 +99,7 @@
 #'
 #' @return A list object with the following elements:
 #'
-#' \item{intercept}{The estimated intercept.}
+#' \item{b_0}{The estimated intercept.}
 #'
 #' \item{b}{Posterior mean estimates of the regression coefficients.}
 #'
@@ -176,30 +169,16 @@
 #'
 #' ### coefficients
 #' bhat     = predict(fit.mr.ash, type = "coefficients")
-#' # this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
+#' # this equals c(fit.mr.ash$b_0, fit.mr.ash$b)
 #'
 #' @export
 #'
 fit_mr_ash <- function (
-  X, y, fit0 = init_mr_ash(X, y), standardize = FALSE, intercept = TRUE,
-  control = list(), verbose = c("progress", "detailed", "none")) {
+  X, y, fit0 = init_mr_ash(X, y), control = list(),
+  verbose = c("progress", "detailed", "none")) {
 
   n <- nrow(X)
   p <- ncol(X)
-
-  if (!is.null(standardize)) {
-
-    if (!is.logical(standardize))
-      stop("standardize must be set to either TRUE or FALSE")
-
-  }
-
-  if (!is.null(intercept)) {
-
-    if (!is.logical(intercept))
-      stop("intercept must be set to either TRUE or FALSE")
-
-  }
 
   if(!is.list(control))
     stop("control must be a list")
@@ -217,7 +196,7 @@ fit_mr_ash <- function (
   og_data_X <- X
 
   # remove covariates
-  res    <- remove_covariate(X,y,NULL,standardize,intercept)
+  res    <- remove_covariate(X,y,NULL,fit0$standardize,fit0$intercept)
   X      <- res$X
   y      <- res$y
   ZtZiZX <- res$ZtZiZX
@@ -225,7 +204,7 @@ fit_mr_ash <- function (
 
   # standard beta
 
-  if (standardize)
+  if (fit0$standardize)
     beta <- drop(fit0$b) * attr(X,"scaled:scale")
   else
     beta <- drop(fit0$b)
@@ -269,11 +248,20 @@ fit_mr_ash <- function (
   out$progress <- out$progress[1:out$iter,]
   out <- out[c("b","resid.sd","posterior.weights","progress")]
   out$elbo <- tail(out$progress$elbo,n = 1)
-  out$intercept <- c(ZtZiZy - ZtZiZX %*% out$b)
+  if(fit0$intercept) {
+
+    out$b_0 <- c(ZtZiZy - ZtZiZX %*% out$b)
+
+  } else {
+
+    out$b_0 <- 0
+
+  }
+
   out$update.order <- o
 
   # rescale beta as needed
-  if (standardize)
+  if (fit0$standardize)
     out$b <- out$b / attr(X,"scaled:scale")
 
   ## warn if necessary
@@ -294,7 +282,8 @@ fit_mr_ash <- function (
   out$s2 <- res$s2
   out$phi <- res$phi
   out$lfsr <- res$lfsr
-  out$fitted <- as.vector(og_data_X %*% out$b + out$intercept)
+  out$fitted <- as.vector(og_data_X %*% out$b + out$b_0)
+
   out$b <- drop(out$b)
   out$posterior.weights <- drop(out$posterior.weights)
 
