@@ -73,7 +73,8 @@ test_that("Check length of beta w/ and w/o intercept flat", {
 
 })
 
-test_that("Check that standardized initialization gives expected result", {
+test_that("Check that standardized initialization of beta
+          gives expected result", {
 
   set.seed(1)
   data <- simulate_regression_data(n = 1000, p = 100, s = 50)
@@ -87,5 +88,23 @@ test_that("Check that standardized initialization gives expected result", {
   # test to make sure that scaling first doesn't changes the output
   # by a factor of the column SDs
   expect_equal(matrixStats::colSds(data$X) * init2$b, init$b)
+
+})
+
+test_that("Check that standardized initialization of prior sd
+          gives expected result", {
+
+  set.seed(1)
+  data <- simulate_regression_data(n = 1000, p = 100, s = 50)
+
+  init <- init_mr_ash(data$X, data$y, standardize = T)
+
+  X <- scale(data$X)
+
+  init2 <- init_mr_ash(X, data$y, standardize = F, intercept = F)
+
+  # test to make sure that scaling first and then initializing
+  # is equivalent to initialization with standardize = TRUE
+  expect_equal(init2$prior, init$prior)
 
 })
