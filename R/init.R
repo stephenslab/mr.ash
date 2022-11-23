@@ -90,7 +90,7 @@ init_mr_ash <- function (
   if (n < 2 | p < 2)
     stop("Input matrix X should have at least 2 rows and 2 columns")
   if (any(colSds(X) <= 0))
-    stop("All columns of X should have nonzero variance")
+    stop("Input matrix X cannot have any zero-variance columns")
 
   # Check and process input argument y.
   if (!is.numeric.vector(y))
