@@ -111,7 +111,7 @@ init_mr_ash <- function (
   mx <- attr(X,"scaled:center")
   my <- attr(y,"scaled:center")
   sx <- attr(X,"scaled:scale")
-  
+
   # Check and process optional input b. If not provided, initialize
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
@@ -211,7 +211,7 @@ init_mr_ash <- function (
 #' @importFrom glmnet coef.glmnet
 init_coef_glmnet <- function (X, y, s, ...) {
   fit <- cv.glmnet(X, y, intercept = FALSE, standardize = FALSE, ...)
-  return(drop(coef.glmnet(fit, s = s))[-1])
+  return(as.numeric(coef.glmnet(fit, s = s))[-1])
 }
 
 # Get a reasonable setting for the standard deviations of the mixture
