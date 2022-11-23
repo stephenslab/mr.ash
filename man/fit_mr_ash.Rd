@@ -51,7 +51,7 @@ plus (\dQuote{+}) is printed for each outer-loop iteration; and
 when \code{verbose = "none"}, no progress information is printed.}
 
 \item{intercept}{Should intercept be estimated (\code{intercept =
-TRUE}) or set to zero (\code{intercept = FALSE}). Please note that
+TRUE}) or set to zero (\code{intercept = FALSE})? Please note that
 \code{intercept = FALSE} is generally not recommended and could
 produce unexpected results.}
 
@@ -234,7 +234,7 @@ X <- dat$X
 y <- dat$y
 
 # Initialize the coefficients using glmnet.
-fit0_glmnet <- init_mr_ash(X, y)
+fit0_glmnet <- init_mr_ash(X, y, init.method = "glmnet")
 
 # Initialize the coefficients to be all zero.
 fit0_null <- init_mr_ash(X, y, init.method = "null")

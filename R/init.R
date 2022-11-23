@@ -8,7 +8,7 @@
 #' @param y The observed outcomes, a numeric vector of length n.
 #'
 #' @param intercept Should intercept be estimated (\code{intercept =
-#'   TRUE}) or set to zero (\code{intercept = FALSE}). Please note that
+#'   TRUE}) or set to zero (\code{intercept = FALSE})? Please note that
 #'   \code{intercept = FALSE} is generally not recommended and could
 #'   produce unexpected results.
 #'
@@ -53,7 +53,7 @@
 #' y <- dat$y
 #'
 #' # Initialize the coefficients using glmnet.
-#' fit0_glmnet <- init_mr_ash(X, y)
+#' fit0_glmnet <- init_mr_ash(X, y, init.method = "glmnet")
 #'
 #' # Initialize the coefficients to be all zero.
 #' fit0_null <- init_mr_ash(X, y, init.method = "null")
@@ -85,10 +85,9 @@ init_mr_ash <- function (
     storage.mode(X) <- "double"
   n <- nrow(X)
   p <- ncol(X)
-  column_sds <- colSds(X)
   if (n < 2 | p < 2)
     stop("Input matrix X should have at least 2 rows and 2 columns")
-  if (any(column_sds <= 0))
+  if (any(colSds(X) <= 0))
     stop("All columns of X should have nonzero variance")
 
   # Check and process input argument y.
@@ -99,8 +98,6 @@ init_mr_ash <- function (
   if (length(y) != n)
     stop("The length of y should be the same as nrow(X)")
 
-  X <- scale(X, center = intercept, scale = standardize)
-
   # Process input argument init.method.
   init.method <- match.arg(init.method)
 
@@ -109,7 +106,12 @@ init_mr_ash <- function (
     stop("Input argument \"intercept\" should be TRUE or FALSE")
   if (!is.trueorfalse(standardize))
     stop("Input argument \"intercept\" should be TRUE or FALSE")
-
+  X  <- scale(X, center = intercept, scale = standardize)
+  y  <- drop(scale(y, center = intercept, scale = FALSE))
+  mx <- attr(X,"scaled:center")
+  my <- attr(y,"scaled:center")
+  sx <- attr(X,"scaled:scale")
+  
   # Check and process optional input b. If not provided, initialize
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
@@ -123,9 +125,7 @@ init_mr_ash <- function (
     if (init.method == "null")
       b <- rep(0, p)
     else if (init.method == "glmnet")
-      b <- init_coef_glmnet(
-        X, y, s, ...
-      )
+      b <- init_coef_glmnet(X, y, s, ...)
   }
 
   # Check and process optioinal input resid.sd.
@@ -157,7 +157,7 @@ init_mr_ash <- function (
 
     # Set the standard deviations of the mixture components in an
     # automated way based on the data.
-    prior.sd <- init_prior_sd(X, y, standardize)
+    prior.sd <- init_prior_sd(X, y)
   }
   prior.sd <- as.vector(prior.sd, mode = "double")
 
@@ -180,32 +180,26 @@ init_mr_ash <- function (
   prior.weights <- as.vector(prior.weights, mode = "double")
   k <- length(prior.weights)
 
-  # Compute initial estimate of intercept.
-  b_0 <- 0
-  if (intercept) {
-
-    b_0 <- mean(y - X %*% b)
-
-  }
-
-  if (standardize) {
-
-    b <- b * column_sds
-
-  }
+  # Return the coefficients on the original scale, and compute the
+  # initial estimate of the intercept (also on the original scale).
+  if (standardize)
+    b <- b/sx
+  if (intercept)
+    b0 <- my - sum(mx * b)
+  else
+    b0 <- 0
 
   # Prepare the final output.
-  names(b) <- colnames(X)
-  names(b_0) <- c("(Intercept)")
-  names(prior.sd) <- paste0("k",1:k)
+  names(b)             <- colnames(X)
+  names(prior.sd)      <- paste0("k",1:k)
   names(prior.weights) <- paste0("k",1:k)
-  fit <- list(b             = b,
-              b_0           = b_0,
-              resid.sd      = resid.sd,
-              prior         = list(sd = prior.sd, weights = prior.weights),
-              intercept     = intercept,
-              standardize   = standardize,
-              progress      = NULL)
+  fit <- list(intercept   = intercept,
+              standardize = standardize,
+              b0          = b0,
+              b           = b,
+              resid.sd    = resid.sd,
+              prior       = list(sd = prior.sd, weights = prior.weights),
+              progress    = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
 }
@@ -216,7 +210,7 @@ init_mr_ash <- function (
 #' @importFrom glmnet cv.glmnet
 #' @importFrom glmnet coef.glmnet
 init_coef_glmnet <- function (X, y, s, ...) {
-  fit <- cv.glmnet(X, y, ...)
+  fit <- cv.glmnet(X, y, intercept = FALSE, standardize = FALSE, ...)
   return(drop(coef.glmnet(fit, s = s))[-1])
 }
 
@@ -225,7 +219,7 @@ init_coef_glmnet <- function (X, y, s, ...) {
 # Input se is an estimate of the residual *variance*, and n is the
 # number of standard deviations to return. This code is adapted from
 # the autoselect.mixsd function in the ashr package.
-init_prior_sd <- function (X, y, standardize, n = 20) {
+init_prior_sd <- function (X, y, n = 20) {
   res <- simple_lr(X, y)
   smax <- 2*max(res$bhat)
   return(seq(0, smax, length.out = n))
