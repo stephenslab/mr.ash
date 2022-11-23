@@ -34,9 +34,11 @@
 #'
 #' @param init.method Method used to initialize the estimates of the
 #'   regression coefficients.  When \code{init.method = "glmnet"}, the
-#'   estimates are initialized using
-#'   \code{\link[glmnet]{cv.glmnet}}. When \code{init.ethod = "null"},
-#'   the estimates are initialized to zero.
+#'   estimates are initialized using \code{\link[glmnet]{cv.glmnet}}.
+#'   (Note that cv.glmnet may give slightly different results depending
+#'   on the state of the random number generator, so use \code{set.seed}
+#'   to guarantee a predictable initialization.) When \code{init.ethod =
+#'   "null"}, the estimates are initialized to zero.
 #'
 #' @param s The value of the glmnet penalty parameter at which the
 #'   coeffients are extracted (relevant for \code{init.method =
