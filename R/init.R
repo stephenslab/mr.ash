@@ -8,7 +8,7 @@
 #' @param y The observed outcomes, a numeric vector of length n.
 #'
 #' @param intercept Should intercept be estimated (\code{intercept =
-#'   TRUE}) or set to zero (\code{intercept = FALSE}). Please note that
+#'   TRUE}) or set to zero (\code{intercept = FALSE})? Please note that
 #'   \code{intercept = FALSE} is generally not recommended and could
 #'   produce unexpected results.
 #'
@@ -17,7 +17,7 @@
 #'   are divided by the the standard deviations so that each column has
 #'   a standard deviation of one.) Note that the coefficients are always
 #'   returned on the original scale.
-#' 
+#'
 #' @param b Optional input argument specifying the initial estimate of
 #'   the regression coefficients. It should be numeric vector of length
 #'   p.
@@ -29,23 +29,25 @@
 #' @param prior.weights Optional initial estimate of the prior mixture
 #'   proportions. This vector will automatically be normalized so that
 #'   the entries represent proportions (that is, they add up to 1).
-#' 
+#'
 #' @param resid.sd Initial estimate of the residual standard deviation.
 #'
 #' @param init.method Method used to initialize the estimates of the
 #'   regression coefficients.  When \code{init.method = "glmnet"}, the
-#'   estimates are initialized using
-#'   \code{\link[glmnet]{cv.glmnet}}. When \code{init.ethod = "null"},
-#'   the estimates are initialized to zero.
+#'   estimates are initialized using \code{\link[glmnet]{cv.glmnet}}.
+#'   (Note that cv.glmnet may give slightly different results depending
+#'   on the state of the random number generator, so use \code{set.seed}
+#'   to guarantee a predictable initialization.) When \code{init.ethod =
+#'   "null"}, the estimates are initialized to zero.
 #'
 #' @param s The value of the glmnet penalty parameter at which the
 #'   coeffients are extracted (relevant for \code{init.method =
 #'   "glmnet"} only).
-#' 
+#'
 #' @param \dots Additional arguments passed to
 #'   \code{\link[glmnet]{cv.glmnet}} (relevant for \code{init.method =
 #'   "glmnet"} only).
-#' 
+#'
 #' @examples
 #' set.seed(1)
 #' dat <- simulate_regression_data(n = 400, p = 100, s = 20)
@@ -53,25 +55,25 @@
 #' y <- dat$y
 #'
 #' # Initialize the coefficients using glmnet.
-#' fit0_glmnet <- init_mr_ash(X, y)
+#' fit0_glmnet <- init_mr_ash(X, y, init.method = "glmnet")
 #'
 #' # Initialize the coefficients to be all zero.
 #' fit0_null <- init_mr_ash(X, y, init.method = "null")
 #'
 #' # Randomly initialize the coefficients.
 #' fit0_rand <- init_mr_ash(X, y, b = rnorm(100))
-#' 
+#'
 #' # Specify a custom mixture prior.
 #' fit0_custom <- init_mr_ash(X, y, prior.sd = (2^((0:19)/20) - 1),
 #'                            prior.weights = rep(1,20))
 #'
 #' @importFrom stats sd
 #' @importFrom matrixStats colSds
-#' 
+#'
 #' @export
 #'
 init_mr_ash <- function (
-  X, y, 
+  X, y,
   intercept = TRUE, standardize = FALSE,
   b, prior.sd, prior.weights, resid.sd,
   init.method = c("glmnet", "null"),
@@ -88,8 +90,8 @@ init_mr_ash <- function (
   if (n < 2 | p < 2)
     stop("Input matrix X should have at least 2 rows and 2 columns")
   if (any(colSds(X) <= 0))
-    stop("All columns of X should have nonzero variance")
-  
+    stop("Input matrix X cannot have any zero-variance columns")
+
   # Check and process input argument y.
   if (!is.numeric.vector(y))
     stop("Input argument y should be a vector and all entries should be ",
@@ -106,7 +108,12 @@ init_mr_ash <- function (
     stop("Input argument \"intercept\" should be TRUE or FALSE")
   if (!is.trueorfalse(standardize))
     stop("Input argument \"intercept\" should be TRUE or FALSE")
-  
+  X  <- scale(X, center = intercept, scale = standardize)
+  y  <- drop(scale(y, center = intercept, scale = FALSE))
+  mx <- attr(X,"scaled:center")
+  my <- attr(y,"scaled:center")
+  sx <- attr(X,"scaled:scale")
+
   # Check and process optional input b. If not provided, initialize
   # the coefficients using the chosen init.method.
   if (!missing(b)) {
@@ -128,14 +135,14 @@ init_mr_ash <- function (
     if (!is.scalar(resid.sd) && resid.sd < 0)
       stop("Input argument resid.sd should be a number greater than zero")
   } else {
-      
+
     # Initialize the residual s.d. to the MLE (assuming the
     # coefficients, b, are known).
     resid.sd <- sqrt((n-1)/n) * sd(y - X %*% b)
   }
   resid.sd <- as.vector(resid.sd, mode = "double")
-  
-  # Check and process optional input prior.sd. 
+
+  # Check and process optional input prior.sd.
   if (!missing(prior.weights) & missing(prior.sd))
     stop("If prior.weights is provided then prior.sd should also be provided")
   if (!missing(prior.sd)) {
@@ -155,7 +162,7 @@ init_mr_ash <- function (
     prior.sd <- init_prior_sd(X, y)
   }
   prior.sd <- as.vector(prior.sd, mode = "double")
-    
+
   # Check and process optional input prior.weights.
   if (!missing(prior.weights)) {
     if (!is.numeric.vector(prior.weights))
@@ -175,18 +182,25 @@ init_mr_ash <- function (
   prior.weights <- as.vector(prior.weights, mode = "double")
   k <- length(prior.weights)
 
-  # Compute initial estimate of intercept.
-  # TO DO.
-  
+  # Return the coefficients on the original scale, and compute the
+  # initial estimate of the intercept (also on the original scale).
+  if (standardize)
+    b <- b/sx
+  if (intercept)
+    b0 <- my - sum(mx * b)
+  else
+    b0 <- 0
+
   # Prepare the final output.
-  names(b) <- colnames(X)
-  names(prior.sd) <- paste0("k",1:k)
+  names(b)             <- colnames(X)
+  names(prior.sd)      <- paste0("k",1:k)
   names(prior.weights) <- paste0("k",1:k)
-  fit <- list(b           = b,
+  fit <- list(intercept   = intercept,
+              standardize = standardize,
+              b0          = b0,
+              b           = b,
               resid.sd    = resid.sd,
               prior       = list(sd = prior.sd, weights = prior.weights),
-              intercept   = intercept,
-              standardize = standardize,
               progress    = NULL)
   class(fit) <- c("mr.ash","list")
   return(fit)
@@ -198,8 +212,8 @@ init_mr_ash <- function (
 #' @importFrom glmnet cv.glmnet
 #' @importFrom glmnet coef.glmnet
 init_coef_glmnet <- function (X, y, s, ...) {
-  fit <- cv.glmnet(X, y, ...)
-  return(drop(coef.glmnet(fit, s = s))[-1])
+  fit <- cv.glmnet(X, y, intercept = FALSE, standardize = FALSE, ...)
+  return(as.numeric(coef.glmnet(fit, s = s))[-1])
 }
 
 # Get a reasonable setting for the standard deviations of the mixture
@@ -225,10 +239,10 @@ init_prior_weights <- function (X, b, se = 1, s0) {
   # components (k).
   n <- ncol(X)
   k <- length(s0)
-  
+
   # Compute the variances of the least-squares estimates.
   shat <- simple_lr(X, se = se)$shat
-  
+
   # Compute the Bayes factors separately for each mixture component.
   # The log-Bayes factors are stored in an n x k matrix. If s0 = 1,
   # then the Bayes factor is equal to 1 by definition (i.e., the

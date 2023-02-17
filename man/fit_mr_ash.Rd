@@ -10,8 +10,6 @@ fit_mr_ash(
   X,
   y,
   fit0 = init_mr_ash(X, y),
-  standardize = FALSE,
-  intercept = TRUE,
   control = list(),
   verbose = c("progress", "detailed", "none")
 )
@@ -43,17 +41,6 @@ predictors.}
 \item{fit0}{Initialized \code{mr.ash} object resulting from a call to
 \code{init_mr_ash}.}
 
-\item{standardize}{When \code{standardize = TRUE},
-\dQuote{standardize} the variables. (Internally, the columns of X
-are divided by the the standard deviations so that each column has
-a standard deviation of one.) Note that the coefficients are always
-returned on the original scale.}
-
-\item{intercept}{Should intercept be estimated (\code{intercept =
-TRUE}) or set to zero (\code{intercept = FALSE}). Please note that
-\code{intercept = FALSE} is generally not recommended and could
-produce unexpected results.}
-
 \item{control}{A list of parameters controlling the behaviour of
 the optimization algorithm. See \sQuote{Details}.}
 
@@ -62,6 +49,17 @@ information about the algorithm's progress is printed to the
 console at each iteration; when \code{verbose = "progressbar"}, a
 plus (\dQuote{+}) is printed for each outer-loop iteration; and
 when \code{verbose = "none"}, no progress information is printed.}
+
+\item{intercept}{Should intercept be estimated (\code{intercept =
+TRUE}) or set to zero (\code{intercept = FALSE})? Please note that
+\code{intercept = FALSE} is generally not recommended and could
+produce unexpected results.}
+
+\item{standardize}{When \code{standardize = TRUE},
+\dQuote{standardize} the variables. (Internally, the columns of X
+are divided by the the standard deviations so that each column has
+a standard deviation of one.) Note that the coefficients are always
+returned on the original scale.}
 
 \item{b}{Optional input argument specifying the initial estimate of
 the regression coefficients. It should be numeric vector of length
@@ -79,9 +77,11 @@ the entries represent proportions (that is, they add up to 1).}
 
 \item{init.method}{Method used to initialize the estimates of the
 regression coefficients.  When \code{init.method = "glmnet"}, the
-estimates are initialized using
-\code{\link[glmnet]{cv.glmnet}}. When \code{init.ethod = "null"},
-the estimates are initialized to zero.}
+estimates are initialized using \code{\link[glmnet]{cv.glmnet}}.
+(Note that cv.glmnet may give slightly different results depending
+on the state of the random number generator, so use \code{set.seed}
+to guarantee a predictable initialization.) When \code{init.ethod =
+"null"}, the estimates are initialized to zero.}
 
 \item{s}{The value of the glmnet penalty parameter at which the
 coeffients are extracted (relevant for \code{init.method =
@@ -94,7 +94,7 @@ coeffients are extracted (relevant for \code{init.method =
 \value{
 A list object with the following elements:
 
-\item{intercept}{The estimated intercept.}
+\item{b_0}{The estimated intercept.}
 
 \item{b}{Posterior mean estimates of the regression coefficients.}
 
@@ -228,7 +228,7 @@ rmse        = norm(ynew - ypred, '2') / sqrt(n)
 
 ### coefficients
 bhat     = predict(fit.mr.ash, type = "coefficients")
-# this equals c(fit.mr.ash$intercept, fit.mr.ash$b)
+# this equals c(fit.mr.ash$b_0, fit.mr.ash$b)
 
 set.seed(1)
 dat <- simulate_regression_data(n = 400, p = 100, s = 20)
@@ -236,7 +236,7 @@ X <- dat$X
 y <- dat$y
 
 # Initialize the coefficients using glmnet.
-fit0_glmnet <- init_mr_ash(X, y)
+fit0_glmnet <- init_mr_ash(X, y, init.method = "glmnet")
 
 # Initialize the coefficients to be all zero.
 fit0_null <- init_mr_ash(X, y, init.method = "null")
