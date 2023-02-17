@@ -79,11 +79,11 @@ test_that("Check that standardized initialization of beta
   set.seed(1)
   data <- simulate_regression_data(n = 1000, p = 100, s = 50)
 
-  init <- init_mr_ash(data$X, data$y, standardize = T)
+  init <- init_mr_ash(data$X, data$y, standardize = T, init.method = "null")
 
   X <- scale(data$X)
 
-  init2 <- init_mr_ash(X, data$y, standardize = F, intercept = F)
+  init2 <- init_mr_ash(X, data$y, standardize = F, intercept = F, init.method = "null")
 
   # test to make sure that scaling first doesn't changes the output
   # by a factor of the column SDs
