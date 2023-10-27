@@ -359,7 +359,7 @@ get_full_posterior <- function (X, y, w, beta, pi, sigma2, sa2) {
   s2 = sigma2 / outer(w, 1/sa2, '+')
 
   # compute m, phi
-  m   = bw * s2
+  m   = bw * s2/ sigma2
   phi = -log(1 + outer(w,sa2))/2 + m * (bw/2/sigma2)
   phi = c(pi) * t(exp(phi - apply(phi,1,max)))
   phi = t(phi) / colSums(phi)
